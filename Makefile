@@ -1,10 +1,8 @@
-VPATH = $(shell pwd)
-
 RUSTC ?= rustc
 RUSTFLAGS ?=
 
-SOURCE_DIR = $(VPATH)/src
-TARGET_DIR = $(VPATH)/build
+SOURCE_DIR = src
+TARGET_DIR = build
 
 TARGET = $(TARGET_DIR)/benton
 SOURCES = $(shell find $(SOURCE_DIR) -type f -name '*.rs')

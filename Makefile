@@ -1,16 +1,46 @@
-RUSTC ?= rustc
-RUSTFLAGS ?=
+BASE_DIR   ?= $(shell pwd)
+BUILD_DIR  ?= $(BASE_DIR)/build
 
-SOURCE_DIR = src
-TARGET_DIR = build
+RUSTC      ?= rustc
+RUSTCFLAGS := --opt-level=3
 
-TARGET = $(TARGET_DIR)/benton
-SOURCES = $(shell find $(SOURCE_DIR) -type f -name '*.rs')
+PROGRAM    := benton
 
-all: $(TARGET)
+SOURCE_DIR := $(BASE_DIR)/src
+SOURCES    := $(shell find $(SOURCE_DIR) -name '*.rs')
 
-$(TARGET): $(SOURCES)
-	$(RUSTC) $(RUSTFLAGS) $< -o $(TARGET)
+TEST_DIR   := $(BASE_DIR)/test
+TESTS      := $(shell find $(TEST_DIR) -name '*.rs')
+TESTS      := $(patsubst $(TEST_DIR)/%.rs,%,$(TESTS))
+
+all: $(PROGRAM)
+
+$(PROGRAM): $(BUILD_DIR)/$(PROGRAM)
+
+$(BUILD_DIR)/$(PROGRAM): $(SOURCES) | $(BUILD_DIR)
+	$(RUSTC) $(RUSTCFLAGS) -o $@ $^
+
+$(BUILD_DIR):
+	mkdir $@
+
+define TEST
+test_$(1): $(BUILD_DIR)/test_$(1)
+
+$(BUILD_DIR)/test_$(1): $(TEST_DIR)/$(1).rs | $(BUILD_DIR)
+	$(RUSTC) $(RUSTCFLAGS) --test -o $$@ $$^
+
+check_$(1): test_$(1)
+	$(BUILD_DIR)/test_$(1)
+endef
+
+$(foreach test,$(TESTS),$(eval $(call TEST,$(test))))
+
+test: $(addprefix test_,$(TESTS))
+
+check: $(addprefix check_,$(TESTS))
 
 clean:
-	$(RM) $(TARGET) $(TARGET_DIR)/*.o
+	rm -rf "$(BUILD_DIR)"
+
+.PHONY: all $(PROGRAM) $(addprefix test_,$(TESTS))\
+	$(addprefix check_,$(TESTS)) check test clean

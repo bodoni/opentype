@@ -7,18 +7,19 @@ RUSTCFLAGS := --opt-level=3
 PROGRAM    := benton
 
 SOURCE_DIR := $(BASE_DIR)/src
-SOURCES    := $(shell find $(SOURCE_DIR) -name '*.rs')
+MAIN_SRC   := $(SOURCE_DIR)/main.rs
+MODULE_SRC := $(shell find $(SOURCE_DIR) \( -name *.rs ! -name main.rs \))
 
 TEST_DIR   := $(BASE_DIR)/test
-TESTS      := $(shell find $(TEST_DIR) -name '*.rs')
+TESTS      := $(shell find $(TEST_DIR) -name *.rs)
 TESTS      := $(patsubst $(TEST_DIR)/%.rs,%,$(TESTS))
 
 all: $(PROGRAM)
 
 $(PROGRAM): $(BUILD_DIR)/$(PROGRAM)
 
-$(BUILD_DIR)/$(PROGRAM): $(SOURCES) | $(BUILD_DIR)
-	$(RUSTC) $(RUSTCFLAGS) -o $@ $^
+$(BUILD_DIR)/$(PROGRAM): $(MAIN_SRC) $(MODULE_SRC) | $(BUILD_DIR)
+	$(RUSTC) $(RUSTCFLAGS) -o $@ $<
 
 $(BUILD_DIR):
 	mkdir $@

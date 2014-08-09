@@ -3,11 +3,31 @@
 use std::fmt;
 use std::str;
 
-macro_rules! error {
-    ($message:expr) => { return Err(::result::Error::new($message)) }
-}
+macro_rules! error(
+    ($message:expr) => (
+        return Err(::result::Error::new($message))
+    )
+)
 
-pub type Result = ::std::result::Result<(), Error>;
+macro_rules! ensure(
+    ($suspect:expr, $message:expr) => (
+        match $suspect {
+            Ok(result) => result,
+            Err(_) => error!($message)
+        }
+    )
+)
+
+macro_rules! fetch(
+    ($subject:expr, $default:expr) => (
+        match $subject {
+            Some(result) => result,
+            None => $default
+        }
+    )
+)
+
+pub type Result<T> = ::std::result::Result<T, Error>;
 
 pub struct Error {
     message: str::SendStr,

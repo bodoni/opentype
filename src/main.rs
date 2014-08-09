@@ -20,7 +20,7 @@ fn main() {
 
     println!("Filename: {}", filename);
 
-    match read(filename) {
+    match parse(filename) {
         Ok(_) => println!("Done."),
         Err(error) => {
             println!("{}", error);
@@ -29,25 +29,29 @@ fn main() {
     }
 }
 
-fn read(filename: &str) -> Result {
-    let mut reader = match io::File::open(&Path::new(filename)) {
-        Ok(file) => box file as Box<Reader>,
-        Err(_) => error!("Cannot open the file.")
-    };
+fn parse(filename: &str) -> Result<()> {
+    let mut reader = ensure!(open(filename), "Cannot open the file.");
 
-    let mut buffer = [0, ..4];
+    let mut buffer = [0, ..1024];
 
-    let tag = match reader.read(buffer) {
-        Ok(n) => {
-            match str::from_utf8(buffer.slice_to(n)) {
-                Some(string) => string,
-                None => error!("Cannot read the file.")
-            }
-        },
-        Err(_) => error!("Cannot read the file.")
-    };
+    let count = ensure!(reader.read(buffer), "Cannot read the file.");
 
-    println!("Tag: {}", tag);
+    if count < 4 {
+        error!("The file format is unknown.")
+    }
+
+    let tag = fetch!(str::from_utf8(buffer.slice_to(4)), "");
+
+    if tag != "OTTO" {
+        error!("The file format is unknown.");
+    }
 
     Ok(())
+}
+
+fn open(filename: &str) -> std::result::Result<Box<io::Reader>, io::IoError> {
+    match io::fs::File::open(&Path::new(filename)) {
+        Ok(file) => Ok(box file as Box<io::Reader>),
+        Err(error) => Err(error)
+    }
 }

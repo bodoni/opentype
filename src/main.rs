@@ -1,7 +1,29 @@
 #![crate_name = "benton"]
 
+use std::fmt;
+use std::io;
 use std::os;
-use std::io::File;
+use std::str;
+
+type Result = std::result::Result<(), Error>;
+
+struct Error {
+    message: str::SendStr,
+}
+
+impl Error {
+    pub fn new<T: str::IntoMaybeOwned<'static>>(message: T) -> Error {
+        Error {
+            message: message.into_maybe_owned()
+        }
+    }
+}
+
+impl fmt::Show for Error {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        write!(formatter, "{}", self.message)
+    }
+}
 
 fn main() {
     let arguments = os::args();
@@ -15,12 +37,19 @@ fn main() {
 
     println!("Filename: {}", filename);
 
-    let mut reader = match File::open(&Path::new(filename)) {
-        Ok(file) => box file as Box<Reader>,
-        Err(_) => {
-            println!("Cannot open the file.");
-            return;
+    match read(filename) {
+        Ok(_) => println!("Done."),
+        Err(error) => {
+            println!("{}", error);
+            std::os::set_exit_status(1);
         }
+    }
+}
+
+fn read(filename: &str) -> Result {
+    let mut reader = match io::File::open(&Path::new(filename)) {
+        Ok(file) => box file as Box<Reader>,
+        Err(_) => return Err(Error::new("Cannot open the file."))
     };
 
     let mut buffer = [0, ..4];
@@ -29,17 +58,13 @@ fn main() {
         Ok(n) => {
             match std::str::from_utf8(buffer.slice_to(n)) {
                 Some(string) => string,
-                None => {
-                    println!("Cannot read the file.")
-                    return;
-                }
+                None => return Err(Error::new("Cannot read the file."))
             }
         },
-        Err(_) => {
-            println!("Cannot read the file.");
-            return;
-        }
+        Err(_) => return Err(Error::new("Cannot read the file."))
     };
 
     println!("Tag: {}", tag);
+
+    Ok(())
 }

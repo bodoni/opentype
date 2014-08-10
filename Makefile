@@ -1,47 +1,26 @@
-BASE_DIR   ?= $(shell pwd)
-BUILD_DIR  ?= $(BASE_DIR)/build
+export make = $(MAKE)
+export mkdir ?= mkdir -p
+export rm ?= rm -f
 
-RUSTC      ?= rustc
-RUSTCFLAGS := --opt-level=3
+export rustc ?= rustc
+export rustflags ?= --opt-level=3
 
-PROGRAM    := benton
+export base_dir := $(shell pwd)
+export build_dir := $(base_dir)/build
+export source_dir := $(base_dir)/src
+export test_dir := $(base_dir)/test
 
-SOURCE_DIR := $(BASE_DIR)/src
-MAIN_SRC   := $(SOURCE_DIR)/main.rs
-MODULE_SRC := $(shell find $(SOURCE_DIR) \( -name *.rs ! -name main.rs \))
+all: $(build_dir)
+	@$(make) -C $(source_dir) $@
 
-TEST_DIR   := $(BASE_DIR)/test
-TESTS      := $(shell find $(TEST_DIR) -name *.rs)
-TESTS      := $(patsubst $(TEST_DIR)/%.rs,%,$(TESTS))
+check: $(build_dir)
+	@$(make) -C $(test_dir) $@
 
-all: $(PROGRAM)
-
-$(PROGRAM): $(BUILD_DIR)/$(PROGRAM)
-
-$(BUILD_DIR)/$(PROGRAM): $(MAIN_SRC) $(MODULE_SRC) | $(BUILD_DIR)
-	$(RUSTC) $(RUSTCFLAGS) -o $@ $<
-
-$(BUILD_DIR):
-	mkdir $@
-
-define TEST
-test_$(1): $(BUILD_DIR)/test_$(1)
-
-$(BUILD_DIR)/test_$(1): $(TEST_DIR)/$(1).rs | $(BUILD_DIR)
-	$(RUSTC) $(RUSTCFLAGS) --test -o $$@ $$^
-
-check_$(1): test_$(1)
-	$(BUILD_DIR)/test_$(1)
-endef
-
-$(foreach test,$(TESTS),$(eval $(call TEST,$(test))))
-
-test: $(addprefix test_,$(TESTS))
-
-check: $(addprefix check_,$(TESTS))
+$(build_dir):
+	$(mkdir) $@
 
 clean:
-	rm -rf "$(BUILD_DIR)"
+	@$(make) -C $(source_dir) clean
+	@$(make) -C $(test_dir) clean
 
-.PHONY: all $(PROGRAM) $(addprefix test_,$(TESTS))\
-	$(addprefix check_,$(TESTS)) check test clean
+.PHONY: all check clean

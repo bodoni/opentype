@@ -10,9 +10,9 @@ all: $(app)
 $(app): $(executable)
 
 $(executable): $(main_src) $(module_src)
-	$(rustc) $(rustflags) -o $@ $<
+	$(RUSTC) $(RUSTFLAGS) -o $@ $<
 
 clean:
-	$(rm) $(executable)
+	$(RM) $(executable)
 
 .PHONY: all $(app) clean

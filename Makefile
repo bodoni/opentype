@@ -1,9 +1,8 @@
-export make = $(MAKE)
-export mkdir ?= mkdir -p
-export rm ?= rm -f
+export MKDIR ?= mkdir -p
+export RM ?= rm -f
 
-export rustc ?= rustc
-export rustflags ?= --opt-level=3
+export RUSTC ?= rustc
+export RUSTFLAGS ?= --opt-level=3
 
 export base_dir := $(shell pwd)
 export build_dir := $(base_dir)/build
@@ -11,16 +10,16 @@ export source_dir := $(base_dir)/src
 export test_dir := $(base_dir)/test
 
 all: $(build_dir)
-	@$(make) -C $(source_dir) $@
+	@$(MAKE) -C $(source_dir) $@
 
 check: $(build_dir)
-	@$(make) -C $(test_dir) $@
+	@$(MAKE) -C $(test_dir) $@
 
 $(build_dir):
-	$(mkdir) $@
+	$(MKDIR) $@
 
 clean:
-	@$(make) -C $(source_dir) clean
-	@$(make) -C $(test_dir) clean
+	@$(MAKE) -C $(source_dir) clean
+	@$(MAKE) -C $(test_dir) clean
 
 .PHONY: all check clean

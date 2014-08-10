@@ -16,8 +16,8 @@ define define_test
 $(1): $(build_dir)/$(1)
 
 $(build_dir)/$(1): $(1).rs $(module_src) $(app_src)
-	$(mkdir) $(dir $(build_dir)/$(1))
-	$(rustc) $(rustcflags) --test -o $$@ $$<
+	$(MKDIR) $(dir $(build_dir)/$(1))
+	$(RUSTC) $(RUSTCFLAGS) --test -o $$@ $$<
 
 $(patsubst %_test,%_check,$(1)): $(build_dir)/$(1)
 	@$(environment) $$<
@@ -31,6 +31,6 @@ test: $(tests)
 check: $(checks)
 
 clean:
-	$(rm) $(executables)
+	$(RM) $(executables)
 
 .PHONY: test $(tests) check $(checks) clean

@@ -17,20 +17,16 @@ macro_rules! reverse_u32(
 )
 
 macro_rules! implement_endian(
-    ($subject:ty, $this:ident, $body:expr) => (
+    ($subject:ty, $this:ident, $body:block) => (
         impl Endian for $subject {
             #[cfg(target_endian="little")]
-            fn with_big_endian(&mut self) -> &mut $subject {
-                fn convert($this: &mut $subject) { $body }
-                convert(self);
-                self
+            fn with_big_endian(self) -> $subject {
+                let mut $this = self; $body; $this
             }
 
             #[cfg(target_endian="big")]
-            fn with_little_endian(&mut self) -> &mut $subject {
-                fn convert($this: &mut $subject) { $body }
-                convert(self);
-                self
+            fn with_little_endian(self) -> $subject {
+                let mut $this = self; $body; $this
             }
         }
     )
@@ -38,16 +34,18 @@ macro_rules! implement_endian(
 
 pub trait Endian {
     #[cfg(target_endian="little")]
-    fn with_big_endian(&mut self) -> &mut Self;
+    fn with_big_endian(self) -> Self;
 
     #[cfg(target_endian="big")]
-    fn with_little_endian(&mut self) -> &mut Self;
+    fn with_little_endian(self) -> Self;
 
+    #[inline="always"]
     #[cfg(target_endian="little")]
-    fn with_little_endian(&mut self) -> &mut Self { self }
+    fn with_little_endian(self) -> Self { self }
 
+    #[inline="always"]
     #[cfg(target_endian="big")]
-    fn with_big_endian(&mut self) -> &mut Self { self }
+    fn with_big_endian(self) -> Self { self }
 }
 
 pub static CFF_TAG: u32 = 0x4F54544F;

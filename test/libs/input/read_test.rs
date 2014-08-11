@@ -10,7 +10,7 @@ use opentype::format::{OffsetTable, CFF_TAG};
 use support::*;
 
 #[test]
-fn test_offset_table() {
+fn test_read_big_endian() {
     let mut file = open_fixture!("SourceSerifPro-Regular.otf");
     let table = input::read_big_endian::<OffsetTable>(&mut file).unwrap();
 

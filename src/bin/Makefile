@@ -1,4 +1,4 @@
-build_dir := $(build_dir)/bins
+build_dir := $(build_dir)/bin
 binaries := $(notdir $(shell find . -type d -depth 1))
 
 all: $(binaries)

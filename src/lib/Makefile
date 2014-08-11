@@ -1,4 +1,4 @@
-build_dir := $(build_dir)/libs
+build_dir := $(build_dir)/lib
 libraries := $(notdir $(shell find . -type d -depth 1))
 
 all: $(libraries)

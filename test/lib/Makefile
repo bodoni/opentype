@@ -1,8 +1,8 @@
-build_dir := $(build_dir)/libs
+build_dir := $(build_dir)/lib
 RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)
 
 tests := $(patsubst ./%.rs,%,$(shell find . -name '*_test.rs'))
-environment := FIXTURE_PATH=$(test_dir)/fixtures
+environment := FIXTURE_PATH=$(test_dir)/fixture
 dependencies := $(shell find $(source_dir) -name '*.rs')
 
 all: $(tests)

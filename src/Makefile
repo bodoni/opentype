@@ -1,15 +1,15 @@
-export RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)/libs
+export RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)/lib
 
-all: bins
+all: bin
 
-bins: libs
-	@$(MAKE) -C bins all
+bin: lib
+	@$(MAKE) -C bin all
 
-libs:
-	@$(MAKE) -C libs all
+lib:
+	@$(MAKE) -C lib all
 
 clean:
-	@$(MAKE) -C bins clean
-	@$(MAKE) -C libs clean
+	@$(MAKE) -C bin clean
+	@$(MAKE) -C lib clean
 
-.PHONY: all bins libs clean
+.PHONY: all bin lib clean

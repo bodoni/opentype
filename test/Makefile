@@ -1,4 +1,4 @@
-export RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)/libs
+export RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)/lib
 
 build_dir := $(build_dir)/test
 
@@ -6,10 +6,10 @@ export RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)
 
 support_lib := $(build_dir)/libsupport.rlib
 
-all: libs
+all: lib
 
-libs: support
-	@$(MAKE) -C libs all
+lib: support
+	@$(MAKE) -C lib all
 
 support: $(support_lib)
 
@@ -20,11 +20,11 @@ $(build_dir):
 	$(MKDIR) $@
 
 check: support
-	@$(MAKE) -C libs check
+	@$(MAKE) -C lib check
 
 clean:
-	@$(MAKE) -C libs clean
+	@$(MAKE) -C lib clean
 	$(RM) $(support_lib)
 	$(RM) -d $(build_dir)
 
-.PHONY: all libs support check clean
+.PHONY: all lib support check clean

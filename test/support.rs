@@ -1,4 +1,7 @@
-use std::os;
+#![crate_name = "support"]
+#![crate_type = "rlib"]
+
+#![feature(globs, macro_rules)]
 
 static FIXTURE_VARIABLE: &'static str = "FIXTURE_PATH";
 
@@ -10,10 +13,17 @@ pub fn find_fixture(name: &str) -> Option<Path> {
 }
 
 fn read_environment(name: &str) -> Option<String> {
-    for &(ref key, ref value) in os::env().iter() {
+    for &(ref key, ref value) in std::os::env().iter() {
         if key.as_slice() == name {
             return Some(value.clone());
         }
     }
     None
 }
+
+#[macro_export]
+macro_rules! open_fixture(
+    ($name:expr) => (
+        std::io::File::open(&find_fixture($name).unwrap()).unwrap()
+    )
+)

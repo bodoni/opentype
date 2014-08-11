@@ -1,25 +1,28 @@
-export MKDIR ?= mkdir -p
-export RM ?= rm -f
-
 export RUSTC ?= rustc
 export RUSTFLAGS ?= --opt-level=3
+
+export MKDIR ?= mkdir -p
+export RM ?= rm -f
 
 export base_dir := $(shell pwd)
 export build_dir := $(base_dir)/build
 export source_dir := $(base_dir)/src
 export test_dir := $(base_dir)/test
 
-all: $(build_dir)
-	@$(MAKE) -C $(source_dir) $@
+all: src
 
-check: $(build_dir)
-	@$(MAKE) -C $(test_dir) $@
+src:
+	@$(MAKE) -C $(source_dir) all
 
-$(build_dir):
-	$(MKDIR) $@
+test: src
+	@$(MAKE) -C $(test_dir) all
+
+check: src
+	@$(MAKE) -C $(test_dir) check
 
 clean:
 	@$(MAKE) -C $(source_dir) clean
 	@$(MAKE) -C $(test_dir) clean
+	$(RM) -d $(build_dir)
 
-.PHONY: all check clean
+.PHONY: all src test check clean

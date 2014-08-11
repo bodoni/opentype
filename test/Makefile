@@ -1,36 +1,30 @@
+export RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)/libs
+
 build_dir := $(build_dir)/test
 
-all_src := $(shell find . -name '*.rs')
-main_src := $(shell find . -name '*_test.rs')
-module_src := $(filter-out $(main_src),$(all_src))
-app_src := $(shell find $(source_dir) -name '*.rs')
+export RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)
 
-tests := $(patsubst ./%.rs,%,$(main_src))
-checks := $(patsubst %_test,%_check,$(tests))
-executables := $(addprefix $(build_dir)/,$(tests))
+support_lib := $(build_dir)/libsupport.rlib
 
-environment := FIXTURE_PATH=$(test_dir)/fixtures
+all: libs
 
-define define_test
+libs: support
+	@$(MAKE) -C libs all
 
-$(1): $(build_dir)/$(1)
+support: $(support_lib)
 
-$(build_dir)/$(1): $(1).rs $(module_src) $(app_src)
-	$(MKDIR) $(dir $(build_dir)/$(1))
-	$(RUSTC) $(RUSTCFLAGS) --test -o $$@ $$<
+$(support_lib): support.rs | $(build_dir)
+	$(RUSTC) $(RUSTFLAGS) -o $@ $<
 
-$(patsubst %_test,%_check,$(1)): $(build_dir)/$(1)
-	@$(environment) $$<
+$(build_dir):
+	$(MKDIR) $@
 
-endef
-
-$(foreach test,$(tests),$(eval $(call define_test,$(test))))
-
-test: $(tests)
-
-check: $(checks)
+check: support
+	@$(MAKE) -C libs check
 
 clean:
-	$(RM) $(executables)
+	@$(MAKE) -C libs clean
+	$(RM) $(support_lib)
+	$(RM) -d $(build_dir)
 
-.PHONY: test $(tests) check $(checks) clean
+.PHONY: all libs support check clean

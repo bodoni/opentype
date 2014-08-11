@@ -1,18 +1,13 @@
-app := benton
-executable := $(build_dir)/$(app)
+all: bins
 
-all_src := $(shell find . -name '*.rs')
-main_src := main.rs
-module_src := $(filter-out $(main_src),$(all_src))
+bins: libs
+	@$(MAKE) -C bins all
 
-all: $(app)
-
-$(app): $(executable)
-
-$(executable): $(main_src) $(module_src)
-	$(RUSTC) $(RUSTFLAGS) -o $@ $<
+libs:
+	@$(MAKE) -C libs all
 
 clean:
-	$(RM) $(executable)
+	@$(MAKE) -C bins clean
+	@$(MAKE) -C libs clean
 
-.PHONY: all $(app) clean
+.PHONY: all bins libs clean

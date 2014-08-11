@@ -1,36 +1,16 @@
-macro_rules! reverse_u16(
-    ($field:expr) => (
-        $field =
-            (($field >> 8) & 0x00FF) |
-            (($field << 8) & 0xFF00);
-    )
-)
+#[inline="always"]
+fn reverse_u16(value: u16) -> u16 {
+    ((value >> 8) & 0x00FF) |
+    ((value << 8) & 0xFF00)
+}
 
-macro_rules! reverse_u32(
-    ($field:expr) => (
-        $field =
-            (($field >> 24) & 0x000000FF) |
-            (($field >>  8) & 0x0000FF00) |
-            (($field <<  8) & 0x00FF0000) |
-            (($field << 24) & 0xFF000000);
-    )
-)
-
-macro_rules! implement_endian(
-    ($subject:ty, $this:ident, $body:block) => (
-        impl Endian for $subject {
-            #[cfg(target_endian="little")]
-            fn with_big_endian(self) -> $subject {
-                let mut $this = self; $body; $this
-            }
-
-            #[cfg(target_endian="big")]
-            fn with_little_endian(self) -> $subject {
-                let mut $this = self; $body; $this
-            }
-        }
-    )
-)
+#[inline="always"]
+fn reverse_u32(value: u32) -> u32 {
+    ((value >> 24) & 0x000000FF) |
+    ((value >>  8) & 0x0000FF00) |
+    ((value <<  8) & 0x00FF0000) |
+    ((value << 24) & 0xFF000000)
+}
 
 pub trait Endian {
     #[cfg(target_endian="little")]
@@ -48,6 +28,28 @@ pub trait Endian {
     fn with_big_endian(self) -> Self { self }
 }
 
+macro_rules! impl_endian(
+    ($subject:ty, $($field:ident as $size:ident),*) => (
+        impl Endian for $subject {
+            #[cfg(target_endian="little")]
+            fn with_big_endian(mut self) -> $subject {
+                $(
+                    self.$field = concat_idents!(reverse_, $size)(self.$field);
+                )*
+                self
+            }
+
+            #[cfg(target_endian="big")]
+            fn with_little_endian(mut self) -> $subject {
+                $(
+                    self.$field = concat_idents!(reverse_, $size)(self.$field);
+                )*
+                self
+            }
+        }
+    )
+)
+
 pub static CFF_TAG: u32 = 0x4F54544F;
 
 pub struct OffsetTable {
@@ -58,10 +60,10 @@ pub struct OffsetTable {
     pub range_shift: u16,
 }
 
-implement_endian!(OffsetTable, this, {
-    reverse_u32!(this.tag);
-    reverse_u16!(this.table_count);
-    reverse_u16!(this.search_range);
-    reverse_u16!(this.entry_selector);
-    reverse_u16!(this.range_shift);
-})
+impl_endian!(OffsetTable,
+    tag as u32,
+    table_count as u16,
+    search_range as u16,
+    entry_selector as u16,
+    range_shift as u16
+)

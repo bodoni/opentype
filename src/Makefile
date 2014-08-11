@@ -1,3 +1,5 @@
+export RUSTFLAGS := $(RUSTFLAGS) -L $(build_dir)/libs
+
 all: bins
 
 bins: libs

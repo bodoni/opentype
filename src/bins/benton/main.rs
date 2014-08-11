@@ -1,24 +1,17 @@
 #![crate_name = "benton"]
 #![feature(globs, macro_rules)]
 
-use std::io;
+extern crate opentype;
+
 use std::os;
+use std::io;
 use result::*;
 
 mod result;
 
-static CFF_TAG: u32 = 0x4F54544F;
-
 fn main() {
-    let arguments = os::args();
-
-    if arguments.len() != 2 {
-        println!("Usage: {} <file>", arguments[0]);
-        return;
-    }
-
-    match parse(arguments[1].as_slice()) {
-        Ok(_) => println!("Done."),
+    match start(&os::args()) {
+        Ok(()) => println!("Done."),
         Err(error) => {
             println!("{}", error);
             os::set_exit_status(1);
@@ -26,18 +19,29 @@ fn main() {
     }
 }
 
-fn parse(filename: &str) -> Result<()> {
-    let mut reader = try!(open(filename), IOError);
+fn start(arguments: &Vec<String>) -> Result<()> {
+    if arguments.len() != 2 {
+        raise!(ArgumentError, "Usage: {} <file>", arguments[0]);
+    }
 
-    let tag = try!(reader.read_be_u32(), FormatError);
-    assert!(tag == CFF_TAG, FormatError, "Unsupported format.");
+    let filename: &str = arguments[1].as_slice();
+
+    println!("Filename: {}", filename);
+
+    match opentype::parse(filename) {
+        Ok(font) => {
+            println!("Table count: {}", font.offset_table.table_count);
+        },
+        Err(error) => {
+            match error.kind {
+                io::FileNotFound =>
+                    raise!(ArgumentError, "The file does not exist."),
+
+                _ =>
+                    raise!(ParseError, "{}", error.desc),
+            }
+        }
+    }
 
     Ok(())
-}
-
-fn open(filename: &str) -> std::result::Result<Box<io::Reader>, io::IoError> {
-    match io::fs::File::open(&Path::new(filename)) {
-        Ok(file) => Ok(box file as Box<io::Reader>),
-        Err(error) => Err(error)
-    }
 }

@@ -10,7 +10,7 @@ $(1)_lib := $(build_dir)/lib$(1).rlib
 $(1): $$($(1)_lib)
 
 $$($(1)_lib): $$($(1)_src) | $(build_dir)
-	$(RUSTC) $(RUSTFLAGS) -L $(build_dir) --out-dir $(build_dir) $(1)/lib.rs
+	$(RUSTC) $(RUSTFLAGS) --out-dir $(build_dir) $(1)/lib.rs
 
 $(1)_clean:
 	$(RM) $$($(1)_lib)

@@ -1,5 +1,5 @@
 build_dir := $(build_dir)/lib
-libraries := $(notdir $(shell find . -type d -depth 1))
+libraries := $(notdir $(shell find . -maxdepth 1 ! -path . -type d))
 
 all: $(libraries)
 

@@ -1,5 +1,5 @@
 build_dir := $(build_dir)/bin
-binaries := $(notdir $(shell find . -type d -depth 1))
+binaries := $(notdir $(shell find . -maxdepth 1 ! -path . -type d))
 
 all: $(binaries)
 

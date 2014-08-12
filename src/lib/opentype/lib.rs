@@ -10,9 +10,13 @@ use format::{OffsetTable, TableRecord};
 
 pub mod format;
 
+pub struct Table {
+    pub table_record: TableRecord,
+}
+
 pub struct Font {
     pub offset_table: OffsetTable,
-    pub table_records: Vec<TableRecord>,
+    pub tables: Vec<Table>,
 }
 
 macro_rules! try(
@@ -41,14 +45,19 @@ pub fn parse(reader: &mut io::Reader) -> Result<Font, io::IoError> {
         })
     }
 
-    let mut table_records = Vec::new();
+    let mut tables = Vec::new();
 
     for i in range(0, offset_table.table_count) {
-        table_records.push(try_load!(reader));
+        tables.push(Table {
+           table_record: try_load!(reader)
+        });
+    }
+
+    for table in tables.iter() {
     }
 
     Ok(Font {
         offset_table: offset_table,
-        table_records: table_records,
+        tables: tables,
     })
 }

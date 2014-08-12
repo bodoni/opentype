@@ -34,10 +34,8 @@ fn start(arguments: &Vec<String>) -> Result<()> {
 
     println!("Tables:");
 
-    for j in range(0u, font.offset_table.table_count as uint) {
-        let tag = font.table_records[j].tag;
-
-        match input::stringify_u32(tag) {
+    for table in font.tables.iter() {
+        match input::stringify_le_u32(table.table_record.tag) {
             Some(name) => println!("{}", name),
             None => raise!(ParseError)
         }

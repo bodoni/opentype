@@ -21,3 +21,8 @@ fn load_test() {
     assert_eq!(table.entry_selector, 3);
     assert_eq!(table.range_shift, table.table_count * 16 - table.search_range);
 }
+
+#[test]
+fn stringify_le_u32_test() {
+    assert_eq!(input::stringify_le_u32(0x64636261).unwrap().as_slice(), "abcd");
+}

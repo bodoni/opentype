@@ -47,7 +47,7 @@ macro_rules! implement_loader(
     )
 )
 
-pub fn stringify_u32(value: u32) -> Option<String> {
+pub fn stringify_le_u32(value: u32) -> Option<String> {
     ::std::io::extensions::u64_to_le_bytes(value as u64, 4,
         |slice| match ::std::str::from_utf8(slice) {
             Some(result) => Some(String::from_str(result)),

@@ -1,7 +1,7 @@
 #[phase(link, plugin)]
 extern crate input;
 
-pub static CFF_TAG: u32 = 0x4F54544F;
+pub static CFFFormatTag: u32 = 0x4F54544F;
 
 pub struct OffsetTable {
     pub tag: u32,

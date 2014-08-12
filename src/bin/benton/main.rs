@@ -29,16 +29,23 @@ fn start(arguments: &Vec<String>) -> Result<()> {
 
     println!("Filename: {}", filename);
 
-    let font: Font = try!(opentype::parse(filename), ParseError);
+    let fonts: Vec<Box<Font>> = try!(opentype::parse(filename), ParseError);
 
-    println!("Tables:");
+    println!("Number of fonts: {}", fonts.len());
 
-    for i in range(0u, font.offset_table.table_count as uint) {
-        let tag = font.table_records[i].tag;
+    for i in range(0, fonts.len()) {
+        println!("Font #{}", i + 1);
+        println!("  Tables:");
 
-        match input::stringify_u32(tag) {
-            Some(name) => println!("{}", name),
-            None => raise!(ParseError)
+        let ref font = fonts[i];
+
+        for j in range(0u, font.offset_table.table_count as uint) {
+            let tag = font.table_records[j].tag;
+
+            match input::stringify_u32(tag) {
+                Some(name) => println!("  {}", name),
+                None => raise!(ParseError)
+            }
         }
     }
 

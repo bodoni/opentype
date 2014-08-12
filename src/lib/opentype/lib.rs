@@ -24,20 +24,7 @@ macro_rules! try(
     )
 )
 
-pub fn parse(reader: &mut io::Reader) -> Result<Vec<Box<Font>>, io::IoError> {
-    let mut collection = Vec::new();
-
-    for i in range(0u, 1) {
-        match parse_font(reader) {
-            Ok(result) => collection.push(result),
-            Err(error) => return Err(error)
-        }
-    }
-
-    Ok(collection)
-}
-
-fn parse_font(reader: &mut io::Reader) -> Result<Box<Font>, io::IoError> {
+pub fn parse(reader: &mut io::Reader) -> Result<Font, io::IoError> {
     macro_rules! try_load(
         ($reader:ident) => (
             try!(input::Loader::load($reader))
@@ -60,7 +47,7 @@ fn parse_font(reader: &mut io::Reader) -> Result<Box<Font>, io::IoError> {
         table_records.push(try_load!(reader));
     }
 
-    Ok(box Font {
+    Ok(Font {
         offset_table: offset_table,
         table_records: table_records,
     })

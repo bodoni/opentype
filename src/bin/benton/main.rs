@@ -30,23 +30,16 @@ fn start(arguments: &Vec<String>) -> Result<()> {
     println!("Filename: {}", filename);
 
     let mut reader = try!(io::File::open(&Path::new(filename)), ArgumentError);
-    let fonts = try!(opentype::parse(&mut reader), ParseError);
+    let font = try!(opentype::parse(&mut reader), ParseError);
 
-    println!("Number of fonts: {}", fonts.len());
+    println!("Tables:");
 
-    for i in range(0, fonts.len()) {
-        println!("Font #{}", i + 1);
-        println!("  Tables:");
+    for j in range(0u, font.offset_table.table_count as uint) {
+        let tag = font.table_records[j].tag;
 
-        let ref font = fonts[i];
-
-        for j in range(0u, font.offset_table.table_count as uint) {
-            let tag = font.table_records[j].tag;
-
-            match input::stringify_u32(tag) {
-                Some(name) => println!("  {}", name),
-                None => raise!(ParseError)
-            }
+        match input::stringify_u32(tag) {
+            Some(name) => println!("{}", name),
+            None => raise!(ParseError)
         }
     }
 

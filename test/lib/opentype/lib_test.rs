@@ -10,7 +10,5 @@ use support::*;
 #[test]
 fn parse_test() {
     let mut file = open_fixture!("SourceSerifPro-Regular.otf");
-    let fonts = opentype::parse(&mut file).unwrap();
-
-    assert_eq!(fonts.len(), 1);
+    opentype::parse(&mut file).unwrap();
 }

@@ -21,14 +21,14 @@ implement_loader!(OffsetTable,
 
 pub struct TableRecord {
     pub tag: u32,
-    pub check_sum: u32,
+    pub checksum: u32,
     pub offset: u32,
     pub length: u32,
 }
 
 implement_loader!(TableRecord,
     tag as le_u32,
-    check_sum as be_u32,
+    checksum as be_u32,
     offset as be_u32,
     length as be_u32
 )

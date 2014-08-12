@@ -9,15 +9,18 @@ export build_dir := $(base_dir)/build
 export source_dir := $(base_dir)/src
 export test_dir := $(base_dir)/test
 
-all: src
+all: bin
 
-src:
-	@$(MAKE) -C $(source_dir) all
+lib:
+	@$(MAKE) -C $(source_dir) lib
 
-test: src
+bin:
+	@$(MAKE) -C $(source_dir) bin
+
+test: lib
 	@$(MAKE) -C $(test_dir) all
 
-check: src
+check: lib
 	@$(MAKE) -C $(test_dir) check
 
 clean:
@@ -25,4 +28,4 @@ clean:
 	@$(MAKE) -C $(test_dir) clean
 	$(RM) -d $(build_dir)
 
-.PHONY: all src test check clean
+.PHONY: all lib bin test check clean

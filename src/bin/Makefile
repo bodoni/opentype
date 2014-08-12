@@ -25,6 +25,8 @@ $(build_dir):
 
 $(foreach binary,$(binaries),$(eval $(call define_binary,$(binary))))
 
+$(benton_bin): $(shell find ../lib -name '*.rs')
+
 clean:
 	$(RM) -d $(build_dir)
 

@@ -24,12 +24,11 @@ macro_rules! try(
     )
 )
 
-pub fn parse(filename: &str) -> Result<Vec<Box<Font>>, io::IoError> {
-    let mut reader = try!(io::File::open(&Path::new(filename)));
+pub fn parse(reader: &mut io::Reader) -> Result<Vec<Box<Font>>, io::IoError> {
     let mut collection = Vec::new();
 
     for i in range(0u, 1) {
-        match parse_font(&mut reader) {
+        match parse_font(reader) {
             Ok(result) => collection.push(result),
             Err(error) => return Err(error)
         }

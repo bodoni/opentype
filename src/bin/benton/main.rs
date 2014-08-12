@@ -5,8 +5,8 @@ extern crate input;
 extern crate opentype;
 
 use std::os;
+use std::io;
 use result::*;
-use opentype::Font;
 
 mod result;
 
@@ -29,7 +29,8 @@ fn start(arguments: &Vec<String>) -> Result<()> {
 
     println!("Filename: {}", filename);
 
-    let fonts: Vec<Box<Font>> = try!(opentype::parse(filename), ParseError);
+    let mut reader = try!(io::File::open(&Path::new(filename)), ArgumentError);
+    let fonts = try!(opentype::parse(&mut reader), ParseError);
 
     println!("Number of fonts: {}", fonts.len());
 

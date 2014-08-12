@@ -1,45 +1,53 @@
 #![crate_name = "input"]
 #![crate_type = "rlib"]
 
-#![feature(globs, macro_rules)]
+#![feature(macro_rules)]
 
-use std::io;
-use std::mem;
-use std::ptr;
-
-use endian::*;
-
-pub mod endian;
-
-pub fn read<T>(file: &mut io::File) -> Result<T, io::IoError> {
-    match file.read_exact(mem::size_of::<T>()) {
-        Ok(buffer) => {
-            let pointer: *const T = buffer.as_ptr() as *const T;
-            Ok(unsafe { ptr::read(pointer) })
-        },
-        Err(error) => Err(error)
-    }
+pub trait Loader {
+    fn load(reader: &mut ::std::io::Reader)
+        -> Result<Self, ::std::io::IoError>;
 }
 
-pub fn read_big_endian<T:Endian>(file: &mut io::File)
-    -> Result<T, io::IoError> {
+#[macro_export]
+macro_rules! load_field(
+    ($reader:ident, be_u16) => (
+        match $reader.read_be_u16() {
+            Ok(result) => result,
+            Err(error) => return Err(error)
+        }
+    );
+    ($reader:ident, be_u32) => (
+        match $reader.read_be_u32() {
+            Ok(result) => result,
+            Err(error) => return Err(error)
+        }
+    );
+    ($reader:ident, le_u32) => (
+        match $reader.read_le_u32() {
+            Ok(result) => result,
+            Err(error) => return Err(error)
+        }
+    );
+)
 
-    match read::<T>(file) {
-        Ok(result) => Ok(result.with_big_endian()),
-        Err(error) => Err(error)
-    }
-}
+#[macro_export]
+macro_rules! implement_loader(
+    ($subject:ident, $($field:ident as $size:ident),+) => (
+        impl input::Loader for $subject {
+            fn load(reader: &mut ::std::io::Reader)
+                -> Result<$subject, ::std::io::IoError> {
 
-pub fn read_little_endian<T:Endian>(file: &mut io::File)
-    -> Result<T, io::IoError> {
+                Ok($subject {
+                    $(
+                        $field: load_field!(reader, $size),
+                    )+
+                })
+            }
+        }
+    )
+)
 
-    match read::<T>(file) {
-        Ok(result) => Ok(result.with_little_endian()),
-        Err(error) => Err(error)
-    }
-}
-
-pub fn convert_u32_to_string(value: u32) -> Option<String> {
+pub fn stringify_u32(value: u32) -> Option<String> {
     ::std::io::extensions::u64_to_le_bytes(value as u64, 4,
         |slice| match ::std::str::from_utf8(slice) {
             Some(result) => Some(String::from_str(result)),

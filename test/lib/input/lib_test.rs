@@ -1,18 +1,19 @@
 #![feature(globs, phase, macro_rules)]
 
-extern crate input;
-extern crate opentype;
-
 #[phase(link, plugin)]
 extern crate support;
 
-use opentype::format::{OffsetTable, CFF_TAG};
+extern crate input;
+extern crate opentype;
+
 use support::*;
+use input::Loader;
+use opentype::format::{OffsetTable, CFF_TAG};
 
 #[test]
-fn test_read_big_endian() {
+fn load_test() {
     let mut file = open_fixture!("SourceSerifPro-Regular.otf");
-    let table = input::read_big_endian::<OffsetTable>(&mut file).unwrap();
+    let table: OffsetTable = Loader::load(&mut file).unwrap();
 
     assert_eq!(table.tag, CFF_TAG);
     assert_eq!(table.table_count, 12);

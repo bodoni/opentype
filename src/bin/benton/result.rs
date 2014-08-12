@@ -4,7 +4,10 @@ macro_rules! raise(
     ($kind:ident) => (
         return Err(::result::Error {
             kind: $kind,
-            message: String::new(),
+            message: String::from_str(match $kind {
+                ArgumentError => "Wrong arguments.",
+                ParseError => "Cannot parse the file."
+            })
         })
     );
     ($kind:ident, $($arguments:tt)+) => (
@@ -19,13 +22,13 @@ macro_rules! try(
     ($suspect:expr, $kind:ident) => (
         match $suspect {
             Ok(result) => result,
-            Err(error) => raise!($kind, "{}", error_message!(error))
+            Err(error) => raise!($kind, "{}", error_message!(error)),
         }
     );
     ($suspect:expr, $kind:ident, $($arguments:tt)+) => (
         match $suspect {
             Ok(result) => result,
-            Err(_) => raise!($kind, $($arguments)+)
+            Err(_) => raise!($kind, $($arguments)+),
         }
     );
 )

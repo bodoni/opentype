@@ -1,7 +1,5 @@
 #![macro_escape]
 
-use std::fmt;
-
 macro_rules! raise(
     ($kind:ident) => (
         return Err(::result::Error {
@@ -17,6 +15,30 @@ macro_rules! raise(
     );
 )
 
+macro_rules! try(
+    ($suspect:expr, $kind:ident) => (
+        match $suspect {
+            Ok(result) => result,
+            Err(error) => raise!($kind, "{}", error_message!(error))
+        }
+    );
+    ($suspect:expr, $kind:ident, $($arguments:tt)+) => (
+        match $suspect {
+            Ok(result) => result,
+            Err(_) => raise!($kind, $($arguments)+)
+        }
+    );
+)
+
+macro_rules! error_message(
+    ($error:expr) => (
+        match $error.kind {
+            ::std::io::FileNotFound => "The file does not exist.",
+            _ => $error.desc
+        }
+    )
+)
+
 pub type Result<T> = ::std::result::Result<T, Error>;
 
 pub struct Error {
@@ -29,8 +51,8 @@ pub enum ErrorKind {
     ParseError,
 }
 
-impl fmt::Show for Error {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+impl ::std::fmt::Show for Error {
+    fn fmt(&self, formatter: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         write!(formatter, "{}", self.message)
     }
 }

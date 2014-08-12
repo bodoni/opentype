@@ -1,11 +1,12 @@
 #![crate_name = "benton"]
 #![feature(globs, macro_rules)]
 
+extern crate input;
 extern crate opentype;
 
 use std::os;
-use std::io;
 use result::*;
+use opentype::{Font, parse};
 
 mod result;
 
@@ -28,19 +29,13 @@ fn start(arguments: &Vec<String>) -> Result<()> {
 
     println!("Filename: {}", filename);
 
-    match opentype::parse(filename) {
-        Ok(font) => {
-            println!("Table count: {}", font.offset_table.table_count);
-        },
-        Err(error) => {
-            match error.kind {
-                io::FileNotFound =>
-                    raise!(ArgumentError, "The file does not exist."),
+    let font: Font = try!(parse(filename), ParseError);
 
-                _ =>
-                    raise!(ParseError, "{}", error.desc),
-            }
-        }
+    println!("Tables:");
+
+    for i in range(0u, font.offset_table.table_count as uint) {
+        let tag = input::convert_u32_to_string(font.table_records[i].tag);
+        println!("{}", tag);
     }
 
     Ok(())

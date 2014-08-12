@@ -38,3 +38,12 @@ pub fn read_little_endian<T:Endian>(file: &mut io::File)
         Err(error) => Err(error)
     }
 }
+
+pub fn convert_u32_to_string(value: u32) -> Option<String> {
+    ::std::io::extensions::u64_to_le_bytes(value as u64, 4,
+        |slice| match ::std::str::from_utf8(slice) {
+            Some(result) => Some(String::from_str(result)),
+            None => None
+        }
+    )
+}

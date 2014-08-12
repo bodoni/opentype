@@ -14,9 +14,21 @@ pub struct OffsetTable {
 }
 
 impl_endian!(OffsetTable,
-    tag as u32,
     table_count as u16,
     search_range as u16,
     entry_selector as u16,
     range_shift as u16
+)
+
+pub struct TableRecord {
+    pub tag: u32,
+    pub check_sum: u32,
+    pub offset: u32,
+    pub length: u32,
+}
+
+impl_endian!(TableRecord,
+    check_sum as u32,
+    offset as u32,
+    length as u32
 )

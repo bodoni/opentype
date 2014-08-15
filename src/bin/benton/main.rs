@@ -35,7 +35,7 @@ fn start(arguments: &Vec<String>) -> Result<()> {
     println!("Tables:");
 
     for table in font.tables.iter() {
-        match input::stringify_le_u32(table.table_record.tag) {
+        match input::stringify_le_u32(table.record.tag) {
             Some(name) => println!("{}", name),
             None => raise!(ParseError)
         }

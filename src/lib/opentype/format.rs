@@ -3,6 +3,7 @@ extern crate input;
 
 pub static CFFFormatTag: u32 = 0x4F54544F;
 
+#[deriving(Show)]
 pub struct OffsetTable {
     pub tag: u32,
     pub table_count: u16,
@@ -19,6 +20,7 @@ implement_loader!(OffsetTable,
     range_shift as be_u16
 )
 
+#[deriving(Show)]
 pub struct TableRecord {
     pub tag: u32,
     pub checksum: u32,
@@ -32,3 +34,5 @@ implement_loader!(TableRecord,
     offset as be_u32,
     length as be_u32
 )
+
+pub type TableContent = Vec<u16>;

@@ -4,12 +4,12 @@
 #![feature(macro_rules)]
 
 pub trait Loader {
-    fn load(reader: &mut ::std::io::Reader)
+    fn from(reader: &mut ::std::io::File)
         -> Result<Self, ::std::io::IoError>;
 }
 
 #[macro_export]
-macro_rules! load_field(
+macro_rules! read_field(
     ($reader:ident, be_u16) => (
         match $reader.read_be_u16() {
             Ok(result) => result,
@@ -34,12 +34,12 @@ macro_rules! load_field(
 macro_rules! implement_loader(
     ($subject:ident, $($field:ident as $size:ident),+) => (
         impl input::Loader for $subject {
-            fn load(reader: &mut ::std::io::Reader)
+            fn from(reader: &mut ::std::io::File)
                 -> Result<$subject, ::std::io::IoError> {
 
                 Ok($subject {
                     $(
-                        $field: load_field!(reader, $size),
+                        $field: read_field!(reader, $size),
                     )+
                 })
             }
@@ -54,4 +54,19 @@ pub fn stringify_le_u32(value: u32) -> Option<String> {
             None => None
         }
     )
+}
+
+pub fn read_be_u16(reader: &mut ::std::io::Reader, count: u32)
+    -> Result<Vec<u16>, ::std::io::IoError> {
+
+    let mut result = Vec::new();
+
+    for _ in range(0, count) {
+        match reader.read_be_u16() {
+            Ok(value) => result.push(value),
+            Err(error) => return Err(error)
+        }
+    }
+
+    Ok(result)
 }

@@ -6,12 +6,15 @@
 extern crate input;
 
 use std::io;
-use format::{OffsetTable, TableRecord};
+use std::mem;
+use input::Loader;
+use format::{OffsetTable, TableRecord, TableContent};
 
 pub mod format;
 
 pub struct Table {
-    pub table_record: TableRecord,
+    pub record: TableRecord,
+    pub content: TableContent,
 }
 
 pub struct Font {
@@ -19,45 +22,70 @@ pub struct Font {
     pub tables: Vec<Table>,
 }
 
-macro_rules! try(
-    ($suspect:expr) => (
-        match $suspect {
-            Ok(result) => result,
-            Err(error) => return Err(error)
+macro_rules! parse_error(
+    () => (
+        io::IoError {
+            kind: io::OtherIoError,
+            desc: "Cannot parse the file.",
+            detail: None,
         }
-    )
+    );
+    ($message:expr) => (
+        io::IoError {
+            kind: io::OtherIoError,
+            desc: $message,
+            detail: None,
+        }
+    );
 )
 
-pub fn parse(reader: &mut io::Reader) -> Result<Font, io::IoError> {
-    macro_rules! try_load(
-        ($reader:ident) => (
-            try!(input::Loader::load($reader))
+pub fn parse(reader: &mut io::File) -> Result<Font, io::IoError> {
+    macro_rules! try(
+        ($suspect:expr) => (
+            match $suspect {
+                Ok(result) => result,
+                Err(error) => return Err(error)
+            }
         )
     )
 
-    let offset_table: OffsetTable = try_load!(reader);
+    let offset_table: OffsetTable = try!(Loader::from(reader));
 
     if offset_table.tag != format::CFFFormatTag {
-        return Err(io::IoError {
-            kind: io::OtherIoError,
-            desc: "The format is not supported.",
-            detail: None,
-        })
+        return Err(parse_error!("The format is not supported."));
+    }
+
+    let mut table_records: Vec<TableRecord> = Vec::new();
+
+    for _ in range(0, offset_table.table_count) {
+        table_records.push(try!(Loader::from(reader)));
     }
 
     let mut tables = Vec::new();
 
-    for i in range(0, offset_table.table_count) {
+    for table_record in table_records.iter() {
         tables.push(Table {
-           table_record: try_load!(reader)
+            record: *table_record,
+            content: try!(read_table_content(reader, table_record)),
         });
-    }
-
-    for table in tables.iter() {
     }
 
     Ok(Font {
         offset_table: offset_table,
         tables: tables,
     })
+}
+
+fn read_table_content(reader: &mut io::File, table_record: &TableRecord)
+    -> Result<TableContent, io::IoError> {
+
+    match reader.seek(table_record.offset as i64, io::SeekSet) {
+        Ok(_) => (),
+        Err(error) => return Err(error)
+    }
+
+    let size = mem::size_of::<u16>() as u32;
+    let count: u32 = (table_record.length + table_record.length % size) / size;
+
+    input::read_be_u16(reader, count)
 }

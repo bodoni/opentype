@@ -8,14 +8,9 @@ extern crate input;
 use std::io;
 use std::mem;
 use input::Loader;
-use format::{OffsetTable, TableRecord, TableContent};
+use format::{OffsetTable, TableRecord, TableContent, Table};
 
 pub mod format;
-
-pub struct Table {
-    pub record: TableRecord,
-    pub content: TableContent,
-}
 
 pub struct Font {
     pub offset_table: OffsetTable,
@@ -68,6 +63,12 @@ pub fn parse(reader: &mut io::File) -> Result<Font, io::IoError> {
             record: *table_record,
             content: try!(read_table_content(reader, table_record)),
         });
+    }
+
+    for table in tables.iter() {
+        if !table.is_valid() {
+            parse_error!();
+        }
     }
 
     Ok(Font {

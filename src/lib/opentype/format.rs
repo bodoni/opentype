@@ -36,3 +36,20 @@ implement_loader!(TableRecord,
 )
 
 pub type TableContent = Vec<u16>;
+
+pub struct Table {
+    pub record: TableRecord,
+    pub content: TableContent,
+}
+
+impl Table {
+    pub fn is_valid(&self) -> bool {
+        let mut checksum: u32 = 0;
+
+        for i in self.content.iter() {
+            checksum += *i as u32;
+        }
+
+        checksum == self.record.checksum
+    }
+}

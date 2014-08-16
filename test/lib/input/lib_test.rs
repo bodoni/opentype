@@ -34,12 +34,13 @@ fn stringify_le_u32_test() {
 }
 
 #[test]
-fn read_be_u16_test() {
+fn read_be_u32_test() {
     let mut file = open_fixture!("SourceSerifPro-Regular.otf");
 
-    match input::read_be_u32(&mut file, 1).unwrap().as_slice() {
-        [one, .. rest] => {
+    match input::read_be_u32(&mut file, 2).unwrap().as_slice() {
+        [one, two, .. rest] => {
             assert_eq!(one, 0x4F54544F);
+            assert_eq!(two, 0x000C0080);
             assert!(rest.is_empty());
         }
         _ => assert!(false)

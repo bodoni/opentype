@@ -29,17 +29,10 @@ fn start(arguments: &Vec<String>) -> Result<()> {
 
     println!("Filename: {}", filename);
 
-    let mut reader = try!(io::File::open(&Path::new(filename)), ArgumentError);
-    let font = try!(opentype::parse(&mut reader), ParseError);
+    let mut stream = try!(io::File::open(&Path::new(filename)), ArgumentError);
+    let font = try!(opentype::parse(&mut stream), ParseError);
 
-    println!("Tables:");
-
-    for table in font.tables.iter() {
-        match input::stringify_le_u32(table.record.tag) {
-            Some(name) => println!("{}", name),
-            None => raise!(ParseError)
-        }
-    }
+    println!("{}", font);
 
     Ok(())
 }

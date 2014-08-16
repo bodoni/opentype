@@ -9,22 +9,22 @@ extern crate opentype;
 use support::*;
 
 #[cfg(test)]
-mod Loader {
+mod Structure {
     use support::*;
-    use input::Loader;
-    use opentype::format::{OffsetTable, CFFFormatTag};
+    use input::Structure;
+    use opentype::format::{OffsetTable, CFF_FORMAT_TAG};
 
     #[test]
-    fn from_test() {
+    fn read_test() {
         let mut file = open_fixture!("SourceSerifPro-Regular.otf");
-        let table: OffsetTable = Loader::from(&mut file).unwrap();
 
-        assert_eq!(table.tag, CFFFormatTag);
-        assert_eq!(table.table_count, 12);
-        assert_eq!(table.search_range, 8 * 16);
-        assert_eq!(table.entry_selector, 3);
-        assert_eq!(table.range_shift,
-                   table.table_count * 16 - table.search_range);
+        let table: OffsetTable = Structure::read(&mut file).unwrap();
+
+        assert_eq!(table.tag, CFF_FORMAT_TAG);
+        assert_eq!(table.numTables, 12);
+        assert_eq!(table.searchRange, 8 * 16);
+        assert_eq!(table.entrySelector, 3);
+        assert_eq!(table.rangeShift, table.numTables * 16 - table.searchRange);
     }
 }
 
@@ -37,10 +37,9 @@ fn stringify_le_u32_test() {
 fn read_be_u16_test() {
     let mut file = open_fixture!("SourceSerifPro-Regular.otf");
 
-    match input::read_be_u16(&mut file, 2).unwrap().as_slice() {
-        [one, two, ..rest] => {
-            assert_eq!(one, 0x4F54);
-            assert_eq!(two, 0x544F);
+    match input::read_be_u32(&mut file, 1).unwrap().as_slice() {
+        [one, .. rest] => {
+            assert_eq!(one, 0x4F54544F);
             assert!(rest.is_empty());
         }
         _ => assert!(false)

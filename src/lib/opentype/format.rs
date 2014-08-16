@@ -1,70 +1,48 @@
 #[phase(link, plugin)]
 extern crate input;
 
-use std::mem;
+pub static CFF_FORMAT_TAG: u32 = 0x4F54544F;
+pub static FONT_HEADER_TAG: u32 = 0x64616568;
 
-pub static CFFFormatTag: u32 = 0x4F54544F;
-
-#[deriving(Default, Show)]
-pub struct OffsetTable {
-    pub tag: u32,
-    pub table_count: u16,
-    pub search_range: u16,
-    pub entry_selector: u16,
-    pub range_shift: u16,
-}
-
-implement_loader!(OffsetTable,
-    tag as le_u32,
-    table_count as be_u16,
-    search_range as be_u16,
-    entry_selector as be_u16,
-    range_shift as be_u16
+macro_rules! define_struct(
+    ($name:ident, $($field:ident as $order:ident $size:ident),+) => (
+        #[deriving(Default, Show)]
+        pub struct $name { $(pub $field: $size,)+ }
+        implement_struct_reader!($name, $($field as $order $size),+)
+    )
 )
 
-#[deriving(Default, Show)]
-pub struct TableRecord {
-    pub tag: u32,
-    pub checksum: u32,
-    pub offset: u32,
-    pub length: u32,
-}
-
-implement_loader!(TableRecord,
-    tag as le_u32,
-    checksum as be_u32,
-    offset as be_u32,
-    length as be_u32
+define_struct!(OffsetTable,
+    tag           as le u32,
+    numTables     as be u16,
+    searchRange   as be u16,
+    entrySelector as be u16,
+    rangeShift    as be u16
 )
 
-pub type TableContent = Vec<u16>;
+define_struct!(TableRecord,
+    tag      as le u32,
+    checkSum as be u32,
+    offset   as be u32,
+    length   as be u32
+)
 
-pub struct Table {
-    pub record: TableRecord,
-    pub content: TableContent,
-}
-
-impl Table {
-    pub fn length_for(table_record: &TableRecord) -> uint {
-        let length = table_record.length as uint;
-        let size = mem::size_of::<u16>();
-
-        (length + length % size) / size
-    }
-
-    pub fn length(&self) -> uint {
-        Table::length_for(&self.record)
-    }
-
-    pub fn is_valid(&self) -> bool {
-        if self.length() != self.content.len() { return false; }
-
-        let mut checksum: u32 = 0;
-
-        for word in self.content.iter() {
-            checksum += *word as u32;
-        }
-
-        checksum == self.record.checksum
-    }
-}
+define_struct!(FontHeader,
+    version            as be f32,
+    fontRevision       as be f32,
+    checkSumAdjustment as be u32,
+    magicNumber        as be u32,
+    flags              as be u16,
+    unitsPerEm         as be u16,
+    created            as be i64,
+    modified           as be i64,
+    xMin               as be i16,
+    yMin               as be i16,
+    xMax               as be i16,
+    yMax               as be i16,
+    macStyle           as be u16,
+    lowestRecPPEM      as be u16,
+    fontDirectionHint  as be i16,
+    indexToLocFormat   as be i16,
+    glyphDataFormat    as be i16
+)

@@ -5,41 +5,35 @@ extern crate opentype;
 #[cfg(test)]
 mod Table {
     use std::default::Default;
-    use opentype::format::{Table, TableRecord};
+    use opentype::Table;
+    use opentype::format::TableRecord;
 
     #[test]
-    fn length_test() {
-        macro_rules! table(
+    fn measure_test() {
+        macro_rules! table_record(
             ($length:expr) => (
-                Table {
-                    record: TableRecord {
-                        length: $length, .. Default::default()
-                    },
-                    content: vec!()
+                TableRecord {
+                    length: $length, .. Default::default()
                 }
             )
         )
 
-        assert_eq!(table!(20).length(), 10);
-        assert_eq!(table!(21).length(), 11);
+        assert_eq!(Table::measure(&table_record!(20)), 5);
+        assert_eq!(Table::measure(&table_record!(21)), 6);
     }
 
     #[test]
-    fn is_valid_test() {
+    fn check_test() {
         macro_rules! table(
-            ($length:expr, $checksum:expr, $($arguments:expr),+) => (
+            ($checksum:expr, $($arguments:expr),+) => (
                 Table {
-                    record: TableRecord {
-                        length: $length,
-                        checksum: $checksum,
-                        .. Default::default()
-                    },
-                    content: vec!($($arguments),+)
+                    checksum: $checksum,
+                    content: vec!($($arguments),+),
                 }
             )
         )
 
-        assert_eq!(table!(2 * 3, 1 + 2 + 4, 1, 2, 3).is_valid(), false);
-        assert_eq!(table!(2 * 3, 1 + 2 + 4, 1, 2, 4).is_valid(), true);
+        assert_eq!(table!(1 + 2 + 4, 1, 2, 3).check(), false);
+        assert_eq!(table!(1 + 2 + 4, 1, 2, 4).check(), true);
     }
 }

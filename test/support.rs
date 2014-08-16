@@ -24,6 +24,6 @@ fn read_environment(name: &str) -> Option<String> {
 #[macro_export]
 macro_rules! open_fixture(
     ($name:expr) => (
-        std::io::File::open(&find_fixture($name).unwrap()).unwrap()
+        ::std::io::File::open(&find_fixture($name).unwrap()).unwrap()
     )
 )

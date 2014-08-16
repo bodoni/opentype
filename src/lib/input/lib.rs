@@ -56,7 +56,7 @@ pub fn stringify_le_u32(value: u32) -> Option<String> {
     )
 }
 
-pub fn read_be_u16(reader: &mut ::std::io::Reader, count: u32)
+pub fn read_be_u16(reader: &mut ::std::io::Reader, count: uint)
     -> Result<Vec<u16>, ::std::io::IoError> {
 
     let mut result = Vec::new();

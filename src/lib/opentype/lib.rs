@@ -6,7 +6,6 @@
 extern crate input;
 
 use std::io;
-use std::mem;
 use input::Loader;
 use format::{OffsetTable, TableRecord, TableContent, Table};
 
@@ -66,9 +65,7 @@ pub fn parse(reader: &mut io::File) -> Result<Font, io::IoError> {
     }
 
     for table in tables.iter() {
-        if !table.is_valid() {
-            parse_error!();
-        }
+        if !table.is_valid() { parse_error!(); }
     }
 
     Ok(Font {
@@ -85,8 +82,5 @@ fn read_table_content(reader: &mut io::File, table_record: &TableRecord)
         Err(error) => return Err(error)
     }
 
-    let size = mem::size_of::<u16>() as u32;
-    let count: u32 = (table_record.length + table_record.length % size) / size;
-
-    input::read_be_u16(reader, count)
+    input::read_be_u16(reader, Table::length_for(table_record))
 }

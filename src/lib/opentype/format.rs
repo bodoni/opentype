@@ -1,9 +1,11 @@
 #[phase(link, plugin)]
 extern crate input;
 
+use std::mem;
+
 pub static CFFFormatTag: u32 = 0x4F54544F;
 
-#[deriving(Show)]
+#[deriving(Default, Show)]
 pub struct OffsetTable {
     pub tag: u32,
     pub table_count: u16,
@@ -20,7 +22,7 @@ implement_loader!(OffsetTable,
     range_shift as be_u16
 )
 
-#[deriving(Show)]
+#[deriving(Default, Show)]
 pub struct TableRecord {
     pub tag: u32,
     pub checksum: u32,
@@ -43,11 +45,24 @@ pub struct Table {
 }
 
 impl Table {
+    pub fn length_for(table_record: &TableRecord) -> uint {
+        let length = table_record.length as uint;
+        let size = mem::size_of::<u16>();
+
+        (length + length % size) / size
+    }
+
+    pub fn length(&self) -> uint {
+        Table::length_for(&self.record)
+    }
+
     pub fn is_valid(&self) -> bool {
+        if self.length() != self.content.len() { return false; }
+
         let mut checksum: u32 = 0;
 
-        for i in self.content.iter() {
-            checksum += *i as u32;
+        for word in self.content.iter() {
+            checksum += *word as u32;
         }
 
         checksum == self.record.checksum

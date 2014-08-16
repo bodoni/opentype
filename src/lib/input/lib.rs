@@ -29,7 +29,7 @@ macro_rules! read_field(
 )
 
 #[macro_export]
-macro_rules! implement_struct_reader(
+macro_rules! implement_structure(
     ($subject:ident, $($field:ident as $order:ident $size:ident),+) => (
         impl input::Structure for $subject {
             fn read(stream: &mut ::std::io::File)

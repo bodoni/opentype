@@ -1,11 +1,9 @@
 #![crate_name = "benton"]
 #![feature(globs, macro_rules)]
 
-extern crate input;
 extern crate opentype;
 
-use std::os;
-use std::io;
+use std::{io, os};
 use result::*;
 
 mod result;

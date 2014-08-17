@@ -1,16 +1,7 @@
-#[phase(link, plugin)]
-extern crate input;
+use super::input;
 
 pub static CFF_FORMAT_TAG: u32 = 0x4F54544F;
 pub static FONT_HEADER_TAG: u32 = 0x64616568;
-
-macro_rules! define_structure(
-    ($name:ident, $($field:ident as $order:ident $size:ident),+) => (
-        #[deriving(Default, Show)]
-        pub struct $name { $(pub $field: $size,)+ }
-        implement_structure!($name, $($field as $order $size),+)
-    )
-)
 
 define_structure!(OffsetTable,
     tag           as le u32,

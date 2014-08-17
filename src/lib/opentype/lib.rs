@@ -1,16 +1,12 @@
 #![crate_name = "opentype"]
 #![crate_type = "rlib"]
 
-#![feature(globs, phase, macro_rules)]
+#![feature(globs, macro_rules)]
 
-extern crate input;
+use std::{default, fmt, io, mem};
 
-use std::{io, mem, fmt};
-use std::default::Default;
-use input::Structure;
-use format::*;
-
-pub mod format;
+pub mod input;
+pub mod spec;
 
 macro_rules! raise(
     () => (return Err(io::IoError {
@@ -25,20 +21,13 @@ macro_rules! raise(
     }));
 )
 
-macro_rules! try(
-    ($suspect:expr) => (match $suspect {
-        Ok(result) => result,
-        Err(error) => return Err(error)
-    })
-)
-
 pub struct Table {
     pub checksum: u32,
     pub content: Vec<u32>,
 }
 
 impl Table {
-    pub fn read(stream: &mut io::File, table_record: &TableRecord)
+    pub fn read(stream: &mut io::File, table_record: &spec::TableRecord)
         -> Result<Table, io::IoError> {
 
         let length = Table::measure(table_record);
@@ -49,7 +38,7 @@ impl Table {
         })
     }
 
-    pub fn measure(table_record: &TableRecord) -> uint {
+    pub fn measure(table_record: &spec::TableRecord) -> uint {
         let length = table_record.length as uint;
         let size = mem::size_of::<u32>();
         ((length + size - 1) & !(size - 1)) / size
@@ -70,7 +59,7 @@ pub enum Format {
     CFF,
 }
 
-impl Default for Format {
+impl default::Default for Format {
     fn default() -> Format { CFF }
 }
 
@@ -100,28 +89,29 @@ pub struct Font {
 
 impl Font {
     fn digest(&mut self, stream: &mut io::File) -> Result<(), io::IoError> {
-        let offset_table: OffsetTable = try!(Structure::read(stream));
+        let offset_table: spec::OffsetTable =
+            try!(input::Structure::read(stream));
 
         match offset_table.tag {
-            CFF_FORMAT_TAG => try!(self.digest_cff(stream, &offset_table)),
+            spec::CFF_FORMAT_TAG => try!(self.digest_cff(stream, &offset_table)),
             _ => raise!("The format is not supported.")
         }
 
         Ok(())
     }
 
-    fn digest_cff(&mut self, stream: &mut io::File, offset_table: &OffsetTable)
-        -> Result<(), io::IoError> {
+    fn digest_cff(&mut self, stream: &mut io::File,
+        offset_table: &spec::OffsetTable) -> Result<(), io::IoError> {
 
-        let mut table_records: Vec<TableRecord> = Vec::new();
+        let mut table_records: Vec<spec::TableRecord> = Vec::new();
 
         for _ in range(0, offset_table.numTables) {
-            table_records.push(try!(Structure::read(stream)));
+            table_records.push(try!(input::Structure::read(stream)));
         }
 
         for table_record in table_records.iter() {
             match table_record.tag {
-                FONT_HEADER_TAG => {
+                spec::FONT_HEADER_TAG => {
                     try!(stream.seek(table_record.offset as i64, io::SeekSet));
                     let mut table = try!(Table::read(stream, table_record));
                     *table.content.get_mut(2) = 0;
@@ -142,7 +132,7 @@ impl Font {
     fn digest_font_header(&mut self, stream: &mut io::File)
         -> Result<(), io::IoError> {
 
-        let table: FontHeader = try!(Structure::read(stream));
+        let table: spec::FontHeader = try!(input::Structure::read(stream));
 
         self.description.version = table.fontRevision;
         self.description.units_per_em = table.unitsPerEm;
@@ -154,7 +144,7 @@ impl Font {
 }
 
 pub fn parse(stream: &mut io::File) -> Result<Font, io::IoError> {
-    let mut font: Font = Default::default();
+    let mut font: Font = default::Default::default();
 
     try!(font.digest(stream));
 

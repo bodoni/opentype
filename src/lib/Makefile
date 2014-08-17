@@ -25,8 +25,6 @@ $(build_dir):
 
 $(foreach library,$(libraries),$(eval $(call define_library,$(library))))
 
-$(opentype_lib): $(input_lib)
-
 clean:
 	$(RM) -d $(build_dir)
 

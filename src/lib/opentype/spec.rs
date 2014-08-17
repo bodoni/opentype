@@ -4,11 +4,11 @@ pub static CFF_FORMAT_TAG: u32 = 0x4F54544F;
 pub static FONT_HEADER_TAG: u32 = 0x64616568;
 
 trait Spec {
-    fn read(stream: &mut io::File) -> Result<Self, io::IoError>;
+    fn read(stream: &mut io::Reader) -> Result<Self, io::IoError>;
 }
 
 #[inline(always)]
-pub fn read<T:Spec>(stream: &mut io::File) -> Result<T, io::IoError> {
+pub fn read<S:Spec, R: io::Reader>(stream: &mut R) -> Result<S, io::IoError> {
     Spec::read(stream)
 }
 
@@ -25,7 +25,7 @@ macro_rules! read_field(
 macro_rules! implement_spec(
     ($subject:ident, $($field:ident as $order:ident $size:ident),+) => (
         impl Spec for $subject {
-            fn read(stream: &mut ::std::io::File)
+            fn read(stream: &mut ::std::io::Reader)
                 -> Result<$subject, ::std::io::IoError> {
 
                 Ok($subject {

@@ -10,7 +10,7 @@ macro_rules! date(
 )
 
 #[test]
-fn since_1904_test() {
+fn since_test() {
     assert_eq!(Date::since(1904,          0), date!(1904, 01, 01));
     assert_eq!(Date::since(1904,    2678399), date!(1904, 01, 31));
     assert_eq!(Date::since(1904,    2678400), date!(1904, 02, 01));

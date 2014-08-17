@@ -2,6 +2,7 @@ use std::io;
 
 pub static CFF_FORMAT_TAG: u32 = 0x4F54544F;
 pub static FONT_HEADER_TAG: u32 = 0x64616568;
+pub static MAGIC_NUMBER: u32 = 0x5F0F3CF5;
 
 trait Spec {
     fn read(stream: &mut io::Reader) -> Result<Self, io::IoError>;

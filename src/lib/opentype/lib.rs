@@ -4,9 +4,11 @@
 #![feature(globs, macro_rules)]
 
 use std::{default, fmt, io};
+pub use date::Date;
 
 pub mod spec;
 pub mod table;
+mod date;
 
 macro_rules! raise(
     () => (return Err(io::IoError {
@@ -21,6 +23,7 @@ macro_rules! raise(
     }));
 )
 
+#[deriving(PartialEq)]
 pub enum Format {
     CFF,
 }
@@ -40,17 +43,12 @@ impl fmt::Show for Format {
 }
 
 #[deriving(Default, Show)]
-pub struct Description {
-    pub version: f32,
-    pub units_per_em: u16,
-    pub created_at: i64,
-    pub modified_at: i64,
-}
-
-#[deriving(Default, Show)]
 pub struct Font {
     pub format: Format,
-    pub description: Description,
+    pub version: f32,
+    pub units_per_em: u16,
+    pub created_at: Date,
+    pub updated_at: Date,
 }
 
 impl Font {
@@ -78,7 +76,6 @@ impl Font {
             match table_record.tag {
                 spec::FONT_HEADER_TAG => {
                     try!(stream.seek(table_record.offset as i64, io::SeekSet));
-
                     if !table::preprocess_and_check(stream, table_record,
                         |chunk, i| if i == 2 { 0 } else { chunk }) {
 
@@ -102,10 +99,14 @@ impl Font {
 
         let table: spec::FontHeader = try!(spec::read(stream));
 
-        self.description.version = table.fontRevision;
-        self.description.units_per_em = table.unitsPerEm;
-        self.description.created_at = table.created;
-        self.description.modified_at = table.modified;
+        if table.magicNumber != spec::MAGIC_NUMBER {
+            raise!("The file is currupted.");
+        }
+
+        self.version = table.fontRevision;
+        self.units_per_em = table.unitsPerEm;
+        self.created_at = Date::new(table.created);
+        self.updated_at = Date::new(table.modified);
 
         Ok(())
     }

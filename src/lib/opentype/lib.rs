@@ -89,8 +89,7 @@ pub struct Font {
 
 impl Font {
     fn digest(&mut self, stream: &mut io::File) -> Result<(), io::IoError> {
-        let offset_table: spec::OffsetTable =
-            try!(input::Structure::read(stream));
+        let offset_table: spec::OffsetTable = try!(spec::read(stream));
 
         match offset_table.tag {
             spec::CFF_FORMAT_TAG => try!(self.digest_cff(stream, &offset_table)),
@@ -106,7 +105,7 @@ impl Font {
         let mut table_records: Vec<spec::TableRecord> = Vec::new();
 
         for _ in range(0, offset_table.numTables) {
-            table_records.push(try!(input::Structure::read(stream)));
+            table_records.push(try!(spec::read(stream)));
         }
 
         for table_record in table_records.iter() {
@@ -132,7 +131,7 @@ impl Font {
     fn digest_font_header(&mut self, stream: &mut io::File)
         -> Result<(), io::IoError> {
 
-        let table: spec::FontHeader = try!(input::Structure::read(stream));
+        let table: spec::FontHeader = try!(spec::read(stream));
 
         self.description.version = table.fontRevision;
         self.description.units_per_em = table.unitsPerEm;

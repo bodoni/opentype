@@ -12,7 +12,7 @@ use opentype::input;
 #[test]
 fn structure_read_test() {
     let mut file = open_fixture!("SourceSerifPro-Regular.otf");
-    let table: spec::OffsetTable = input::Structure::read(&mut file).unwrap();
+    let table: spec::OffsetTable = spec::read(&mut file).unwrap();
 
     assert_eq!(table.tag, spec::CFF_FORMAT_TAG);
     assert_eq!(table.numTables, 12);

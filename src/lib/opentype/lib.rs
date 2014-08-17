@@ -6,10 +6,12 @@
 use std::{default, fmt, io};
 pub use date::Date;
 pub use table::Table;
+pub use style::Style;
 
 pub mod spec;
-mod table;
 mod date;
+mod style;
+mod table;
 
 macro_rules! raise(
     () => (return Err(io::IoError {
@@ -50,6 +52,7 @@ pub struct Font {
     pub units_per_em: u16,
     pub created_on: Date,
     pub updated_on: Date,
+    pub style: Style,
 }
 
 impl Font {
@@ -106,8 +109,11 @@ impl Font {
 
         self.version = table.fontRevision;
         self.units_per_em = table.unitsPerEm;
+
         self.created_on = Date::new(table.created);
         self.updated_on = Date::new(table.modified);
+
+        self.style.parse(table.macStyle);
 
         Ok(())
     }

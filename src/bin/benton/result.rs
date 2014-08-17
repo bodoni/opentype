@@ -22,13 +22,13 @@ macro_rules! try(
     ($suspect:expr, $kind:ident) => (
         match $suspect {
             Ok(result) => result,
-            Err(error) => raise!($kind, "{}", error_message!(error)),
+            Err(error) => raise!($kind, "{}", error_message!(error))
         }
     );
     ($suspect:expr, $kind:ident, $($arguments:tt)+) => (
         match $suspect {
             Ok(result) => result,
-            Err(_) => raise!($kind, $($arguments)+),
+            Err(_) => raise!($kind, $($arguments)+)
         }
     );
 )

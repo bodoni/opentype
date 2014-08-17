@@ -34,7 +34,7 @@ impl fmt::Show for Format {
         -> Result<(), fmt::FormatError> {
 
         match *self {
-            CFF => write!(formatter, "CFF")
+            CFF => write!(formatter, "CFF"),
         }
     }
 }
@@ -87,8 +87,8 @@ impl Font {
 
                     try!(stream.seek(table_record.offset as i64, io::SeekSet));
                     try!(self.parse_font_header(stream));
-                },
-                _ => {}
+                }
+                _ => ()
             }
         }
 

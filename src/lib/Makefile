@@ -25,6 +25,8 @@ $(build_dir):
 
 $(foreach library,$(libraries),$(eval $(call define_library,$(library))))
 
+$(opentype_lib): $(date_lib)
+
 clean:
 	$(RM) -d $(build_dir)
 

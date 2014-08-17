@@ -3,6 +3,7 @@
 #[phase(link, plugin)]
 extern crate support;
 
+extern crate date;
 extern crate opentype;
 
 use support::*;
@@ -20,7 +21,7 @@ fn parse_general_test() {
 fn parse_date_test() {
     macro_rules! date(
         ($year:expr, $month:expr, $day:expr) => (
-            opentype::Date { year: $year, month: $month, day: $day }
+            date::Date { year: $year, month: $month, day: $day }
         )
     )
 

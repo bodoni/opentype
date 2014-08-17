@@ -1,6 +1,9 @@
-use std::default;
+#![crate_name = "date"]
+#![crate_type = "rlib"]
 
-#[deriving(Show)]
+#![feature(macro_rules)]
+
+#[deriving(Default, Eq, Show)]
 pub struct Date {
     pub year: u32,
     pub month: u8,
@@ -15,26 +18,13 @@ impl PartialEq for Date {
     }
 }
 
-impl default::Default for Date {
-    fn default() -> Date {
-        Date { year: 1904, month: 1, day: 1 }
-    }
-}
+macro_rules! days_to_seconds(
+    ($days:expr) => ($days * 24 * 60 * 60);
+    ($($days:expr),+) => ([$($days * 24 * 60 * 60),+]);
+)
 
 impl Date {
-    pub fn new(seconds_since_1904: i64) -> Date {
-        if seconds_since_1904 <= 0 {
-            return default::Default::default();
-        }
-
-        let mut seconds = seconds_since_1904 as u32;
-
-        macro_rules! days_to_seconds(
-            ($days:expr) => ($days * 24 * 60 * 60);
-            ($($days:expr),+) => ([$($days * 24 * 60 * 60),+]);
-        )
-
-        let mut year: u32 = 1904;
+    pub fn since(mut year: u32, mut seconds: u32) -> Date {
         let mut leap;
 
         loop {

@@ -3,13 +3,15 @@
 
 #![feature(globs, macro_rules)]
 
+extern crate date;
+
 use std::{default, fmt, io};
-pub use date::Date;
+use date::Date;
+
 pub use table::Table;
 pub use style::Style;
 
 pub mod spec;
-mod date;
 mod style;
 mod table;
 
@@ -110,8 +112,8 @@ impl Font {
         self.version = table.fontRevision;
         self.units_per_em = table.unitsPerEm;
 
-        self.created_on = Date::new(table.created);
-        self.updated_on = Date::new(table.modified);
+        self.created_on = Date::since(1904, table.created as u32);
+        self.updated_on = Date::since(1904, table.modified as u32);
 
         self.style.parse(table.macStyle);
 

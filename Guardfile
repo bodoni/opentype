@@ -3,16 +3,11 @@ require 'guard/plugin'
 module ::Guard
   class Make < ::Guard::Plugin
     def run_all
-      run
+      system('make', 'clean')
+      system('make', 'check')
     end
 
     def run_on_changes(*)
-      run
-    end
-
-    private
-
-    def run
       system('make', 'check')
     end
   end

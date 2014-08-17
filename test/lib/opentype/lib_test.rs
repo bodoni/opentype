@@ -31,6 +31,7 @@ fn parse_test() {
 
     assert_eq!(font.format, opentype::CFF);
     assert_eq!(font.units_per_em, 1000);
-    assert_eq!(font.created_at, date!(2014, 4, 27));
-    assert_eq!(font.updated_at, date!(2014, 4, 27));
+
+    assert_eq!(font.created_on, date!(2014, 4, 27));
+    assert_eq!(font.updated_on, date!(2014, 4, 27));
 }

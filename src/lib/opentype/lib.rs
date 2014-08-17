@@ -47,8 +47,8 @@ pub struct Font {
     pub format: Format,
     pub version: f32,
     pub units_per_em: u16,
-    pub created_at: Date,
-    pub updated_at: Date,
+    pub created_on: Date,
+    pub updated_on: Date,
 }
 
 impl Font {
@@ -105,8 +105,8 @@ impl Font {
 
         self.version = table.fontRevision;
         self.units_per_em = table.unitsPerEm;
-        self.created_at = Date::new(table.created);
-        self.updated_at = Date::new(table.modified);
+        self.created_on = Date::new(table.created);
+        self.updated_on = Date::new(table.modified);
 
         Ok(())
     }

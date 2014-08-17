@@ -3,14 +3,14 @@
 extern crate opentype;
 
 use std::default::Default;
-use opentype::table;
+use opentype::Table;
 use opentype::spec::TableRecord;
 
 #[test]
 fn measure_test() {
     macro_rules! measure(
         ($length:expr) => (
-            table::measure(
+            Table::measure(
                 &TableRecord {
                     length: $length,
                     .. Default::default()
@@ -27,7 +27,7 @@ fn measure_test() {
 fn check_test() {
     macro_rules! check(
         ($length:expr, $checksum:expr, $data:expr) => (
-            table::check(
+            Table::check(
                 &mut std::io::BufReader::new($data),
                 &TableRecord {
                     length: $length,

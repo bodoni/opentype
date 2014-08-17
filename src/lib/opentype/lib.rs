@@ -5,9 +5,10 @@
 
 use std::{default, fmt, io};
 pub use date::Date;
+pub use table::Table;
 
 pub mod spec;
-pub mod table;
+mod table;
 mod date;
 
 macro_rules! raise(
@@ -76,7 +77,7 @@ impl Font {
             match table_record.tag {
                 spec::FONT_HEADER_TAG => {
                     try!(stream.seek(table_record.offset as i64, io::SeekSet));
-                    if !table::preprocess_and_check(stream, table_record,
+                    if !Table::map_and_check(stream, table_record,
                         |chunk, i| if i == 2 { 0 } else { chunk }) {
 
                         raise!("The file is corrupted.");

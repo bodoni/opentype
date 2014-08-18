@@ -115,7 +115,11 @@ impl Font {
 
         let table: spec::FontHeader = try!(spec::read(stream));
 
-        if table.magicNumber != spec::MAGIC_NUMBER {
+        if table.version != 1.0 {
+            raise!("The format version is supported.");
+        }
+
+        if table.magicNumber != spec::FONT_HEADER_MAGIC_NUMBER {
             raise!("The file is currupted.");
         }
 
@@ -134,6 +138,10 @@ impl Font {
         -> Result<(), io::IoError> {
 
         let table: spec::MaximumProfile = try!(spec::read(stream));
+
+        if table.version != spec::MAXIMAL_PROFILE_VERSION_0_5 {
+            raise!("The format version is supported.");
+        }
 
         self.glyph_count = table.numGlyphs;
 

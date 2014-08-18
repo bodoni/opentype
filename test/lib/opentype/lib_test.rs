@@ -27,6 +27,7 @@ fn parse_font_header_test() {
     let mut file = open_fixture!("SourceSerifPro-Bold.otf");
     let font = opentype::parse(&mut file).unwrap();
 
+    assert_eq!(font.version, 1.014);
     assert_eq!(font.units_per_em, 1000);
 
     assert_eq!(font.created_on, date!(2014, 4, 27));

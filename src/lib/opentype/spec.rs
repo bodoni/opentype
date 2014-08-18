@@ -1,10 +1,12 @@
 use std::io;
 
 pub static CFF_FORMAT_TAG: u32 = 0x4F54544F;
-pub static FONT_HEADER_TAG: u32 = 0x64616568;
-pub static MAXIMAL_PROFILE_TAG: u32 = 0x7078616d;
 
-pub static MAGIC_NUMBER: u32 = 0x5F0F3CF5;
+pub static FONT_HEADER_TAG: u32 = 0x68656164;
+pub static FONT_HEADER_MAGIC_NUMBER: u32 = 0x5F0F3CF5;
+
+pub static MAXIMAL_PROFILE_TAG: u32 = 0x6d617870;
+pub static MAXIMAL_PROFILE_VERSION_0_5: u32 = 0x00005000;
 
 trait Spec {
     fn read(stream: &mut io::Reader) -> Result<Self, io::IoError>;
@@ -16,23 +18,25 @@ pub fn read<S:Spec, R: io::Reader>(stream: &mut R) -> Result<S, io::IoError> {
 }
 
 macro_rules! read_field(
-    ($stream:ident, be f32) => (try!($stream.read_be_f32()));
-    ($stream:ident, be f64) => (try!($stream.read_be_f64()));
-    ($stream:ident, be i16) => (try!($stream.read_be_i16()));
-    ($stream:ident, be i64) => (try!($stream.read_be_i64()));
-    ($stream:ident, be u16) => (try!($stream.read_be_u16()));
-    ($stream:ident, be u32) => (try!($stream.read_be_u32()));
-    ($stream:ident, le u32) => (try!($stream.read_le_u32()));
+    ($stream:ident, i16) => (try!($stream.read_be_i16()));
+    ($stream:ident, u16) => (try!($stream.read_be_u16()));
+    ($stream:ident, i32) => (try!($stream.read_be_i32()));
+    ($stream:ident, u32) => (try!($stream.read_be_u32()));
+    ($stream:ident, f32) => ({
+        let value = try!($stream.read_be_u32()) as f32;
+        (value * 0.0000152587890625 * 1000.0).round() / 1000.0
+    });
+    ($stream:ident, i64) => (try!($stream.read_be_i64()));
 )
 
 macro_rules! implement_spec(
-    ($subject:ident, $($field:ident as $order:ident $size:ident),+) => (
+    ($subject:ident, $($field:ident as $class:ident,)+) => (
         impl Spec for $subject {
             fn read(stream: &mut ::std::io::Reader)
                 -> Result<$subject, ::std::io::IoError> {
 
                 Ok($subject {
-                    $($field: read_field!(stream, $order $size),)+
+                    $($field: read_field!(stream, $class),)+
                 })
             }
         }
@@ -40,52 +44,49 @@ macro_rules! implement_spec(
 )
 
 macro_rules! define_spec(
-    ($name:ident, $($field:ident as $order:ident $size:ident),+) => (
+    ($name:ident, $($field:ident as $class:ident,)+) => (
         #[deriving(Default, Show)]
-        pub struct $name {
-            $(pub $field: $size,)+
-        }
-
-        implement_spec!($name, $($field as $order $size),+)
+        pub struct $name { $(pub $field: $class,)+ }
+        implement_spec!($name, $($field as $class,)+)
     )
 )
 
 define_spec!(OffsetTable,
-    tag           as le u32,
-    numTables     as be u16,
-    searchRange   as be u16,
-    entrySelector as be u16,
-    rangeShift    as be u16
+    tag           as u32,
+    numTables     as u16,
+    searchRange   as u16,
+    entrySelector as u16,
+    rangeShift    as u16,
 )
 
 define_spec!(TableRecord,
-    tag      as le u32,
-    checkSum as be u32,
-    offset   as be u32,
-    length   as be u32
+    tag      as u32,
+    checkSum as u32,
+    offset   as u32,
+    length   as u32,
 )
 
 define_spec!(FontHeader,
-    version            as be f32,
-    fontRevision       as be f32,
-    checkSumAdjustment as be u32,
-    magicNumber        as be u32,
-    flags              as be u16,
-    unitsPerEm         as be u16,
-    created            as be i64,
-    modified           as be i64,
-    xMin               as be i16,
-    yMin               as be i16,
-    xMax               as be i16,
-    yMax               as be i16,
-    macStyle           as be u16,
-    lowestRecPPEM      as be u16,
-    fontDirectionHint  as be i16,
-    indexToLocFormat   as be i16,
-    glyphDataFormat    as be i16
+    version            as f32,
+    fontRevision       as f32,
+    checkSumAdjustment as u32,
+    magicNumber        as u32,
+    flags              as u16,
+    unitsPerEm         as u16,
+    created            as i64,
+    modified           as i64,
+    xMin               as i16,
+    yMin               as i16,
+    xMax               as i16,
+    yMax               as i16,
+    macStyle           as u16,
+    lowestRecPPEM      as u16,
+    fontDirectionHint  as i16,
+    indexToLocFormat   as i16,
+    glyphDataFormat    as i16,
 )
 
 define_spec!(MaximumProfile,
-    version   as be f32,
-    numGlyphs as be u16
+    version   as u32,
+    numGlyphs as u16,
 )

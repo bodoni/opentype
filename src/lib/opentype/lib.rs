@@ -55,6 +55,7 @@ pub struct Font {
     pub created_on: Date,
     pub updated_on: Date,
     pub style: Style,
+    pub glyph_count: u16,
 }
 
 impl Font {
@@ -91,6 +92,15 @@ impl Font {
                     try!(stream.seek(table_record.offset as i64, io::SeekSet));
                     try!(self.parse_font_header(stream));
                 }
+                spec::MAXIMAL_PROFILE_TAG => {
+                    try!(stream.seek(table_record.offset as i64, io::SeekSet));
+                    if !Table::check(stream, table_record) {
+                        raise!("The file is corrupted.");
+                    }
+
+                    try!(stream.seek(table_record.offset as i64, io::SeekSet));
+                    try!(self.parse_maximum_profile(stream));
+                }
                 _ => ()
             }
         }
@@ -116,6 +126,16 @@ impl Font {
         self.updated_on = Date::since(1904, table.modified as u32);
 
         self.style.parse(table.macStyle);
+
+        Ok(())
+    }
+
+    fn parse_maximum_profile<R: io::Reader>(&mut self, stream: &mut R)
+        -> Result<(), io::IoError> {
+
+        let table: spec::MaximumProfile = try!(spec::read(stream));
+
+        self.glyph_count = table.numGlyphs;
 
         Ok(())
     }

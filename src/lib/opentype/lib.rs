@@ -126,8 +126,8 @@ impl Font {
         self.version = table.fontRevision;
         self.units_per_em = table.unitsPerEm;
 
-        self.created_on = Date::since(1904, table.created as u32);
-        self.updated_on = Date::since(1904, table.modified as u32);
+        self.created_on = Date::at_since_1904(table.created);
+        self.updated_on = Date::at_since_1904(table.modified);
 
         self.style.parse(table.macStyle);
 

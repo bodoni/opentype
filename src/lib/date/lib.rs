@@ -1,7 +1,7 @@
 #![crate_name = "date"]
 #![crate_type = "rlib"]
 
-#![feature(macro_rules)]
+extern crate time;
 
 #[deriving(Default, Eq, Show)]
 pub struct Date {
@@ -18,50 +18,18 @@ impl PartialEq for Date {
     }
 }
 
-macro_rules! days_to_seconds(
-    ($days:expr) => ($days * 24 * 60 * 60);
-    ($($days:expr),+) => ([$($days * 24 * 60 * 60),+]);
-)
-
 impl Date {
-    pub fn since(mut year: u32, mut seconds: u32) -> Date {
-        let mut leap;
+    pub fn at(seconds: i64) -> Date {
+        let time = time::at_utc(time::Timespec { sec: seconds, nsec: 0 });
 
-        loop {
-            leap =
-                (year % 400) == 0 ||
-                (year % 100) != 0 &&
-                (year %   4) == 0;
-
-            let year_seconds: u32 =
-                days_to_seconds!(if leap { 366 } else { 365 });
-
-            if year_seconds > seconds {
-                break;
-            }
-
-            year += 1;
-            seconds -= year_seconds;
+        Date {
+            year: (time.tm_year + 1900) as u32,
+            month: (time.tm_mon + 1) as u8,
+            day: time.tm_mday as u8,
         }
+    }
 
-        let mut month: u8 = 1;
-
-        let month_seconds: &[u32] = days_to_seconds!(
-            31, if leap { 29 } else { 28 }, 31,
-            30, 31, 30, 31, 30, 30, 31, 30, 31
-        );
-
-        for month_second in month_seconds.iter() {
-            if *month_second > seconds {
-                break;
-            }
-
-            month += 1;
-            seconds -= *month_second;
-        }
-
-        let day = (seconds / days_to_seconds!(1)) as u8 + 1;
-
-        Date { year: year, month: month, day: day }
+    pub fn at_since_1904(seconds: i64) -> Date {
+        Date::at(seconds - 2082844800)
     }
 }

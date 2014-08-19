@@ -9,11 +9,11 @@ pub static MAXIMAL_PROFILE_TAG: u32 = 0x6d617870;
 pub static MAXIMAL_PROFILE_VERSION_0_5: u32 = 0x00005000;
 
 trait Spec {
-    fn read(stream: &mut io::Reader) -> Result<Self, io::IoError>;
+    fn read(stream: &mut io::Reader) -> io::IoResult<Self>;
 }
 
 #[inline(always)]
-pub fn read<S:Spec, R: io::Reader>(stream: &mut R) -> Result<S, io::IoError> {
+pub fn read<S:Spec, R: io::Reader>(stream: &mut R) -> io::IoResult<S> {
     Spec::read(stream)
 }
 
@@ -33,7 +33,7 @@ macro_rules! implement_spec(
     ($subject:ident, $($field:ident as $class:ident,)+) => (
         impl Spec for $subject {
             fn read(stream: &mut ::std::io::Reader)
-                -> Result<$subject, ::std::io::IoError> {
+                -> ::std::io::IoResult<$subject> {
 
                 Ok($subject {
                     $($field: read_field!(stream, $class),)+

@@ -59,7 +59,7 @@ pub struct Font {
 }
 
 impl Font {
-    fn parse(&mut self, stream: &mut io::File) -> Result<(), io::IoError> {
+    fn parse(&mut self, stream: &mut io::File) -> io::IoResult<()> {
         let offset_table: spec::OffsetTable = try!(spec::read(stream));
 
         match offset_table.tag {
@@ -71,7 +71,7 @@ impl Font {
     }
 
     fn parse_cff(&mut self, stream: &mut io::File,
-        offset_table: &spec::OffsetTable) -> Result<(), io::IoError> {
+        offset_table: &spec::OffsetTable) -> io::IoResult<()> {
 
         let mut table_records: Vec<spec::TableRecord> = Vec::new();
 
@@ -111,7 +111,7 @@ impl Font {
     }
 
     fn parse_font_header<R: io::Reader>(&mut self, stream: &mut R)
-        -> Result<(), io::IoError> {
+        -> io::IoResult<()> {
 
         let table: spec::FontHeader = try!(spec::read(stream));
 
@@ -135,7 +135,7 @@ impl Font {
     }
 
     fn parse_maximum_profile<R: io::Reader>(&mut self, stream: &mut R)
-        -> Result<(), io::IoError> {
+        -> io::IoResult<()> {
 
         let table: spec::MaximumProfile = try!(spec::read(stream));
 
@@ -149,7 +149,7 @@ impl Font {
     }
 }
 
-pub fn parse(stream: &mut io::File) -> Result<Font, io::IoError> {
+pub fn parse(stream: &mut io::File) -> io::IoResult<Font> {
     let mut font: Font = default::Default::default();
 
     try!(font.parse(stream));

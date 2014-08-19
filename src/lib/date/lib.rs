@@ -3,7 +3,7 @@
 
 extern crate time;
 
-#[deriving(Default, Eq, Show)]
+#[deriving(Default, Eq, Ord, Show)]
 pub struct Date {
     pub year: u32,
     pub month: u8,
@@ -15,6 +15,33 @@ impl PartialEq for Date {
         self.year == other.year &&
         self.month == other.month &&
         self.day == other.day
+    }
+}
+
+impl PartialOrd for Date {
+    fn partial_cmp(&self, other: &Date) -> Option<Ordering> {
+        if self.year > other.year {
+            return Some(std::cmp::Greater);
+        }
+        else if self.year < other.year {
+            return Some(std::cmp::Less);
+        }
+
+        if self.month > other.month {
+            return Some(std::cmp::Greater);
+        }
+        else if self.month < other.month {
+            return Some(std::cmp::Less);
+        }
+
+        if self.day > other.day {
+            return Some(std::cmp::Greater);
+        }
+        else if self.day < other.day {
+            return Some(std::cmp::Less);
+        }
+
+        Some(std::cmp::Equal)
     }
 }
 

@@ -1,19 +1,21 @@
+#![allow(non_snake_case)]
+
 use std::io;
 
-pub static CFF_FORMAT_TAG: u32 = 0x4F54544F;
+pub const CFF_FORMAT_TAG: u32 = 0x4F54544F;
 
-pub static FONT_HEADER_TAG: u32 = 0x68656164;
-pub static FONT_HEADER_MAGIC_NUMBER: u32 = 0x5F0F3CF5;
+pub const FONT_HEADER_TAG: u32 = 0x68656164;
+pub const FONT_HEADER_MAGIC_NUMBER: u32 = 0x5F0F3CF5;
 
-pub static MAXIMAL_PROFILE_TAG: u32 = 0x6d617870;
-pub static MAXIMAL_PROFILE_VERSION_0_5: u32 = 0x00005000;
+pub const MAXIMAL_PROFILE_TAG: u32 = 0x6d617870;
+pub const MAXIMAL_PROFILE_VERSION_0_5: u32 = 0x00005000;
 
-trait Spec {
+pub trait Spec {
     fn read(stream: &mut io::Reader) -> io::IoResult<Self>;
 }
 
 #[inline(always)]
-pub fn read<S:Spec, R: io::Reader>(stream: &mut R) -> io::IoResult<S> {
+pub fn read<S: Spec, R: io::Reader>(stream: &mut R) -> io::IoResult<S> {
     Spec::read(stream)
 }
 

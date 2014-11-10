@@ -54,41 +54,56 @@ macro_rules! define_spec(
 )
 
 define_spec!(OffsetTable,
-    tag           as u32,
-    numTables     as u16,
-    searchRange   as u16,
+    tag as u32,
+    numTables as u16,
+    searchRange as u16,
     entrySelector as u16,
-    rangeShift    as u16,
+    rangeShift as u16,
 )
 
 define_spec!(TableRecord,
-    tag      as u32,
+    tag as u32,
     checkSum as u32,
-    offset   as u32,
-    length   as u32,
+    offset as u32,
+    length as u32,
 )
 
 define_spec!(FontHeader,
-    version            as f32,
-    fontRevision       as f32,
+    version as f32,
+    fontRevision as f32,
     checkSumAdjustment as u32,
-    magicNumber        as u32,
-    flags              as u16,
-    unitsPerEm         as u16,
-    created            as i64,
-    modified           as i64,
-    xMin               as i16,
-    yMin               as i16,
-    xMax               as i16,
-    yMax               as i16,
-    macStyle           as u16,
-    lowestRecPPEM      as u16,
-    fontDirectionHint  as i16,
-    indexToLocFormat   as i16,
-    glyphDataFormat    as i16,
+    magicNumber as u32,
+    flags as u16,
+    unitsPerEm as u16,
+    created as i64,
+    modified as i64,
+    xMin as i16,
+    yMin as i16,
+    xMax as i16,
+    yMax as i16,
+    macStyle as u16,
+    lowestRecPPEM as u16,
+    fontDirectionHint as i16,
+    indexToLocFormat as i16,
+    glyphDataFormat as i16,
 )
 
 define_spec!(MaximumProfile,
-    version   as u32,
+    version as u32,
     numGlyphs as u16,
 )
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn read() {
+        let mut file = ::test::open_fixture("SourceSerifPro-Regular.otf");
+        let table: super::OffsetTable = super::read(&mut file).unwrap();
+
+        assert_eq!(table.tag, super::CFF_FORMAT_TAG);
+        assert_eq!(table.numTables, 12);
+        assert_eq!(table.searchRange, 8 * 16);
+        assert_eq!(table.entrySelector, 3);
+        assert_eq!(table.rangeShift, table.numTables * 16 - table.searchRange);
+    }
+}

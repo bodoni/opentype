@@ -1,6 +1,3 @@
-#![crate_name = "opentype"]
-#![crate_type = "rlib"]
-
 #![feature(globs, macro_rules)]
 
 extern crate date;
@@ -126,8 +123,8 @@ impl Font {
         self.version = table.fontRevision;
         self.units_per_em = table.unitsPerEm;
 
-        self.created_on = Date::at_since_1904(table.created);
-        self.updated_on = Date::at_since_1904(table.modified);
+        self.created_on = Date::at_utc_1904(table.created);
+        self.updated_on = Date::at_utc_1904(table.modified);
 
         self.style.parse(table.macStyle);
 
@@ -155,4 +152,53 @@ pub fn parse(stream: &mut io::File) -> io::IoResult<Font> {
     try!(font.parse(stream));
 
     Ok(font)
+}
+
+#[cfg(test)]
+mod test {
+    use std::io::File;
+
+    use date::Date;
+
+    #[test]
+    fn parse_cff() {
+        let mut file = open_fixture("SourceSerifPro-Regular.otf");
+        let font = ::parse(&mut file).unwrap();
+        assert_eq!(font.format, super::CFF);
+    }
+
+    #[test]
+    fn parse_font_header() {
+        let mut file = open_fixture("SourceSerifPro-Bold.otf");
+        let font = ::parse(&mut file).unwrap();
+
+        assert_eq!(font.version, 1.014);
+        assert_eq!(font.units_per_em, 1000);
+
+        assert_eq!(font.created_on, Date::new(2014, 4, 27));
+        assert_eq!(font.updated_on, Date::new(2014, 4, 27));
+
+        assert_eq!(font.style.bold, true);
+        assert_eq!(font.style.italic, false);
+        assert_eq!(font.style.condensed, false);
+        assert_eq!(font.style.extended, false);
+    }
+
+    #[test]
+    fn parse_maximal_profile() {
+        let mut file = open_fixture("SourceSerifPro-Regular.otf");
+        let font = ::parse(&mut file).unwrap();
+        assert_eq!(font.glyph_count, 545);
+    }
+
+    pub fn open_fixture(name: &str) -> File {
+        File::open(&find_fixture(name)).unwrap()
+    }
+
+    fn find_fixture(name: &str) -> Path {
+        use std::io::fs::PathExtensions;
+        let path = Path::new("tests").join_many(["fixtures", name]);
+        assert!(path.exists());
+        path
+    }
 }

@@ -27,6 +27,7 @@ impl Font {
     fn read<R: Reader + Seek>(&mut self, reader: &mut R) -> Result<()> {
         try!(self.read_offset_table(reader));
         try!(self.read_table_records(reader));
+
         Ok(())
     }
 
@@ -110,6 +111,7 @@ impl Font {
 }
 
 #[allow(dead_code)]
+#[inline]
 pub fn read<R: Reader + Seek>(reader: &mut R) -> Result<Font> {
     let mut font = Font::new();
     try!(font.read(reader));
@@ -122,13 +124,19 @@ mod tests {
 
     #[test]
     fn read() {
+        macro_rules! assert_date(
+            ($seconds:expr, $year:expr, $month:expr, $day:expr) => (
+                assert_eq!(Date::at_utc_1904($seconds), Date::new($year, $month, $day));
+            );
+        )
+
         let mut file = ::tests::open("SourceSerifPro-Regular.otf");
         let font = ::font::read(&mut file).unwrap();
 
         assert_eq!(font.font_header.fontRevision.to_f32(), 1.014);
         assert_eq!(font.font_header.unitsPerEm, 1000);
-        assert_eq!(Date::at_utc_1904(font.font_header.created), Date::new(2014, 4, 27));
-        assert_eq!(Date::at_utc_1904(font.font_header.modified), Date::new(2014, 4, 27));
+        assert_date!(font.font_header.created, 2014, 4, 27);
+        assert_date!(font.font_header.modified, 2014, 4, 27);
         assert_eq!(font.font_header.macStyle, 0);
 
         assert_eq!(font.maximum_profile.numGlyphs, 545);

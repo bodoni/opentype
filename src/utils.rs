@@ -5,7 +5,10 @@ pub fn checksum<R: io::Reader>(reader: &mut R, record: &TableRecord,
                                process: |uint, u32| -> u32) -> bool {
 
     let mut checksum: u32 = 0;
-    let length = measure(record);
+    let length = {
+        let size = mem::size_of::<u32>();
+        ((record.length as uint + size - 1) & !(size - 1)) / size
+    };
 
     for i in range(0, length) {
         match reader.read_be_u32() {
@@ -15,12 +18,6 @@ pub fn checksum<R: io::Reader>(reader: &mut R, record: &TableRecord,
     }
 
     record.checkSum == checksum
-}
-
-fn measure(record: &TableRecord) -> uint {
-    let length = record.length as uint;
-    let size = mem::size_of::<u32>();
-    ((length + size - 1) & !(size - 1)) / size
 }
 
 #[cfg(test)]
@@ -53,22 +50,5 @@ mod tests {
         assert!(checksum!(3 * 4,
                           1 + 2 + 3,
                           [0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3]));
-    }
-
-    #[test]
-    fn measure() {
-        macro_rules! measure(
-            ($length:expr) => (
-                super::measure(
-                    &TableRecord {
-                        length: $length,
-                        .. Default::default()
-                    }
-                )
-            )
-        )
-
-        assert_eq!(measure!(20), 5);
-        assert_eq!(measure!(21), 6);
     }
 }

@@ -1,6 +1,6 @@
 #![feature(macro_rules, tuple_indexing)]
 
-extern crate date;
+#[cfg(test)] extern crate date;
 
 pub use font::Font;
 

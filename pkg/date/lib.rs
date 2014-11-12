@@ -75,7 +75,7 @@ mod test {
     }
 
     #[test]
-    fn at_utc_since_1904() {
+    fn at_utc_1904() {
         macro_rules! at(($seconds:expr) => (::Date::at_utc_1904($seconds));)
 
         assert_eq!(at!(0), date!(1904, 1, 1));

@@ -1,106 +1,136 @@
 #![allow(non_snake_case)]
 
-use std::io;
+use std::io::Reader;
 
-pub const CFF_FORMAT_TAG: u32 = 0x4F54544F;
+use Result;
 
-pub const FONT_HEADER_TAG: u32 = 0x68656164;
-pub const FONT_HEADER_MAGIC_NUMBER: u32 = 0x5F0F3CF5;
+/// A 16-bit unsigned integer.
+pub type USHORT = u16;
 
-pub const MAXIMAL_PROFILE_TAG: u32 = 0x6d617870;
-pub const MAXIMAL_PROFILE_VERSION_0_5: u32 = 0x00005000;
+/// A 16-bit signed integer.
+pub type SHORT = i16;
 
-pub trait Spec {
-    fn read(stream: &mut io::Reader) -> io::IoResult<Self>;
+/// A 32-bit unsigned integer.
+pub type ULONG = u32;
+
+/// A 32-bit signed fixed-point number (16.16).
+#[deriving(Default, Eq, PartialEq)]
+pub struct Fixed(u32);
+
+/// A date represented in number of seconds since 12:00 midnight, January 1,
+/// 1904. The value is represented as a signed 64-bit integer.
+pub type LONGDATETIME = i64;
+
+pub const CFF_FORMAT_TAG: [u8, ..4] = [b'O', b'T', b'T', b'O'];
+
+pub const FONT_HEADER_TAG: [u8, ..4] = [b'h', b'e', b'a', b'd'];
+pub const FONT_HEADER_VERSION_1_0: Fixed = Fixed(0x00010000);
+pub const FONT_HEADER_MAGIC_NUMBER: ULONG = 0x5F0F3CF5;
+
+pub const MAXIMAL_PROFILE_TAG: [u8, ..4] = [b'm', b'a', b'x', b'p'];
+pub const MAXIMAL_PROFILE_VERSION_0_5: Fixed = Fixed(0x00005000);
+
+pub trait Table {
+    fn read(&mut self, reader: &mut Reader) -> Result<()>;
 }
 
-#[inline(always)]
-pub fn read<S: Spec, R: io::Reader>(stream: &mut R) -> io::IoResult<S> {
-    Spec::read(stream)
-}
-
-macro_rules! read_field(
-    ($stream:ident, i16) => (try!($stream.read_be_i16()));
-    ($stream:ident, u16) => (try!($stream.read_be_u16()));
-    ($stream:ident, i32) => (try!($stream.read_be_i32()));
-    ($stream:ident, u32) => (try!($stream.read_be_u32()));
-    ($stream:ident, f32) => ({
-        let value = try!($stream.read_be_u32()) as f32;
-        (value * 0.0000152587890625 * 1000.0).round() / 1000.0
-    });
-    ($stream:ident, i64) => (try!($stream.read_be_i64()));
+macro_rules! define(
+    ($name:ident: $($class:ident $field:ident,)+) => (
+        #[deriving(Default)]
+        pub struct $name { $(pub $field: $class,)+ }
+        implement!($name: $($field as $class,)+)
+    )
 )
 
-macro_rules! implement_spec(
-    ($subject:ident, $($field:ident as $class:ident,)+) => (
-        impl Spec for $subject {
-            fn read(stream: &mut ::std::io::Reader)
-                -> ::std::io::IoResult<$subject> {
-
-                Ok($subject {
-                    $($field: read_field!(stream, $class),)+
-                })
+macro_rules! implement(
+    ($name:ident: $($field:ident as $class:ident,)+) => (
+        impl Table for $name {
+            fn read(&mut self, reader: &mut Reader) -> Result<()> {
+                $(self.$field = read!(reader as $class);)+
+                Ok(())
             }
         }
     )
 )
 
-macro_rules! define_spec(
-    ($name:ident, $($field:ident as $class:ident,)+) => (
-        #[deriving(Default, Show)]
-        pub struct $name { $(pub $field: $class,)+ }
-        implement_spec!($name, $($field as $class,)+)
-    )
+macro_rules! read(
+    ($reader:ident as USHORT) => (try!($reader.read_be_u16()));
+    ($reader:ident as SHORT) => (try!($reader.read_be_i16()));
+    ($reader:ident as ULONG) => (try!($reader.read_be_u32()));
+    ($reader:ident as Fixed) => (Fixed(try!($reader.read_be_u32())));
+    ($reader:ident as LONGDATETIME) => (try!($reader.read_be_i64()));
 )
 
-define_spec!(OffsetTable,
-    tag as u32,
-    numTables as u16,
-    searchRange as u16,
-    entrySelector as u16,
-    rangeShift as u16,
+define!(
+    OffsetTable:
+
+    Fixed version,
+    USHORT numTables,
+    USHORT searchRange,
+    USHORT entrySelector,
+    USHORT rangeShift,
 )
 
-define_spec!(TableRecord,
-    tag as u32,
-    checkSum as u32,
-    offset as u32,
-    length as u32,
+define!(
+    TableRecord:
+
+    ULONG tag,
+    ULONG checkSum,
+    ULONG offset,
+    ULONG length,
 )
 
-define_spec!(FontHeader,
-    version as f32,
-    fontRevision as f32,
-    checkSumAdjustment as u32,
-    magicNumber as u32,
-    flags as u16,
-    unitsPerEm as u16,
-    created as i64,
-    modified as i64,
-    xMin as i16,
-    yMin as i16,
-    xMax as i16,
-    yMax as i16,
-    macStyle as u16,
-    lowestRecPPEM as u16,
-    fontDirectionHint as i16,
-    indexToLocFormat as i16,
-    glyphDataFormat as i16,
+define!(
+    FontHeader:
+
+    Fixed version,
+    Fixed fontRevision,
+    ULONG checkSumAdjustment,
+    ULONG magicNumber,
+    USHORT flags,
+    USHORT unitsPerEm,
+    LONGDATETIME created,
+    LONGDATETIME modified,
+    SHORT xMin,
+    SHORT yMin,
+    SHORT xMax,
+    SHORT yMax,
+    USHORT macStyle,
+    USHORT lowestRecPPEM,
+    SHORT fontDirectionHint,
+    SHORT indexToLocFormat,
+    SHORT glyphDataFormat,
 )
 
-define_spec!(MaximumProfile,
-    version as u32,
-    numGlyphs as u16,
+define!(
+    MaximumProfile:
+
+    Fixed version,
+    USHORT numGlyphs,
 )
+
+impl Fixed {
+    /// Convert `Fixed` into `f32`.
+    #[inline]
+    pub fn to_f32(&self) -> f32 {
+        println!("Value: 0x{:x}", self.0);
+        ((self.0 as f32) * 0.0000152587890625 * 1000.0).round() / 1000.0
+    }
+}
 
 #[cfg(test)]
-mod test {
-    #[test]
-    fn read() {
-        let mut file = ::test::open_fixture("SourceSerifPro-Regular.otf");
-        let table: super::OffsetTable = super::read(&mut file).unwrap();
+mod tests {
+    use std::default::Default;
+    use spec::{OffsetTable, Table};
 
-        assert_eq!(table.tag, super::CFF_FORMAT_TAG);
+    #[test]
+    fn offset_table_read() {
+        let mut file = ::tests::open("SourceSerifPro-Bold.otf");
+        let mut table: OffsetTable = Default::default();
+
+        assert!(table.read(&mut file).is_ok());
+
+        assert_eq!(table.version.0, 0x4f54544f);
         assert_eq!(table.numTables, 12);
         assert_eq!(table.searchRange, 8 * 16);
         assert_eq!(table.entrySelector, 3);

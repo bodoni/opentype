@@ -1,204 +1,42 @@
-#![feature(globs, macro_rules)]
+#![feature(macro_rules, tuple_indexing)]
 
 extern crate date;
 
-use std::{default, fmt, io};
-use date::Date;
-
-pub use table::Table;
-pub use style::Style;
-
-pub mod spec;
-mod style;
-mod table;
+pub use font::Font;
 
 macro_rules! raise(
-    () => (return Err(io::IoError {
-        kind: io::OtherIoError,
-        desc: "Cannot parse the file.",
-        detail: None,
-    }));
-    ($message:expr) => (return Err(io::IoError {
-        kind: io::OtherIoError,
-        desc: $message,
-        detail: None,
-    }));
+    () => (
+        return Err(::Error {
+            kind: ::std::io::OtherIoError,
+            desc: "cannot parse the file",
+            detail: None,
+        });
+    );
+    ($desc:expr) => (
+        return Err(::Error {
+            kind: ::std::io::OtherIoError,
+            desc: $desc,
+            detail: None,
+        });
+    );
 )
 
-#[deriving(PartialEq)]
-pub enum Format {
-    CFF,
-}
+pub mod spec;
 
-impl default::Default for Format {
-    fn default() -> Format { CFF }
-}
+mod font;
+mod utils;
 
-impl fmt::Show for Format {
-    fn fmt(&self, formatter: &mut fmt::Formatter)
-        -> Result<(), fmt::FormatError> {
-
-        match *self {
-            CFF => write!(formatter, "CFF"),
-        }
-    }
-}
-
-#[deriving(Default, Show)]
-pub struct Font {
-    pub format: Format,
-    pub version: f32,
-    pub units_per_em: u16,
-    pub created_on: Date,
-    pub updated_on: Date,
-    pub style: Style,
-    pub glyph_count: u16,
-}
-
-impl Font {
-    fn parse(&mut self, stream: &mut io::File) -> io::IoResult<()> {
-        let offset_table: spec::OffsetTable = try!(spec::read(stream));
-
-        match offset_table.tag {
-            spec::CFF_FORMAT_TAG => try!(self.parse_cff(stream, &offset_table)),
-            _ => raise!("The format is not supported.")
-        }
-
-        Ok(())
-    }
-
-    fn parse_cff(&mut self, stream: &mut io::File,
-        offset_table: &spec::OffsetTable) -> io::IoResult<()> {
-
-        let mut table_records: Vec<spec::TableRecord> = Vec::new();
-
-        for _ in range(0, offset_table.numTables) {
-            table_records.push(try!(spec::read(stream)));
-        }
-
-        for table_record in table_records.iter() {
-            match table_record.tag {
-                spec::FONT_HEADER_TAG => {
-                    try!(stream.seek(table_record.offset as i64, io::SeekSet));
-                    if !Table::map_and_check(stream, table_record,
-                        |chunk, i| if i == 2 { 0 } else { chunk }) {
-
-                        raise!("The file is corrupted.");
-                    }
-
-                    try!(stream.seek(table_record.offset as i64, io::SeekSet));
-                    try!(self.parse_font_header(stream));
-                }
-                spec::MAXIMAL_PROFILE_TAG => {
-                    try!(stream.seek(table_record.offset as i64, io::SeekSet));
-                    if !Table::check(stream, table_record) {
-                        raise!("The file is corrupted.");
-                    }
-
-                    try!(stream.seek(table_record.offset as i64, io::SeekSet));
-                    try!(self.parse_maximum_profile(stream));
-                }
-                _ => ()
-            }
-        }
-
-        self.format = CFF;
-
-        Ok(())
-    }
-
-    fn parse_font_header<R: io::Reader>(&mut self, stream: &mut R)
-        -> io::IoResult<()> {
-
-        let table: spec::FontHeader = try!(spec::read(stream));
-
-        if table.version != 1.0 {
-            raise!("The format version is supported.");
-        }
-
-        if table.magicNumber != spec::FONT_HEADER_MAGIC_NUMBER {
-            raise!("The file is currupted.");
-        }
-
-        self.version = table.fontRevision;
-        self.units_per_em = table.unitsPerEm;
-
-        self.created_on = Date::at_utc_1904(table.created);
-        self.updated_on = Date::at_utc_1904(table.modified);
-
-        self.style.parse(table.macStyle);
-
-        Ok(())
-    }
-
-    fn parse_maximum_profile<R: io::Reader>(&mut self, stream: &mut R)
-        -> io::IoResult<()> {
-
-        let table: spec::MaximumProfile = try!(spec::read(stream));
-
-        if table.version != spec::MAXIMAL_PROFILE_VERSION_0_5 {
-            raise!("The format version is supported.");
-        }
-
-        self.glyph_count = table.numGlyphs;
-
-        Ok(())
-    }
-}
-
-pub fn parse(stream: &mut io::File) -> io::IoResult<Font> {
-    let mut font: Font = default::Default::default();
-
-    try!(font.parse(stream));
-
-    Ok(font)
-}
+pub type Error = std::io::IoError;
+pub type Result<T> = std::io::IoResult<T>;
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::io::File;
 
-    use date::Date;
-
-    #[test]
-    fn parse_cff() {
-        let mut file = open_fixture("SourceSerifPro-Regular.otf");
-        let font = ::parse(&mut file).unwrap();
-        assert_eq!(font.format, super::CFF);
-    }
-
-    #[test]
-    fn parse_font_header() {
-        let mut file = open_fixture("SourceSerifPro-Bold.otf");
-        let font = ::parse(&mut file).unwrap();
-
-        assert_eq!(font.version, 1.014);
-        assert_eq!(font.units_per_em, 1000);
-
-        assert_eq!(font.created_on, Date::new(2014, 4, 27));
-        assert_eq!(font.updated_on, Date::new(2014, 4, 27));
-
-        assert_eq!(font.style.bold, true);
-        assert_eq!(font.style.italic, false);
-        assert_eq!(font.style.condensed, false);
-        assert_eq!(font.style.extended, false);
-    }
-
-    #[test]
-    fn parse_maximal_profile() {
-        let mut file = open_fixture("SourceSerifPro-Regular.otf");
-        let font = ::parse(&mut file).unwrap();
-        assert_eq!(font.glyph_count, 545);
-    }
-
-    pub fn open_fixture(name: &str) -> File {
-        File::open(&find_fixture(name)).unwrap()
-    }
-
-    fn find_fixture(name: &str) -> Path {
+    pub fn open(name: &str) -> File {
         use std::io::fs::PathExtensions;
         let path = Path::new("tests").join_many(["fixtures", name]);
         assert!(path.exists());
-        path
+        File::open(&path).unwrap()
     }
 }

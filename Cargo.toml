@@ -2,9 +2,10 @@
 name = "opentype"
 version = "0.0.1"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
-
-[dependencies]
-time = "0.0.3"
+license = "MIT"
+repository = "https://github.com/stainless-steel/opentype"
+homepage = "https://github.com/stainless-steel/opentype"
+description = "The library provides a parser for OpenType fonts."
 
 [dependencies.date]
 path = "pkg/date"

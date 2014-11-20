@@ -9,3 +9,4 @@ description = "The library provides a parser for OpenType fonts."
 
 [dependencies.date]
 path = "pkg/date"
+version = "*"

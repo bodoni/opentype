@@ -113,6 +113,7 @@ impl Fixed {
     /// Convert `Fixed` into `f32`.
     #[inline]
     pub fn to_f32(&self) -> f32 {
+        use std::num::Float;
         println!("Value: 0x{:x}", self.0);
         ((self.0 as f32) * 0.0000152587890625 * 1000.0).round() / 1000.0
     }

@@ -35,7 +35,7 @@ mod tests {
 
     pub fn open(name: &str) -> File {
         use std::io::fs::PathExtensions;
-        let path = Path::new("tests").join_many(["fixtures", name]);
+        let path = Path::new("tests").join_many(&["fixtures", name]);
         assert!(path.exists());
         File::open(&path).unwrap()
     }

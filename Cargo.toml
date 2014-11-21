@@ -8,4 +8,4 @@ homepage = "https://github.com/stainless-steel/opentype"
 description = "The library provides a parser for OpenType fonts."
 
 [dependencies]
-date = "0.0.1"
+date = "0.0.2"

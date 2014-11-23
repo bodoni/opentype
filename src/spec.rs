@@ -21,13 +21,13 @@ pub struct Fixed(u32);
 /// 1904. The value is represented as a signed 64-bit integer.
 pub type LONGDATETIME = i64;
 
-pub const CFF_FORMAT_TAG: [u8, ..4] = [b'O', b'T', b'T', b'O'];
+pub const CFF_FORMAT_TAG: &'static [u8] = b"OTTO";
 
-pub const FONT_HEADER_TAG: [u8, ..4] = [b'h', b'e', b'a', b'd'];
+pub const FONT_HEADER_TAG: &'static [u8] = b"head";
 pub const FONT_HEADER_VERSION_1_0: Fixed = Fixed(0x00010000);
 pub const FONT_HEADER_MAGIC_NUMBER: ULONG = 0x5F0F3CF5;
 
-pub const MAXIMAL_PROFILE_TAG: [u8, ..4] = [b'm', b'a', b'x', b'p'];
+pub const MAXIMAL_PROFILE_TAG: &'static [u8] = b"maxp";
 pub const MAXIMAL_PROFILE_VERSION_0_5: Fixed = Fixed(0x00005000);
 
 pub trait Table {

@@ -7,7 +7,7 @@ use spec::{mod, FontHeader, OffsetTable, MaximumProfile, Table, TableRecord};
 macro_rules! tag(
     ($value:expr) => (unsafe {
         let value: [u8, ..4] = ::std::mem::transmute($value);
-        [value[3], value[2], value[1], value[0]]
+        [value[3], value[2], value[1], value[0]].as_slice()
     })
 )
 

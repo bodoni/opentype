@@ -9,3 +9,6 @@ description = "The library provides a parser for OpenType fonts."
 
 [dependencies]
 date = "0.0.2"
+
+[dev-dependencies]
+assert = "0.0.1"

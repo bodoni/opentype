@@ -1,5 +1,6 @@
-#![feature(macro_rules, tuple_indexing)]
+#![feature(macro_rules, phase, tuple_indexing)]
 
+#[cfg(test)] #[phase(plugin)] extern crate assert;
 #[cfg(test)] extern crate date;
 
 pub use font::Font;

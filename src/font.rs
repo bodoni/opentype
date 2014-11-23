@@ -2,7 +2,14 @@ use std::default::Default;
 use std::io::{Reader, Seek};
 
 use Result;
-use spec::{mod, FontHeader, OffsetTable, MaximumProfile, Table, TableRecord};
+
+use spec::{mod, Table, TableRecord};
+
+use spec::OffsetTable;
+
+use spec::{CharMappingHeader, EncodingRecord};
+use spec::FontHeader;
+use spec::MaximumProfile;
 
 macro_rules! tag(
     ($value:expr) => (unsafe {
@@ -14,6 +21,8 @@ macro_rules! tag(
 #[deriving(Default)]
 pub struct Font {
     pub offset_table: OffsetTable,
+
+    pub char_mapping_header: CharMappingHeader,
     pub font_header: FontHeader,
     pub maximum_profile: MaximumProfile,
 }
@@ -50,16 +59,25 @@ impl Font {
             );
         )
 
-        let mut table_records = vec![];
+        let mut records = vec![];
 
         for _ in range(0, self.offset_table.numTables) {
             let mut table: TableRecord = Default::default();
             try!(table.read(reader));
-            table_records.push(table);
+            records.push(table);
         }
 
-        for record in table_records.iter() {
+        for record in records.iter() {
             match tag!(record.tag) {
+                spec::CHAR_MAPPING_TAG => {
+                    seek!(reader, record.offset);
+                    if !checksum(reader, record, |_, chunk| chunk) {
+                        raise!("the file is corrupted");
+                    }
+
+                    seek!(reader, record.offset);
+                    try!(self.read_char_mapping(reader));
+                },
                 spec::FONT_HEADER_TAG => {
                     seek!(reader, record.offset);
                     if !checksum(reader, record, |i, chunk| if i == 2 { 0 } else { chunk }) {
@@ -80,6 +98,24 @@ impl Font {
                 },
                 _ => (),
             }
+        }
+
+        Ok(())
+    }
+
+    fn read_char_mapping(&mut self, reader: &mut Reader) -> Result<()> {
+        try!(self.char_mapping_header.read(reader));
+
+        if self.char_mapping_header.version != spec::CHAR_MAPPING_HEADER_VERSION_0_0 {
+            raise!("the format of the character mapping table is not supported");
+        }
+
+        let mut records = vec![];
+
+        for _ in range(0u, self.char_mapping_header.numTables as uint) {
+            let mut table: EncodingRecord = Default::default();
+            try!(table.read(reader));
+            records.push(table);
         }
 
         Ok(())

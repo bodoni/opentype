@@ -1,4 +1,4 @@
-#![feature(macro_rules, phase, tuple_indexing)]
+#![feature(macro_rules, phase)]
 
 #[cfg(test)] #[phase(plugin)] extern crate assert;
 #[cfg(test)] extern crate date;

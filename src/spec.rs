@@ -1,4 +1,4 @@
-#![allow(non_snake_case)]
+#![allow(missing_copy_implementations, non_snake_case)]
 
 use std::io::Reader;
 
@@ -14,12 +14,18 @@ pub type SHORT = i16;
 pub type ULONG = u32;
 
 /// A 32-bit signed fixed-point number (16.16).
-#[deriving(Default, Eq, PartialEq)]
+#[deriving(Copy, Default, Eq, PartialEq)]
 pub struct Fixed(u32);
 
 /// A date represented in number of seconds since 12:00 midnight, January 1,
 /// 1904. The value is represented as a signed 64-bit integer.
 pub type LONGDATETIME = i64;
+
+/// A vector of `USHORT`.
+pub type VecUSHORT = Vec<USHORT>;
+
+/// A vector of `SHORT`.
+pub type VecSHORT = Vec<SHORT>;
 
 pub const CFF_FORMAT_TAG: &'static [u8] = b"OTTO";
 
@@ -62,6 +68,12 @@ macro_rules! read(
     ($reader:ident as ULONG) => (try!($reader.read_be_u32()));
     ($reader:ident as Fixed) => (Fixed(try!($reader.read_be_u32())));
     ($reader:ident as LONGDATETIME) => (try!($reader.read_be_i64()));
+    ($reader:ident as VecUSHORT) => ({
+        vec![]
+    });
+    ($reader:ident as VecSHORT) => ({
+        vec![]
+    });
 )
 
 define!(
@@ -96,6 +108,41 @@ define!(
     USHORT platformID,
     USHORT encodingID,
     ULONG offset,
+)
+
+define!(
+    CharMappingFormat:
+
+    USHORT version,
+)
+
+define!(
+    CharMappingFormat4:
+
+    USHORT format,
+    USHORT length,
+    USHORT language,
+    USHORT segCountX2,
+    USHORT searchRange,
+    USHORT entrySelector,
+    USHORT rangeShift,
+    VecUSHORT endCount,
+    USHORT reservedPad,
+    VecUSHORT startCount,
+    VecSHORT idDelta,
+    VecUSHORT idRangeOffset,
+    VecUSHORT glyphIdArray,
+)
+
+define!(
+    CharMappingFormat6:
+
+    USHORT format,
+    USHORT length,
+    USHORT language,
+    USHORT firstCode,
+    USHORT entryCount,
+    VecUSHORT glyphIdArray,
 )
 
 define!(

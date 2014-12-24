@@ -47,9 +47,9 @@ macro_rules! define(
     ($name:ident: $($class:ident $field:ident,)+) => (
         #[deriving(Default)]
         pub struct $name { $(pub $field: $class,)+ }
-        implement!($name: $($field as $class,)+)
+        implement!($name: $($field as $class,)+);
     )
-)
+);
 
 macro_rules! implement(
     ($name:ident: $($field:ident as $class:ident,)+) => (
@@ -60,7 +60,7 @@ macro_rules! implement(
             }
         }
     )
-)
+);
 
 macro_rules! read(
     ($reader:ident as USHORT) => (try!($reader.read_be_u16()));
@@ -74,7 +74,7 @@ macro_rules! read(
     ($reader:ident as VecSHORT) => ({
         vec![]
     });
-)
+);
 
 define!(
     OffsetTable:
@@ -84,7 +84,7 @@ define!(
     USHORT searchRange,
     USHORT entrySelector,
     USHORT rangeShift,
-)
+);
 
 define!(
     TableRecord:
@@ -93,14 +93,14 @@ define!(
     ULONG checkSum,
     ULONG offset,
     ULONG length,
-)
+);
 
 define!(
     CharMappingHeader:
 
     USHORT version,
     USHORT numTables,
-)
+);
 
 define!(
     EncodingRecord:
@@ -108,13 +108,13 @@ define!(
     USHORT platformID,
     USHORT encodingID,
     ULONG offset,
-)
+);
 
 define!(
     CharMappingFormat:
 
     USHORT version,
-)
+);
 
 define!(
     CharMappingFormat4:
@@ -132,7 +132,7 @@ define!(
     VecSHORT idDelta,
     VecUSHORT idRangeOffset,
     VecUSHORT glyphIdArray,
-)
+);
 
 define!(
     CharMappingFormat6:
@@ -143,7 +143,7 @@ define!(
     USHORT firstCode,
     USHORT entryCount,
     VecUSHORT glyphIdArray,
-)
+);
 
 define!(
     FontHeader:
@@ -165,14 +165,14 @@ define!(
     SHORT fontDirectionHint,
     SHORT indexToLocFormat,
     SHORT glyphDataFormat,
-)
+);
 
 define!(
     MaximumProfile:
 
     Fixed version,
     USHORT numGlyphs,
-)
+);
 
 impl Fixed {
     /// Convert `Fixed` into `f32`.

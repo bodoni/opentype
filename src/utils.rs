@@ -41,7 +41,7 @@ mod tests {
                     |_, chunk| chunk,
                 )
             )
-        )
+        );
 
         assert!(!checksum!(3 * 4,
                            1 + 2 + 4,

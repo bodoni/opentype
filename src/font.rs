@@ -17,13 +17,13 @@ macro_rules! tag(
         let value: [u8, ..4] = ::std::mem::transmute($value);
         [value[3], value[2], value[1], value[0]].as_slice()
     })
-)
+);
 
 macro_rules! seek(
     ($reader:expr, $offset:expr) => (
         try!($reader.seek($offset as i64, ::std::io::SeekSet))
     );
-)
+);
 
 #[deriving(Default)]
 pub struct Font {
@@ -197,7 +197,7 @@ mod tests {
             ($seconds:expr, $year:expr, $month:expr, $day:expr) => (
                 assert_eq!(Date::at_utc_1904($seconds), Date::new($year, $month, $day));
             );
-        )
+        );
 
         let mut file = ::tests::open("SourceSerifPro-Regular.otf");
         let font = ::font::read(&mut file).unwrap();

@@ -20,7 +20,7 @@ macro_rules! raise(
             detail: None,
         });
     );
-)
+);
 
 pub mod spec;
 

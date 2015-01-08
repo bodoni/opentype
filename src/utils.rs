@@ -1,8 +1,8 @@
 use std::{io, mem};
 use spec::TableRecord;
 
-pub fn checksum<R: io::Reader>(reader: &mut R, record: &TableRecord,
-                               process: |uint, u32| -> u32) -> bool {
+pub fn checksum<R: io::Reader, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
+    where F: Fn(uint, u32) -> u32 {
 
     let mut checksum: u32 = 0;
     let length = {

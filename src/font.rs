@@ -3,7 +3,7 @@ use std::io::{Reader, Seek};
 
 use Result;
 
-use spec::{mod, Table, TableRecord};
+use spec::{self, Table, TableRecord};
 
 use spec::OffsetTable;
 
@@ -14,7 +14,7 @@ use spec::MaximumProfile;
 
 macro_rules! tag(
     ($value:expr) => (unsafe {
-        let value: [u8, ..4] = ::std::mem::transmute($value);
+        let value: [u8; 4] = ::std::mem::transmute($value);
         [value[3], value[2], value[1], value[0]].as_slice()
     })
 );
@@ -25,7 +25,7 @@ macro_rules! seek(
     );
 );
 
-#[deriving(Default)]
+#[derive(Default)]
 pub struct Font {
     pub offset_table: OffsetTable,
 

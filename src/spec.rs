@@ -14,7 +14,7 @@ pub type SHORT = i16;
 pub type ULONG = u32;
 
 /// A 32-bit signed fixed-point number (16.16).
-#[deriving(Copy, Default, Eq, PartialEq)]
+#[derive(Copy, Default, Eq, PartialEq)]
 pub struct Fixed(u32);
 
 /// A date represented in number of seconds since 12:00 midnight, January 1,
@@ -45,7 +45,7 @@ pub trait Table {
 
 macro_rules! define(
     ($name:ident: $($class:ident $field:ident,)+) => (
-        #[deriving(Default)]
+        #[derive(Default)]
         pub struct $name { $(pub $field: $class,)+ }
         implement!($name: $($field as $class,)+);
     )

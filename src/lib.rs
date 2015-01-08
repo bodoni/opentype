@@ -1,7 +1,9 @@
-#![feature(macro_rules, phase)]
+#[cfg(test)]
+#[macro_use]
+extern crate assert;
 
-#[cfg(test)] #[phase(plugin)] extern crate assert;
-#[cfg(test)] extern crate date;
+#[cfg(test)]
+extern crate date;
 
 pub use font::Font;
 

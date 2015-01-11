@@ -114,7 +114,7 @@ impl Font {
 
         let mut records = vec![];
 
-        for _ in range(0u, self.char_mapping_header.numTables as uint) {
+        for _ in range(0, self.char_mapping_header.numTables as usize) {
             let mut table: EncodingRecord = Default::default();
             try!(table.read(reader));
             records.push(table);

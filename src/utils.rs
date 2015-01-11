@@ -2,12 +2,12 @@ use std::{io, mem};
 use spec::TableRecord;
 
 pub fn checksum<R: io::Reader, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
-    where F: Fn(uint, u32) -> u32 {
+    where F: Fn(usize, u32) -> u32 {
 
     let mut checksum: u32 = 0;
     let length = {
         let size = mem::size_of::<u32>();
-        ((record.length as uint + size - 1) & !(size - 1)) / size
+        ((record.length as usize + size - 1) & !(size - 1)) / size
     };
 
     for i in range(0, length) {

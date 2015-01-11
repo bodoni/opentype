@@ -1,3 +1,5 @@
+#![allow(unstable)]
+
 #[cfg(test)]
 #[macro_use]
 extern crate assert;

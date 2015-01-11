@@ -217,7 +217,7 @@ mod tests {
         assert_eq!(table.numTables, 3);
 
         let (platforms, encodings) = ([0, 1, 3], [3, 0, 1]);
-        for i in range(0u, 3) {
+        for i in range(0, 3) {
             let mut table: EncodingRecord = Default::default();
             assert_ok!(table.read(&mut file));
             assert_eq!(table.platformID, platforms[i]);

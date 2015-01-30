@@ -1,5 +1,5 @@
 use std::default::Default;
-use std::io::{Reader, Seek};
+use std::old_io::{Reader, Seek};
 
 use Result;
 
@@ -21,7 +21,7 @@ macro_rules! tag(
 
 macro_rules! seek(
     ($reader:expr, $offset:expr) => (
-        try!($reader.seek($offset as i64, ::std::io::SeekSet))
+        try!($reader.seek($offset as i64, ::std::old_io::SeekSet))
     );
 );
 

@@ -1,4 +1,5 @@
-use std::{io, mem};
+use std::old_io as io;
+use std::mem;
 use spec::TableRecord;
 
 pub fn checksum<R: io::Reader, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
@@ -23,7 +24,7 @@ pub fn checksum<R: io::Reader, F>(reader: &mut R, record: &TableRecord, process:
 #[cfg(test)]
 mod tests {
     use std::default::Default;
-    use std::io::BufReader;
+    use std::old_io::BufReader;
 
     use spec::TableRecord;
 

@@ -1,6 +1,6 @@
 #![allow(missing_copy_implementations, non_snake_case)]
 
-use std::io::Reader;
+use std::old_io::Reader;
 
 use Result;
 
@@ -209,7 +209,7 @@ mod tests {
         use spec::{CharMappingHeader, EncodingRecord};
 
         let mut file = ::tests::open("SourceSerifPro-Regular.otf");
-        assert_ok!(file.seek(15668, ::std::io::SeekSet));
+        assert_ok!(file.seek(15668, ::std::old_io::SeekSet));
 
         let mut table: CharMappingHeader = Default::default();
         assert_ok!(table.read(&mut file));

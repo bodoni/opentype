@@ -1,6 +1,6 @@
 [package]
 name = "opentype"
-version = "0.0.6"
+version = "0.0.7"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/stainless-steel/opentype"
@@ -11,4 +11,4 @@ description = "The library provides a parser for OpenType fonts."
 date = "0.1"
 
 [dev-dependencies]
-assert = "0.0.4"
+assert = "0.1"

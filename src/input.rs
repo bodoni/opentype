@@ -10,7 +10,7 @@ pub trait Read {
 }
 
 pub trait Seek {
-    fn jump(&mut self, position: u64) -> Result<u64>;
+    fn seek(&mut self, position: u64) -> Result<u64>;
     fn position(&mut self) -> Result<u64>;
 }
 
@@ -65,7 +65,7 @@ impl<'d, D> Read for Reader<'d, D> where D: io::Read {
 
 impl<'d, D> Seek for Reader<'d, D> where D: io::Seek {
     #[inline]
-    fn jump(&mut self, position: u64) -> Result<u64> {
+    fn seek(&mut self, position: u64) -> Result<u64> {
         self.driver.seek(io::SeekFrom::Start(position))
     }
 

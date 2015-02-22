@@ -29,9 +29,9 @@ pub struct Font {
     pub maximum_profile: MaximumProfile,
 }
 
-macro_rules! jump(
+macro_rules! seek(
     ($reader:expr, $position:expr) => (
-        try!($reader.jump($position as u64))
+        try!($reader.seek($position as u64))
     );
 );
 
@@ -72,30 +72,30 @@ impl Font {
         for record in records.iter() {
             match tag!(record.tag) {
                 spec::CHAR_MAPPING_TAG => {
-                    jump!(reader, record.offset);
+                    seek!(reader, record.offset);
                     if !checksum(reader, record, |_, chunk| chunk) {
                         raise!("the character-to-glyph mapping is corrupted");
                     }
 
-                    jump!(reader, record.offset);
+                    seek!(reader, record.offset);
                     try!(self.read_char_mapping(reader));
                 },
                 spec::FONT_HEADER_TAG => {
-                    jump!(reader, record.offset);
+                    seek!(reader, record.offset);
                     if !checksum(reader, record, |i, chunk| if i == 2 { 0 } else { chunk }) {
                         raise!("the font header is corrupted");
                     }
 
-                    jump!(reader, record.offset);
+                    seek!(reader, record.offset);
                     try!(self.read_font_header(reader));
                 },
                 spec::MAXIMAL_PROFILE_TAG => {
-                    jump!(reader, record.offset);
+                    seek!(reader, record.offset);
                     if !checksum(reader, record, |_, chunk| chunk) {
                         raise!("the maximal profile is corrupted");
                     }
 
-                    jump!(reader, record.offset);
+                    seek!(reader, record.offset);
                     try!(self.read_maximum_profile(reader));
                 },
                 _ => (),
@@ -124,10 +124,10 @@ impl Font {
         for record in records.iter() {
             let offset = top + record.offset as u64;
 
-            jump!(reader, offset);
+            seek!(reader, offset);
             let mut table: CharMappingFormat = Default::default();
             try!(table.read(reader));
-            jump!(reader, offset);
+            seek!(reader, offset);
 
             match table.version {
                 4 => try!(self.read_char_mapping_format_4(reader)),

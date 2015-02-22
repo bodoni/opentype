@@ -5,7 +5,7 @@ authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/stainless-steel/opentype"
 homepage = "https://github.com/stainless-steel/opentype"
-description = "The library provides a parser for OpenType fonts."
+description = "The package provides a parser for OpenType fonts."
 
 [dependencies]
 date = "0.1"

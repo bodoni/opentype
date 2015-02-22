@@ -1,3 +1,5 @@
+//! A parser for OpenType fonts.
+
 #![feature(core, io)]
 #![cfg_attr(test, feature(fs, path))]
 

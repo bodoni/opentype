@@ -1,6 +1,6 @@
 # OpenType [![Build Status][travis-svg]][travis-url]
 
-The library provides a parser for OpenType fonts.
+The package provides a parser for OpenType fonts.
 
 ## [Documentation][docs]
 

@@ -1,7 +1,6 @@
-#![allow(missing_copy_implementations, non_snake_case)]
+#![allow(non_snake_case)]
 
-use std::old_io::Reader;
-
+use input::Read;
 use Result;
 
 /// A 16-bit unsigned integer.
@@ -40,7 +39,7 @@ pub const MAXIMAL_PROFILE_TAG: &'static [u8] = b"maxp";
 pub const MAXIMAL_PROFILE_VERSION_0_5: Fixed = Fixed(0x00005000);
 
 pub trait Table {
-    fn read(&mut self, reader: &mut Reader) -> Result<()>;
+    fn read<R: Read>(&mut self, reader: &mut R) -> Result<()>;
 }
 
 macro_rules! define(
@@ -54,7 +53,7 @@ macro_rules! define(
 macro_rules! implement(
     ($name:ident: $($field:ident as $class:ident,)+) => (
         impl Table for $name {
-            fn read(&mut self, reader: &mut Reader) -> Result<()> {
+            fn read<R: Read>(&mut self, reader: &mut R) -> Result<()> {
                 $(self.$field = read!(reader as $class);)+
                 Ok(())
             }
@@ -63,11 +62,11 @@ macro_rules! implement(
 );
 
 macro_rules! read(
-    ($reader:ident as USHORT) => (try!($reader.read_be_u16()));
-    ($reader:ident as SHORT) => (try!($reader.read_be_i16()));
-    ($reader:ident as ULONG) => (try!($reader.read_be_u32()));
-    ($reader:ident as Fixed) => (Fixed(try!($reader.read_be_u32())));
-    ($reader:ident as LONGDATETIME) => (try!($reader.read_be_i64()));
+    ($reader:ident as USHORT) => (try!($reader.read_u16()));
+    ($reader:ident as SHORT) => (try!($reader.read_i16()));
+    ($reader:ident as ULONG) => (try!($reader.read_u32()));
+    ($reader:ident as Fixed) => (Fixed(try!($reader.read_u32())));
+    ($reader:ident as LONGDATETIME) => (try!($reader.read_i64()));
     ($reader:ident as VecUSHORT) => ({
         vec![]
     });
@@ -187,6 +186,7 @@ impl Fixed {
 mod tests {
     use std::default::Default;
 
+    use input::Reader;
     use spec::Table;
 
     #[test]
@@ -194,9 +194,10 @@ mod tests {
         use spec::OffsetTable;
 
         let mut file = ::tests::open("SourceSerifPro-Regular.otf");
+        let mut reader = Reader::new(&mut file);
 
         let mut table: OffsetTable = Default::default();
-        assert_ok!(table.read(&mut file));
+        assert_ok!(table.read(&mut reader));
         assert_eq!(table.version.0, 0x4f54544f);
         assert_eq!(table.numTables, 12);
         assert_eq!(table.searchRange, 8 * 16);
@@ -206,20 +207,22 @@ mod tests {
 
     #[test]
     fn char_mapping_read() {
+        use std::io::{Seek, SeekFrom};
         use spec::{CharMappingHeader, EncodingRecord};
 
         let mut file = ::tests::open("SourceSerifPro-Regular.otf");
-        assert_ok!(file.seek(15668, ::std::old_io::SeekSet));
+        assert_ok!(file.seek(SeekFrom::Start(15668)));
+        let mut reader = Reader::new(&mut file);
 
         let mut table: CharMappingHeader = Default::default();
-        assert_ok!(table.read(&mut file));
+        assert_ok!(table.read(&mut reader));
         assert_eq!(table.version, 0);
         assert_eq!(table.numTables, 3);
 
         let (platforms, encodings) = ([0, 1, 3], [3, 0, 1]);
         for i in range(0, 3) {
             let mut table: EncodingRecord = Default::default();
-            assert_ok!(table.read(&mut file));
+            assert_ok!(table.read(&mut reader));
             assert_eq!(table.platformID, platforms[i]);
             assert_eq!(table.encodingID, encodings[i]);
         }

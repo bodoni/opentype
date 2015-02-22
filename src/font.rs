@@ -1,6 +1,7 @@
 use std::default::Default;
-use std::old_io::{Reader, Seek};
+use std::io;
 
+use input::{Read, Seek};
 use Result;
 
 use spec::{self, Table, TableRecord};
@@ -19,12 +20,6 @@ macro_rules! tag(
     })
 );
 
-macro_rules! seek(
-    ($reader:expr, $offset:expr) => (
-        try!($reader.seek($offset as i64, ::std::old_io::SeekSet))
-    );
-);
-
 #[derive(Default)]
 pub struct Font {
     pub offset_table: OffsetTable,
@@ -34,20 +29,26 @@ pub struct Font {
     pub maximum_profile: MaximumProfile,
 }
 
+macro_rules! jump(
+    ($reader:expr, $position:expr) => (
+        try!($reader.jump($position as u64))
+    );
+);
+
 impl Font {
     #[inline]
     fn new() -> Font {
         Default::default()
     }
 
-    fn read<R: Reader + Seek>(&mut self, reader: &mut R) -> Result<()> {
+    fn read<R: Read + Seek>(&mut self, reader: &mut R) -> Result<()> {
         try!(self.read_offset_table(reader));
         try!(self.read_table_records(reader));
 
         Ok(())
     }
 
-    fn read_offset_table(&mut self, reader: &mut Reader) -> Result<()> {
+    fn read_offset_table<R: Read>(&mut self, reader: &mut R) -> Result<()> {
         try!(self.offset_table.read(reader));
 
         if tag!(self.offset_table.version) != spec::CFF_FORMAT_TAG {
@@ -57,7 +58,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_table_records<R: Reader + Seek>(&mut self, reader: &mut R) -> Result<()> {
+    fn read_table_records<R: Read + Seek>(&mut self, reader: &mut R) -> Result<()> {
         use utils::checksum;
 
         let mut records = vec![];
@@ -71,30 +72,30 @@ impl Font {
         for record in records.iter() {
             match tag!(record.tag) {
                 spec::CHAR_MAPPING_TAG => {
-                    seek!(reader, record.offset);
+                    jump!(reader, record.offset);
                     if !checksum(reader, record, |_, chunk| chunk) {
                         raise!("the character-to-glyph mapping is corrupted");
                     }
 
-                    seek!(reader, record.offset);
+                    jump!(reader, record.offset);
                     try!(self.read_char_mapping(reader));
                 },
                 spec::FONT_HEADER_TAG => {
-                    seek!(reader, record.offset);
+                    jump!(reader, record.offset);
                     if !checksum(reader, record, |i, chunk| if i == 2 { 0 } else { chunk }) {
                         raise!("the font header is corrupted");
                     }
 
-                    seek!(reader, record.offset);
+                    jump!(reader, record.offset);
                     try!(self.read_font_header(reader));
                 },
                 spec::MAXIMAL_PROFILE_TAG => {
-                    seek!(reader, record.offset);
+                    jump!(reader, record.offset);
                     if !checksum(reader, record, |_, chunk| chunk) {
                         raise!("the maximal profile is corrupted");
                     }
 
-                    seek!(reader, record.offset);
+                    jump!(reader, record.offset);
                     try!(self.read_maximum_profile(reader));
                 },
                 _ => (),
@@ -104,8 +105,8 @@ impl Font {
         Ok(())
     }
 
-    fn read_char_mapping<R: Reader + Seek>(&mut self, reader: &mut R) -> Result<()> {
-        let top = try!(reader.tell());
+    fn read_char_mapping<R: Read + Seek>(&mut self, reader: &mut R) -> Result<()> {
+        let top = try!(reader.position());
         try!(self.char_mapping_header.read(reader));
 
         if self.char_mapping_header.version != spec::CHAR_MAPPING_HEADER_VERSION_0_0 {
@@ -123,10 +124,10 @@ impl Font {
         for record in records.iter() {
             let offset = top + record.offset as u64;
 
-            seek!(reader, offset);
+            jump!(reader, offset);
             let mut table: CharMappingFormat = Default::default();
             try!(table.read(reader));
-            seek!(reader, offset);
+            jump!(reader, offset);
 
             match table.version {
                 4 => try!(self.read_char_mapping_format_4(reader)),
@@ -138,7 +139,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_char_mapping_format_4(&mut self, reader: &mut Reader) -> Result<()> {
+    fn read_char_mapping_format_4<R: Read>(&mut self, reader: &mut R) -> Result<()> {
         let mut table: CharMappingFormat4 = Default::default();
         try!(table.read(reader));
         assert_eq!(table.format, 4);
@@ -146,7 +147,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_char_mapping_format_6(&mut self, reader: &mut Reader) -> Result<()> {
+    fn read_char_mapping_format_6<R: Read>(&mut self, reader: &mut R) -> Result<()> {
         let mut table: CharMappingFormat6 = Default::default();
         try!(table.read(reader));
         assert_eq!(table.format, 6);
@@ -154,7 +155,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_font_header(&mut self, reader: &mut Reader) -> Result<()> {
+    fn read_font_header<R: Read>(&mut self, reader: &mut R) -> Result<()> {
         try!(self.font_header.read(reader));
 
         if self.font_header.version != spec::FONT_HEADER_VERSION_1_0 {
@@ -168,7 +169,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_maximum_profile(&mut self, reader: &mut Reader) -> Result<()> {
+    fn read_maximum_profile<R: Read>(&mut self, reader: &mut R) -> Result<()> {
         try!(self.maximum_profile.read(reader));
 
         if self.maximum_profile.version != spec::MAXIMAL_PROFILE_VERSION_0_5 {
@@ -179,11 +180,13 @@ impl Font {
     }
 }
 
-#[allow(dead_code)]
-#[inline]
-pub fn read<R: Reader + Seek>(reader: &mut R) -> Result<Font> {
+pub fn read<R: io::Read + io::Seek>(reader: &mut R) -> Result<Font> {
+    use input::Reader;
+
+    let mut reader = Reader::new(reader);
     let mut font = Font::new();
-    try!(font.read(reader));
+    try!(font.read(&mut reader));
+
     Ok(font)
 }
 

@@ -1,10 +1,6 @@
 //! A parser for OpenType fonts.
 
 #[cfg(test)]
-#[macro_use]
-extern crate assert;
-
-#[cfg(test)]
 extern crate date;
 
 extern crate num;

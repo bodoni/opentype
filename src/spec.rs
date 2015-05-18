@@ -189,6 +189,10 @@ mod tests {
     use input::Reader;
     use spec::Table;
 
+    macro_rules! assert_ok(
+        ($result:expr) => (assert!($result.is_ok()));
+    );
+
     #[test]
     fn offset_table_read() {
         use spec::OffsetTable;

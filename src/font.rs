@@ -15,8 +15,10 @@ use spec::MaximumProfile;
 
 macro_rules! tag(
     ($value:expr) => (unsafe {
-        let value: [u8; 4] = ::std::mem::transmute($value);
-        [value[3], value[2], value[1], value[0]].as_slice()
+        let mut value: [u8; 4] = ::std::mem::transmute($value);
+        value.swap(0, 3);
+        value.swap(1, 2);
+        value
     })
 );
 
@@ -63,7 +65,7 @@ impl Font {
 
         let mut records = vec![];
 
-        for _ in range(0, self.offset_table.numTables) {
+        for _ in 0..self.offset_table.numTables {
             let mut table: TableRecord = Default::default();
             try!(table.read(reader));
             records.push(table);
@@ -115,7 +117,7 @@ impl Font {
 
         let mut records = vec![];
 
-        for _ in range(0, self.char_mapping_header.numTables as usize) {
+        for _ in 0..self.char_mapping_header.numTables {
             let mut table: EncodingRecord = Default::default();
             try!(table.read(reader));
             records.push(table);

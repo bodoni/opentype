@@ -6,20 +6,20 @@ pub fn checksum<R, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
 
     use std::mem::size_of;
 
-    let mut checksum: u32 = 0;
+    let mut checksum: u64 = 0;
     let length = {
         let size = size_of::<u32>();
         ((record.length as usize + size - 1) & !(size - 1)) / size
     };
 
-    for i in range(0, length) {
+    for i in 0..length {
         match reader.read_u32() {
-            Ok(chunk) => checksum += process(i, chunk),
+            Ok(chunk) => checksum += process(i, chunk) as u64,
             Err(_) => return false
         }
     }
 
-    record.checkSum == checksum
+    record.checkSum == checksum as u32
 }
 
 #[cfg(test)]

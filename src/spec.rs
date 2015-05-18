@@ -13,7 +13,7 @@ pub type SHORT = i16;
 pub type ULONG = u32;
 
 /// A 32-bit signed fixed-point number (16.16).
-#[derive(Copy, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Default, Eq, PartialEq)]
 pub struct Fixed(u32);
 
 /// A date represented in number of seconds since 12:00 midnight, January 1,
@@ -26,16 +26,16 @@ pub type VecUSHORT = Vec<USHORT>;
 /// A vector of `SHORT`.
 pub type VecSHORT = Vec<SHORT>;
 
-pub const CFF_FORMAT_TAG: &'static [u8] = b"OTTO";
+pub const CFF_FORMAT_TAG: [u8; 4] = [b'O', b'T', b'T', b'O'];
 
-pub const CHAR_MAPPING_TAG: &'static [u8] = b"cmap";
+pub const CHAR_MAPPING_TAG: [u8; 4] = [b'c', b'm', b'a', b'p'];
 pub const CHAR_MAPPING_HEADER_VERSION_0_0: USHORT = 0;
 
-pub const FONT_HEADER_TAG: &'static [u8] = b"head";
+pub const FONT_HEADER_TAG: [u8; 4] = [b'h', b'e', b'a', b'd'];
 pub const FONT_HEADER_VERSION_1_0: Fixed = Fixed(0x00010000);
 pub const FONT_HEADER_MAGIC_NUMBER: ULONG = 0x5F0F3CF5;
 
-pub const MAXIMAL_PROFILE_TAG: &'static [u8] = b"maxp";
+pub const MAXIMAL_PROFILE_TAG: [u8; 4] = [b'm', b'a', b'x', b'p'];
 pub const MAXIMAL_PROFILE_VERSION_0_5: Fixed = Fixed(0x00005000);
 
 pub trait Table {
@@ -177,7 +177,7 @@ impl Fixed {
     /// Convert `Fixed` into `f32`.
     #[inline]
     pub fn to_f32(&self) -> f32 {
-        use std::num::Float;
+        use num::Float;
         ((self.0 as f32) * 0.0000152587890625 * 1000.0).round() / 1000.0
     }
 }
@@ -220,7 +220,7 @@ mod tests {
         assert_eq!(table.numTables, 3);
 
         let (platforms, encodings) = ([0, 1, 3], [3, 0, 1]);
-        for i in range(0, 3) {
+        for i in 0..3 {
             let mut table: EncodingRecord = Default::default();
             assert_ok!(table.read(&mut reader));
             assert_eq!(table.platformID, platforms[i]);

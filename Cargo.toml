@@ -8,7 +8,8 @@ homepage = "https://github.com/stainless-steel/opentype"
 description = "The package provides a parser for OpenType fonts."
 
 [dependencies]
-date = "0.1"
+date = "*"
+num = "*"
 
 [dev-dependencies]
-assert = "0.1"
+assert = "*"

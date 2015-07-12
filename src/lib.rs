@@ -3,8 +3,6 @@
 #[cfg(test)]
 extern crate date;
 
-extern crate num;
-
 use std::io;
 
 macro_rules! raise(

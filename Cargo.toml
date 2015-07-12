@@ -9,4 +9,3 @@ description = "The package provides a parser for OpenType fonts."
 
 [dependencies]
 date = "*"
-num = "*"

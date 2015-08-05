@@ -194,23 +194,13 @@ pub fn read<R: io::Read + io::Seek>(reader: &mut R) -> Result<Font> {
 
 #[cfg(test)]
 mod tests {
-    use date::Date;
-
     #[test]
     fn read() {
-        macro_rules! assert_date(
-            ($seconds:expr, $year:expr, $month:expr, $day:expr) => (
-                assert_eq!(Date::at_utc_1904($seconds), Date::new($year, $month, $day));
-            );
-        );
-
         let mut file = ::tests::open("SourceSerifPro-Regular.otf");
         let font = ::font::read(&mut file).unwrap();
 
         assert_eq!(font.font_header.fontRevision.to_f32(), 1.014);
         assert_eq!(font.font_header.unitsPerEm, 1000);
-        assert_date!(font.font_header.created, 2014, 4, 27);
-        assert_date!(font.font_header.modified, 2014, 4, 27);
         assert_eq!(font.font_header.macStyle, 0);
 
         assert_eq!(font.maximum_profile.numGlyphs, 545);

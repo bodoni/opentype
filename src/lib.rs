@@ -1,8 +1,5 @@
 //! A parser for OpenType fonts.
 
-#[cfg(test)]
-extern crate date;
-
 use std::io;
 
 macro_rules! raise(

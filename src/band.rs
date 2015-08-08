@@ -1,5 +1,5 @@
 use std::io::{Read, Seek, SeekFrom};
-use std::mem;
+use std::{mem, ptr};
 
 use Result;
 
@@ -12,41 +12,42 @@ pub trait Band {
     fn seek(&mut self, u64) -> Result<u64>;
 }
 
-macro_rules! want(
-    ($read:expr, $count:expr) => (
-        if $read != $count {
+#[cfg(target_endian = "big")]
+macro_rules! convert(
+    ($data:ident) => ();
+);
+
+#[cfg(target_endian = "little")]
+macro_rules! convert(
+    ($data:ident) => ($data.reverse());
+);
+
+macro_rules! read(
+    ($this:ident, $count:expr) => (unsafe {
+        let mut buffer: [u8; $count] = mem::uninitialized();
+        if try!($this.read(&mut buffer)) != $count {
             return raise!("failed to read as much as needed");
         }
-    );
+        convert!(buffer);
+        Ok(ptr::read(buffer.as_ptr() as *const _))
+    });
 );
 
 impl<T> Band for T where T: Read + Seek {
     fn read_i16(&mut self) -> Result<i16> {
-        let mut buffer: [u8; 2] = unsafe { mem::uninitialized() };
-        want!(try!(self.read(&mut buffer)), 2);
-        convert(&mut buffer);
-        Ok(unsafe { *(buffer.as_ptr() as *const _) })
+        read!(self, 2)
     }
 
     fn read_u16(&mut self) -> Result<u16> {
-        let mut buffer: [u8; 2] = unsafe { mem::uninitialized() };
-        want!(try!(self.read(&mut buffer)), 2);
-        convert(&mut buffer);
-        Ok(unsafe { *(buffer.as_ptr() as *const _) })
+        read!(self, 2)
     }
 
     fn read_u32(&mut self) -> Result<u32> {
-        let mut buffer: [u8; 4] = unsafe { mem::uninitialized() };
-        want!(try!(self.read(&mut buffer)), 4);
-        convert(&mut buffer);
-        Ok(unsafe { *(buffer.as_ptr() as *const _) })
+        read!(self, 4)
     }
 
     fn read_i64(&mut self) -> Result<i64> {
-        let mut buffer: [u8; 8] = unsafe { mem::uninitialized() };
-        want!(try!(self.read(&mut buffer)), 8);
-        convert(&mut buffer);
-        Ok(unsafe { *(buffer.as_ptr() as *const _) })
+        read!(self, 8)
     }
 
     #[inline]
@@ -57,19 +58,5 @@ impl<T> Band for T where T: Read + Seek {
     #[inline]
     fn position(&mut self) -> Result<u64> {
         Seek::seek(self, SeekFrom::Current(0))
-    }
-}
-
-#[cfg(target_endian = "big")]
-#[inline(always)]
-fn convert<T>(_: &mut [T]) {
-}
-
-#[cfg(target_endian = "little")]
-#[inline]
-fn convert<T>(data: &mut [T]) {
-    let n = data.len();
-    for i in 0..(n / 2) {
-        data.swap(i, n - i - 1);
     }
 }

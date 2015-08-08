@@ -13,12 +13,12 @@ pub trait Band {
 }
 
 #[cfg(target_endian = "big")]
-macro_rules! convert(
+macro_rules! big_endian_to_target(
     ($data:ident) => ();
 );
 
 #[cfg(target_endian = "little")]
-macro_rules! convert(
+macro_rules! big_endian_to_target(
     ($data:ident) => ($data.reverse());
 );
 
@@ -28,7 +28,7 @@ macro_rules! read(
         if try!($this.read(&mut buffer)) != $count {
             return raise!("failed to read as much as needed");
         }
-        convert!(buffer);
+        big_endian_to_target!(buffer);
         Ok(ptr::read(buffer.as_ptr() as *const _))
     });
 );

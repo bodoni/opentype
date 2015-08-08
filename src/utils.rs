@@ -1,12 +1,11 @@
 use std::mem;
 
-use input::Read;
+use band::Band;
 use spec::TableRecord;
 
-pub fn checksum<R, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
-    where R: Read, F: Fn(usize, u32) -> u32
+pub fn checksum<T, F>(band: &mut T, record: &TableRecord, process: F) -> bool
+    where T: Band, F: Fn(usize, u32) -> u32
 {
-
     let mut checksum: u64 = 0;
     let length = {
         let size = mem::size_of::<u32>();
@@ -14,7 +13,7 @@ pub fn checksum<R, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
     };
 
     for i in 0..length {
-        match reader.read_u32() {
+        match band.read_u32() {
             Ok(chunk) => checksum += process(i, chunk) as u64,
             Err(_) => return false
         }
@@ -25,18 +24,19 @@ pub fn checksum<R, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
 
 #[cfg(test)]
 mod tests {
-    use input::Reader;
     use spec::TableRecord;
-    use std::io::BufReader;
+    use std::io::Cursor;
 
     macro_rules! checksum(
         ($length:expr, $checksum:expr, $data:expr) => ({
             let data: &[u8] = $data;
-            super::checksum(
-                &mut Reader::new(&mut BufReader::new(data)),
-                &TableRecord { length: $length, checkSum: $checksum, .. TableRecord::default() },
-                |_, chunk| chunk,
-            )
+            let mut reader = Cursor::new(data);
+            let table = TableRecord {
+                length: $length,
+                checkSum: $checksum,
+                .. TableRecord::default()
+            };
+            super::checksum(&mut reader, &table, |_, chunk| chunk)
         })
     );
 

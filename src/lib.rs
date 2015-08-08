@@ -14,13 +14,12 @@ macro_rules! raise(
     );
 );
 
+mod band;
 mod font;
-mod input;
 mod spec;
 mod utils;
 
 pub use font::Font;
-pub use font::read;
 
 #[cfg(test)]
 mod tests {

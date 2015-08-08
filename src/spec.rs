@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use Result;
-use input::Read;
+use band::Band;
 
 /// A 16-bit unsigned integer.
 pub type USHORT = u16;
@@ -38,7 +38,7 @@ pub const MAXIMAL_PROFILE_TAG: &'static [u8; 4] = b"maxp";
 pub const MAXIMAL_PROFILE_VERSION_0_5: Fixed = Fixed(0x00005000);
 
 pub trait Table {
-    fn read<R: Read>(&mut self, reader: &mut R) -> Result<()>;
+    fn read<T: Band>(&mut self, band: &mut T) -> Result<()>;
 }
 
 macro_rules! define(
@@ -52,8 +52,8 @@ macro_rules! define(
 macro_rules! implement(
     ($name:ident: $($field:ident as $class:ident,)+) => (
         impl Table for $name {
-            fn read<R: Read>(&mut self, reader: &mut R) -> Result<()> {
-                $(self.$field = read!(reader as $class);)+
+            fn read<T: Band>(&mut self, band: &mut T) -> Result<()> {
+                $(self.$field = read!(band as $class);)+
                 Ok(())
             }
         }
@@ -61,15 +61,15 @@ macro_rules! implement(
 );
 
 macro_rules! read(
-    ($reader:ident as USHORT) => (try!($reader.read_u16()));
-    ($reader:ident as SHORT) => (try!($reader.read_i16()));
-    ($reader:ident as ULONG) => (try!($reader.read_u32()));
-    ($reader:ident as Fixed) => (Fixed(try!($reader.read_u32())));
-    ($reader:ident as LONGDATETIME) => (try!($reader.read_i64()));
-    ($reader:ident as VecUSHORT) => ({
+    ($band:ident as USHORT) => (try!($band.read_u16()));
+    ($band:ident as SHORT) => (try!($band.read_i16()));
+    ($band:ident as ULONG) => (try!($band.read_u32()));
+    ($band:ident as Fixed) => (Fixed(try!($band.read_u32())));
+    ($band:ident as LONGDATETIME) => (try!($band.read_i64()));
+    ($band:ident as VecUSHORT) => ({
         vec![]
     });
-    ($reader:ident as VecSHORT) => ({
+    ($band:ident as VecSHORT) => ({
         vec![]
     });
 );
@@ -181,7 +181,6 @@ impl Fixed {
 
 #[cfg(test)]
 mod tests {
-    use input::Reader;
     use spec::Table;
     use tests;
 
@@ -194,10 +193,9 @@ mod tests {
         use spec::OffsetTable;
 
         let mut file = tests::open("SourceSerifPro-Regular.otf");
-        let mut reader = Reader::new(&mut file);
 
         let mut table = OffsetTable::default();
-        assert_ok!(table.read(&mut reader));
+        assert_ok!(table.read(&mut file));
         assert_eq!(table.version.0, 0x4f54544f);
         assert_eq!(table.numTables, 12);
         assert_eq!(table.searchRange, 8 * 16);
@@ -212,17 +210,16 @@ mod tests {
 
         let mut file = tests::open("SourceSerifPro-Regular.otf");
         assert_ok!(file.seek(SeekFrom::Start(15668)));
-        let mut reader = Reader::new(&mut file);
 
         let mut table = CharMappingHeader::default();
-        assert_ok!(table.read(&mut reader));
+        assert_ok!(table.read(&mut file));
         assert_eq!(table.version, 0);
         assert_eq!(table.numTables, 3);
 
         let (platforms, encodings) = ([0, 1, 3], [3, 0, 1]);
         for i in 0..3 {
             let mut table = EncodingRecord::default();
-            assert_ok!(table.read(&mut reader));
+            assert_ok!(table.read(&mut file));
             assert_eq!(table.platformID, platforms[i]);
             assert_eq!(table.encodingID, encodings[i]);
         }

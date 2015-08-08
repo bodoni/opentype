@@ -1,16 +1,14 @@
-use std::io;
+use std::io::{Read, Seek};
 
 use Result;
-use input::{Read, Seek};
-
-use spec::{self, Table, TableRecord};
-
-use spec::OffsetTable;
+use band::Band;
 
 use spec::FontHeader;
 use spec::MaximumProfile;
+use spec::OffsetTable;
 use spec::{CharMappingFormat, CharMappingFormat4, CharMappingFormat6};
 use spec::{CharMappingHeader, EncodingRecord};
+use spec::{self, Table, TableRecord};
 
 macro_rules! tag(
     ($value:expr) => (unsafe {
@@ -36,14 +34,14 @@ macro_rules! seek(
 );
 
 impl Font {
-    fn read<R: Read + Seek>(&mut self, reader: &mut R) -> Result<()> {
-        try!(self.read_offset_table(reader));
-        try!(self.read_table_records(reader));
-
-        Ok(())
+    pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
+        let mut font = Font::default();
+        try!(font.read_offset_table(reader));
+        try!(font.read_table_records(reader));
+        Ok(font)
     }
 
-    fn read_offset_table<R: Read>(&mut self, reader: &mut R) -> Result<()> {
+    fn read_offset_table<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         try!(self.offset_table.read(reader));
 
         if &tag!(self.offset_table.version) != spec::CFF_FORMAT_TAG {
@@ -53,7 +51,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_table_records<R: Read + Seek>(&mut self, reader: &mut R) -> Result<()> {
+    fn read_table_records<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         use utils::checksum;
 
         let mut records = vec![];
@@ -100,7 +98,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_char_mapping<R: Read + Seek>(&mut self, reader: &mut R) -> Result<()> {
+    fn read_char_mapping<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         let top = try!(reader.position());
         try!(self.char_mapping_header.read(reader));
 
@@ -134,7 +132,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_char_mapping_format_4<R: Read>(&mut self, reader: &mut R) -> Result<()> {
+    fn read_char_mapping_format_4<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         let mut table = CharMappingFormat4::default();
         try!(table.read(reader));
         assert_eq!(table.format, 4);
@@ -142,7 +140,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_char_mapping_format_6<R: Read>(&mut self, reader: &mut R) -> Result<()> {
+    fn read_char_mapping_format_6<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         let mut table = CharMappingFormat6::default();
         try!(table.read(reader));
         assert_eq!(table.format, 6);
@@ -150,7 +148,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_font_header<R: Read>(&mut self, reader: &mut R) -> Result<()> {
+    fn read_font_header<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         try!(self.font_header.read(reader));
 
         if self.font_header.version != spec::FONT_HEADER_VERSION_1_0 {
@@ -164,7 +162,7 @@ impl Font {
         Ok(())
     }
 
-    fn read_maximum_profile<R: Read>(&mut self, reader: &mut R) -> Result<()> {
+    fn read_maximum_profile<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         try!(self.maximum_profile.read(reader));
 
         if self.maximum_profile.version != spec::MAXIMAL_PROFILE_VERSION_0_5 {
@@ -175,24 +173,15 @@ impl Font {
     }
 }
 
-pub fn read<R: io::Read + io::Seek>(reader: &mut R) -> Result<Font> {
-    use input::Reader;
-
-    let mut reader = Reader::new(reader);
-    let mut font = Font::default();
-    try!(font.read(&mut reader));
-
-    Ok(font)
-}
-
 #[cfg(test)]
 mod tests {
+    use super::Font;
     use tests;
 
     #[test]
     fn read() {
         let mut file = tests::open("SourceSerifPro-Regular.otf");
-        let font = super::read(&mut file).unwrap();
+        let font = Font::read(&mut file).unwrap();
 
         assert_eq!(font.font_header.fontRevision.as_f32(), 1.014);
         assert_eq!(font.font_header.unitsPerEm, 1000);

@@ -1,21 +1,15 @@
-use std::{io, mem};
+use std::io::{Read, Seek, SeekFrom};
+use std::mem;
 
 use Result;
 
-pub trait Read {
+pub trait Band {
+    fn position(&mut self) -> Result<u64>;
     fn read_i16(&mut self) -> Result<i16>;
+    fn read_i64(&mut self) -> Result<i64>;
     fn read_u16(&mut self) -> Result<u16>;
     fn read_u32(&mut self) -> Result<u32>;
-    fn read_i64(&mut self) -> Result<i64>;
-}
-
-pub trait Seek {
-    fn seek(&mut self, position: u64) -> Result<u64>;
-    fn position(&mut self) -> Result<u64>;
-}
-
-pub struct Reader<'l, T: 'l> {
-    backend: &'l mut T,
+    fn seek(&mut self, u64) -> Result<u64>;
 }
 
 macro_rules! want(
@@ -26,52 +20,43 @@ macro_rules! want(
     );
 );
 
-impl<'l, T> Reader<'l, T> {
-    #[inline]
-    pub fn new(backend: &'l mut T) -> Reader<'l, T> {
-        Reader { backend: backend }
-    }
-}
-
-impl<'l, T> Read for Reader<'l, T> where T: io::Read {
+impl<T> Band for T where T: Read + Seek {
     fn read_i16(&mut self) -> Result<i16> {
         let mut buffer: [u8; 2] = unsafe { mem::uninitialized() };
-        want!(try!(self.backend.read(&mut buffer)), 2);
+        want!(try!(self.read(&mut buffer)), 2);
         convert(&mut buffer);
         Ok(unsafe { *(buffer.as_ptr() as *const _) })
     }
 
     fn read_u16(&mut self) -> Result<u16> {
         let mut buffer: [u8; 2] = unsafe { mem::uninitialized() };
-        want!(try!(self.backend.read(&mut buffer)), 2);
+        want!(try!(self.read(&mut buffer)), 2);
         convert(&mut buffer);
         Ok(unsafe { *(buffer.as_ptr() as *const _) })
     }
 
     fn read_u32(&mut self) -> Result<u32> {
         let mut buffer: [u8; 4] = unsafe { mem::uninitialized() };
-        want!(try!(self.backend.read(&mut buffer)), 4);
+        want!(try!(self.read(&mut buffer)), 4);
         convert(&mut buffer);
         Ok(unsafe { *(buffer.as_ptr() as *const _) })
     }
 
     fn read_i64(&mut self) -> Result<i64> {
         let mut buffer: [u8; 8] = unsafe { mem::uninitialized() };
-        want!(try!(self.backend.read(&mut buffer)), 8);
+        want!(try!(self.read(&mut buffer)), 8);
         convert(&mut buffer);
         Ok(unsafe { *(buffer.as_ptr() as *const _) })
     }
-}
 
-impl<'l, T> Seek for Reader<'l, T> where T: io::Seek {
     #[inline]
     fn seek(&mut self, position: u64) -> Result<u64> {
-        self.backend.seek(io::SeekFrom::Start(position))
+        Seek::seek(self, SeekFrom::Start(position))
     }
 
     #[inline]
     fn position(&mut self) -> Result<u64> {
-        self.backend.seek(io::SeekFrom::Current(0))
+        Seek::seek(self, SeekFrom::Current(0))
     }
 }
 

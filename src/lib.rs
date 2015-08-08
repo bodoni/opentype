@@ -1,31 +1,26 @@
 //! A parser for OpenType fonts.
 
-use std::io;
+use std::{io, result};
+
+/// An error.
+pub type Error = io::Error;
+
+/// A result.
+pub type Result<T> = result::Result<T, Error>;
 
 macro_rules! raise(
-    () => (
-        return Err(::std::io::Error::new(::std::io::ErrorKind::Other, "cannot parse the file"));
-    );
-    ($desc:expr) => (
-        return Err(::std::io::Error::new(::std::io::ErrorKind::Other, $desc));
+    ($message:expr) => (
+        return Err(::Error::new(::std::io::ErrorKind::Other, $message));
     );
 );
 
-pub mod spec;
-
 mod font;
 mod input;
+mod spec;
 mod utils;
 
 pub use font::Font;
-
-pub type Error = io::Error;
-pub type Result<T> = io::Result<T>;
-
-#[inline]
-pub fn read<R: io::Read + io::Seek>(reader: &mut R) -> Result<Vec<Font>> {
-    Ok(vec![try!(font::read(reader))])
-}
+pub use font::read;
 
 #[cfg(test)]
 mod tests {
@@ -33,7 +28,7 @@ mod tests {
     use std::path::PathBuf;
 
     pub fn open(name: &str) -> File {
-        let path = PathBuf::from("tests").join("fixtures").join(name);
+        let path = PathBuf::from("tests/fixtures").join(name);
         assert!(fs::metadata(&path).is_ok());
         File::open(&path).unwrap()
     }

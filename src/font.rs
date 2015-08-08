@@ -1,17 +1,16 @@
-use std::default::Default;
 use std::io;
 
-use input::{Read, Seek};
 use Result;
+use input::{Read, Seek};
 
 use spec::{self, Table, TableRecord};
 
 use spec::OffsetTable;
 
-use spec::{CharMappingHeader, EncodingRecord};
-use spec::{CharMappingFormat, CharMappingFormat4, CharMappingFormat6};
 use spec::FontHeader;
 use spec::MaximumProfile;
+use spec::{CharMappingFormat, CharMappingFormat4, CharMappingFormat6};
+use spec::{CharMappingHeader, EncodingRecord};
 
 macro_rules! tag(
     ($value:expr) => (unsafe {
@@ -25,7 +24,6 @@ macro_rules! tag(
 #[derive(Default)]
 pub struct Font {
     pub offset_table: OffsetTable,
-
     pub char_mapping_header: CharMappingHeader,
     pub font_header: FontHeader,
     pub maximum_profile: MaximumProfile,
@@ -38,11 +36,6 @@ macro_rules! seek(
 );
 
 impl Font {
-    #[inline]
-    fn new() -> Font {
-        Default::default()
-    }
-
     fn read<R: Read + Seek>(&mut self, reader: &mut R) -> Result<()> {
         try!(self.read_offset_table(reader));
         try!(self.read_table_records(reader));
@@ -53,7 +46,7 @@ impl Font {
     fn read_offset_table<R: Read>(&mut self, reader: &mut R) -> Result<()> {
         try!(self.offset_table.read(reader));
 
-        if tag!(self.offset_table.version) != spec::CFF_FORMAT_TAG {
+        if &tag!(self.offset_table.version) != spec::CFF_FORMAT_TAG {
             raise!("the format of the font is not supported");
         }
 
@@ -66,13 +59,13 @@ impl Font {
         let mut records = vec![];
 
         for _ in 0..self.offset_table.numTables {
-            let mut table: TableRecord = Default::default();
+            let mut table = TableRecord::default();
             try!(table.read(reader));
             records.push(table);
         }
 
         for record in records.iter() {
-            match tag!(record.tag) {
+            match &tag!(record.tag) {
                 spec::CHAR_MAPPING_TAG => {
                     seek!(reader, record.offset);
                     if !checksum(reader, record, |_, chunk| chunk) {
@@ -118,7 +111,7 @@ impl Font {
         let mut records = vec![];
 
         for _ in 0..self.char_mapping_header.numTables {
-            let mut table: EncodingRecord = Default::default();
+            let mut table = EncodingRecord::default();
             try!(table.read(reader));
             records.push(table);
         }
@@ -127,7 +120,7 @@ impl Font {
             let offset = top + record.offset as u64;
 
             seek!(reader, offset);
-            let mut table: CharMappingFormat = Default::default();
+            let mut table = CharMappingFormat::default();
             try!(table.read(reader));
             seek!(reader, offset);
 
@@ -142,7 +135,7 @@ impl Font {
     }
 
     fn read_char_mapping_format_4<R: Read>(&mut self, reader: &mut R) -> Result<()> {
-        let mut table: CharMappingFormat4 = Default::default();
+        let mut table = CharMappingFormat4::default();
         try!(table.read(reader));
         assert_eq!(table.format, 4);
 
@@ -150,7 +143,7 @@ impl Font {
     }
 
     fn read_char_mapping_format_6<R: Read>(&mut self, reader: &mut R) -> Result<()> {
-        let mut table: CharMappingFormat6 = Default::default();
+        let mut table = CharMappingFormat6::default();
         try!(table.read(reader));
         assert_eq!(table.format, 6);
 
@@ -186,7 +179,7 @@ pub fn read<R: io::Read + io::Seek>(reader: &mut R) -> Result<Font> {
     use input::Reader;
 
     let mut reader = Reader::new(reader);
-    let mut font = Font::new();
+    let mut font = Font::default();
     try!(font.read(&mut reader));
 
     Ok(font)
@@ -194,12 +187,14 @@ pub fn read<R: io::Read + io::Seek>(reader: &mut R) -> Result<Font> {
 
 #[cfg(test)]
 mod tests {
+    use tests;
+
     #[test]
     fn read() {
-        let mut file = ::tests::open("SourceSerifPro-Regular.otf");
-        let font = ::font::read(&mut file).unwrap();
+        let mut file = tests::open("SourceSerifPro-Regular.otf");
+        let font = super::read(&mut file).unwrap();
 
-        assert_eq!(font.font_header.fontRevision.to_f32(), 1.014);
+        assert_eq!(font.font_header.fontRevision.as_f32(), 1.014);
         assert_eq!(font.font_header.unitsPerEm, 1000);
         assert_eq!(font.font_header.macStyle, 0);
 

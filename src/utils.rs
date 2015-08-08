@@ -1,14 +1,15 @@
+use std::mem;
+
 use input::Read;
 use spec::TableRecord;
 
 pub fn checksum<R, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
-    where R: Read, F: Fn(usize, u32) -> u32 {
-
-    use std::mem::size_of;
+    where R: Read, F: Fn(usize, u32) -> u32
+{
 
     let mut checksum: u64 = 0;
     let length = {
-        let size = size_of::<u32>();
+        let size = mem::size_of::<u32>();
         ((record.length as usize + size - 1) & !(size - 1)) / size
     };
 
@@ -24,29 +25,23 @@ pub fn checksum<R, F>(reader: &mut R, record: &TableRecord, process: F) -> bool
 
 #[cfg(test)]
 mod tests {
-    use std::default::Default;
-    use std::io::BufReader;
-
     use input::Reader;
     use spec::TableRecord;
+    use std::io::BufReader;
+
+    macro_rules! checksum(
+        ($length:expr, $checksum:expr, $data:expr) => ({
+            let data: &[u8] = $data;
+            super::checksum(
+                &mut Reader::new(&mut BufReader::new(data)),
+                &TableRecord { length: $length, checkSum: $checksum, .. TableRecord::default() },
+                |_, chunk| chunk,
+            )
+        })
+    );
 
     #[test]
     fn checksum() {
-        macro_rules! checksum(
-            ($length:expr, $checksum:expr, $data:expr) => ({
-                let data: &[u8] = $data;
-                super::checksum(
-                    &mut Reader::new(&mut BufReader::new(data)),
-                    &TableRecord {
-                        length: $length,
-                        checkSum: $checksum,
-                        .. Default::default()
-                    },
-                    |_, chunk| chunk,
-                )
-            })
-        );
-
         assert!(!checksum!(3 * 4,
                            1 + 2 + 4,
                            &[0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3]));

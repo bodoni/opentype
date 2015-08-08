@@ -14,69 +14,69 @@ pub trait Seek {
     fn position(&mut self) -> Result<u64>;
 }
 
-pub struct Reader<'d, D: 'd> {
-    driver: &'d mut D,
+pub struct Reader<'l, T: 'l> {
+    backend: &'l mut T,
 }
 
 macro_rules! want(
-    ($read:expr, $want:expr) => (
-        if $read != $want {
-            return raise!("not enough data");
+    ($read:expr, $count:expr) => (
+        if $read != $count {
+            return raise!("failed to read as much as needed");
         }
     );
 );
 
-impl<'d, D> Reader<'d, D> {
+impl<'l, T> Reader<'l, T> {
     #[inline]
-    pub fn new(driver: &'d mut D) -> Reader<'d, D> {
-        Reader { driver: driver }
+    pub fn new(backend: &'l mut T) -> Reader<'l, T> {
+        Reader { backend: backend }
     }
 }
 
-impl<'d, D> Read for Reader<'d, D> where D: io::Read {
+impl<'l, T> Read for Reader<'l, T> where T: io::Read {
     fn read_i16(&mut self) -> Result<i16> {
-        let mut buffer: [u8; 2] = unsafe { mem::zeroed() };
-        want!(try!(self.driver.read(&mut buffer)), 2);
+        let mut buffer: [u8; 2] = unsafe { mem::uninitialized() };
+        want!(try!(self.backend.read(&mut buffer)), 2);
         convert(&mut buffer);
         Ok(unsafe { *(buffer.as_ptr() as *const _) })
     }
 
     fn read_u16(&mut self) -> Result<u16> {
-        let mut buffer: [u8; 2] = unsafe { mem::zeroed() };
-        want!(try!(self.driver.read(&mut buffer)), 2);
+        let mut buffer: [u8; 2] = unsafe { mem::uninitialized() };
+        want!(try!(self.backend.read(&mut buffer)), 2);
         convert(&mut buffer);
         Ok(unsafe { *(buffer.as_ptr() as *const _) })
     }
 
     fn read_u32(&mut self) -> Result<u32> {
-        let mut buffer: [u8; 4] = unsafe { mem::zeroed() };
-        want!(try!(self.driver.read(&mut buffer)), 4);
+        let mut buffer: [u8; 4] = unsafe { mem::uninitialized() };
+        want!(try!(self.backend.read(&mut buffer)), 4);
         convert(&mut buffer);
         Ok(unsafe { *(buffer.as_ptr() as *const _) })
     }
 
     fn read_i64(&mut self) -> Result<i64> {
-        let mut buffer: [u8; 8] = unsafe { mem::zeroed() };
-        want!(try!(self.driver.read(&mut buffer)), 8);
+        let mut buffer: [u8; 8] = unsafe { mem::uninitialized() };
+        want!(try!(self.backend.read(&mut buffer)), 8);
         convert(&mut buffer);
         Ok(unsafe { *(buffer.as_ptr() as *const _) })
     }
 }
 
-impl<'d, D> Seek for Reader<'d, D> where D: io::Seek {
+impl<'l, T> Seek for Reader<'l, T> where T: io::Seek {
     #[inline]
     fn seek(&mut self, position: u64) -> Result<u64> {
-        self.driver.seek(io::SeekFrom::Start(position))
+        self.backend.seek(io::SeekFrom::Start(position))
     }
 
     #[inline]
     fn position(&mut self) -> Result<u64> {
-        self.driver.seek(io::SeekFrom::Current(0))
+        self.backend.seek(io::SeekFrom::Current(0))
     }
 }
 
 #[cfg(target_endian = "big")]
-#[inline]
+#[inline(always)]
 fn convert<T>(_: &mut [T]) {
 }
 

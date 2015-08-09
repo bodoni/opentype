@@ -38,32 +38,14 @@ macro_rules! implement(
 );
 
 macro_rules! read(
-    ($structure:ident, $this:ident, $band:ident, USHORT) => ({
-        try!(Atom::read($band))
-    });
-    ($structure:ident, $this:ident, $band:ident, SHORT) => ({
-        try!(Atom::read($band))
-    });
-    ($structure:ident, $this:ident, $band:ident, ULONG) => ({
-        try!(Atom::read($band))
-    });
-    ($structure:ident, $this:ident, $band:ident, Fixed) => ({
-        try!(Atom::read($band))
-    });
-    ($structure:ident, $this:ident, $band:ident, LONGDATETIME) => ({
-        try!(Atom::read($band))
-    });
-    ($structure:ident, $this:ident, $band:ident, Vec<USHORT> |$that:ident| $body:block) => ({
+    ($structure:ident, $this:ident, $band:ident, Vec<$kind:ty> |$that:ident| $body:block) => ({
         #[allow(unused_variables)]
         fn count($that: &$structure) -> usize $body
         let _ = count($this);
         vec![]
     });
-    ($structure:ident, $this:ident, $band:ident, Vec<SHORT> |$that:ident| $body:block) => ({
-        #[allow(unused_variables)]
-        fn count($that: &$structure) -> usize $body
-        let _ = count($this);
-        vec![]
+    ($structure:ident, $this:ident, $band:ident, $kind:ty) => ({
+        try!(Atom::read($band))
     });
 );
 

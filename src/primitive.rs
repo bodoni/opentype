@@ -8,20 +8,15 @@ use std::{mem, ptr};
 use Result;
 use band::{Band, Primitive};
 
-/// A 32-bit signed fixed-point number.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct Fixed(pub u32);
 
-/// A date in seconds since January 1, 1904.
 pub type LONGDATETIME = i64;
 
-/// A 16-bit signed integer.
 pub type SHORT = i16;
 
-/// A 32-bit unsigned integer.
 pub type ULONG = u32;
 
-/// A 16-bit unsigned integer.
 pub type USHORT = u16;
 
 impl Fixed {

@@ -151,6 +151,7 @@ compound!(MaxProfileVersion10 {
 });
 
 impl TableRecord {
+    #[doc(hidden)]
     pub fn check<T, F>(&self, band: &mut T, process: F) -> Result<bool>
         where T: Band, F: Fn(usize, ULONG) -> ULONG
     {

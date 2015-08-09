@@ -19,7 +19,6 @@ mod font;
 mod utils;
 
 pub mod compound;
-pub mod constant;
 pub mod primitive;
 
 pub use font::Font;

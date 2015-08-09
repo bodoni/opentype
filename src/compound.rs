@@ -13,9 +13,9 @@ macro_rules! itemize(
 );
 
 macro_rules! compound(
-    ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
+    ($structure:ident { $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+ }) => (
         declare!($structure { $($field $($kind)+,)+ });
-        implement!($structure { $($field [$($kind)+] $(|$this| $body)*,)+ });
+        implement!($structure { $($field ($($kind)+) $(|$this| $body)*,)+ });
     );
 );
 
@@ -29,7 +29,7 @@ macro_rules! declare(
 );
 
 macro_rules! implement(
-    ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
+    ($structure:ident { $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+ }) => (
         impl Value for $structure {
             fn read<T: Band>(band: &mut T) -> Result<Self> {
                 let mut value = $structure::default();
@@ -53,29 +53,29 @@ macro_rules! read(
 );
 
 compound!(OffsetTable {
-    version       [Fixed ],
-    numTables     [USHORT],
-    searchRange   [USHORT],
-    entrySelector [USHORT],
-    rangeShift    [USHORT],
+    version       (Fixed ),
+    numTables     (USHORT),
+    searchRange   (USHORT),
+    entrySelector (USHORT),
+    rangeShift    (USHORT),
 });
 
 compound!(TableRecord {
-    tag      [ULONG],
-    checkSum [ULONG],
-    offset   [ULONG],
-    length   [ULONG],
+    tag      (ULONG),
+    checkSum (ULONG),
+    offset   (ULONG),
+    length   (ULONG),
 });
 
 compound!(CharMappingHeader {
-    version   [USHORT],
-    numTables [USHORT],
+    version   (USHORT),
+    numTables (USHORT),
 });
 
 compound!(EncodingRecord {
-    platformID [USHORT],
-    encodingID [USHORT],
-    offset     [ULONG ],
+    platformID (USHORT),
+    encodingID (USHORT),
+    offset     (ULONG ),
 });
 
 pub enum CharMapping {
@@ -84,48 +84,48 @@ pub enum CharMapping {
 }
 
 compound!(CharMappingFormat4 {
-    format        [USHORT     ],
-    length        [USHORT     ],
-    language      [USHORT     ],
-    segCountX2    [USHORT     ],
-    searchRange   [USHORT     ],
-    entrySelector [USHORT     ],
-    rangeShift    [USHORT     ],
-    endCount      [Vec<USHORT>] |this| { 0 },
-    reservedPad   [USHORT     ],
-    startCount    [Vec<USHORT>] |this| { 0 },
-    idDelta       [Vec<SHORT> ] |this| { 0 },
-    idRangeOffset [Vec<USHORT>] |this| { 0 },
-    glyphIdArray  [Vec<USHORT>] |this| { 0 },
+    format        (USHORT     ),
+    length        (USHORT     ),
+    language      (USHORT     ),
+    segCountX2    (USHORT     ),
+    searchRange   (USHORT     ),
+    entrySelector (USHORT     ),
+    rangeShift    (USHORT     ),
+    endCount      (Vec<USHORT>) |this| { 0 },
+    reservedPad   (USHORT     ),
+    startCount    (Vec<USHORT>) |this| { 0 },
+    idDelta       (Vec<SHORT> ) |this| { 0 },
+    idRangeOffset (Vec<USHORT>) |this| { 0 },
+    glyphIdArray  (Vec<USHORT>) |this| { 0 },
 });
 
 compound!(CharMappingFormat6 {
-    format       [USHORT     ],
-    length       [USHORT     ],
-    language     [USHORT     ],
-    firstCode    [USHORT     ],
-    entryCount   [USHORT     ],
-    glyphIdArray [Vec<USHORT>] |this| { 0 },
+    format       (USHORT     ),
+    length       (USHORT     ),
+    language     (USHORT     ),
+    firstCode    (USHORT     ),
+    entryCount   (USHORT     ),
+    glyphIdArray (Vec<USHORT>) |this| { 0 },
 });
 
 compound!(FontHeader {
-    version            [Fixed       ],
-    fontRevision       [Fixed       ],
-    checkSumAdjustment [ULONG       ],
-    magicNumber        [ULONG       ],
-    flags              [USHORT      ],
-    unitsPerEm         [USHORT      ],
-    created            [LONGDATETIME],
-    modified           [LONGDATETIME],
-    xMin               [SHORT       ],
-    yMin               [SHORT       ],
-    xMax               [SHORT       ],
-    yMax               [SHORT       ],
-    macStyle           [USHORT      ],
-    lowestRecPPEM      [USHORT      ],
-    fontDirectionHint  [SHORT       ],
-    indexToLocFormat   [SHORT       ],
-    glyphDataFormat    [SHORT       ],
+    version            (Fixed       ),
+    fontRevision       (Fixed       ),
+    checkSumAdjustment (ULONG       ),
+    magicNumber        (ULONG       ),
+    flags              (USHORT      ),
+    unitsPerEm         (USHORT      ),
+    created            (LONGDATETIME),
+    modified           (LONGDATETIME),
+    xMin               (SHORT       ),
+    yMin               (SHORT       ),
+    xMax               (SHORT       ),
+    yMax               (SHORT       ),
+    macStyle           (USHORT      ),
+    lowestRecPPEM      (USHORT      ),
+    fontDirectionHint  (SHORT       ),
+    indexToLocFormat   (SHORT       ),
+    glyphDataFormat    (SHORT       ),
 });
 
 pub enum MaxProfile {
@@ -134,26 +134,26 @@ pub enum MaxProfile {
 }
 
 compound!(MaxProfileVersion05 {
-    version   [Fixed ],
-    numGlyphs [USHORT],
+    version   (Fixed ),
+    numGlyphs (USHORT),
 });
 
 compound!(MaxProfileVersion10 {
-    version               [Fixed ],
-    numGlyphs             [USHORT],
-    maxPoints             [USHORT],
-    maxContours           [USHORT],
-    maxCompositePoints    [USHORT],
-    maxCompositeContours  [USHORT],
-    maxZones              [USHORT],
-    maxTwilightPoints     [USHORT],
-    maxStorage            [USHORT],
-    maxFunctionDefs       [USHORT],
-    maxInstructionDefs    [USHORT],
-    maxStackElements      [USHORT],
-    maxSizeOfInstructions [USHORT],
-    maxComponentElements  [USHORT],
-    maxComponentDepth     [USHORT],
+    version               (Fixed ),
+    numGlyphs             (USHORT),
+    maxPoints             (USHORT),
+    maxContours           (USHORT),
+    maxCompositePoints    (USHORT),
+    maxCompositeContours  (USHORT),
+    maxZones              (USHORT),
+    maxTwilightPoints     (USHORT),
+    maxStorage            (USHORT),
+    maxFunctionDefs       (USHORT),
+    maxInstructionDefs    (USHORT),
+    maxStackElements      (USHORT),
+    maxSizeOfInstructions (USHORT),
+    maxComponentElements  (USHORT),
+    maxComponentDepth     (USHORT),
 });
 
 impl TableRecord {

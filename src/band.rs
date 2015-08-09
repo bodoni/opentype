@@ -4,7 +4,7 @@ use Result;
 
 pub trait Band: Read + Seek + Sized {
     #[inline]
-    fn goto(&mut self, position: u64) -> Result<u64> {
+    fn jump(&mut self, position: u64) -> Result<u64> {
         self.seek(SeekFrom::Start(position))
     }
 
@@ -21,7 +21,7 @@ pub trait Band: Read + Seek + Sized {
     fn save<F, T>(&mut self, mut body: F) -> Result<T> where F: FnMut(&mut Self) -> Result<T> {
         let position = try!(self.position());
         let value = body(self);
-        try!(self.goto(position));
+        try!(self.jump(position));
         Ok(try!(value))
     }
 }

@@ -13,7 +13,7 @@ pub fn checksum<T, F>(band: &mut T, record: &TableRecord, process: F) -> Result<
         ((record.length as usize + size - 1) & !(size - 1)) / size
     };
     band.save(|band| {
-        try!(band.goto(record.offset as u64));
+        try!(band.jump(record.offset as u64));
         let mut checksum: u64 = 0;
         for i in 0..length {
             checksum += process(i, try!(ULONG::read(band))) as u64;

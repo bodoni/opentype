@@ -57,21 +57,21 @@ impl Font {
                     if !try!(checksum(band, record, |_, chunk| chunk)) {
                         raise!("the character-to-glyph mapping is corrupted");
                     }
-                    try!(band.goto(record.offset as u64));
+                    try!(band.jump(record.offset as u64));
                     try!(self.read_char_map(band));
                 },
                 b"head" => {
                     if !try!(checksum(band, record, |i, chunk| if i == 2 { 0 } else { chunk })) {
                         raise!("the font header is corrupted");
                     }
-                    try!(band.goto(record.offset as u64));
+                    try!(band.jump(record.offset as u64));
                     try!(self.read_font_header(band));
                 },
                 b"maxp" => {
                     if !try!(checksum(band, record, |_, chunk| chunk)) {
                         raise!("the maximal profile is corrupted");
                     }
-                    try!(band.goto(record.offset as u64));
+                    try!(band.jump(record.offset as u64));
                     try!(self.read_max_profile(band));
                 },
                 _ => (),
@@ -101,7 +101,7 @@ impl Font {
         }
 
         for record in records.iter() {
-            try!(band.goto(top + record.offset as u64));
+            try!(band.jump(top + record.offset as u64));
             match try!(band.peek::<USHORT>()) {
                 4 => try!(self.read_char_map_format_4(band)),
                 6 => try!(self.read_char_map_format_6(band)),

@@ -25,7 +25,7 @@ macro_rules! compound(
 macro_rules! declare(
     ($structure:ident { $($field:ident $kind:ty,)+ }) => (
         itemize! {
-            #[derive(Default)]
+            #[derive(Debug, Default)]
             pub struct $structure { $(pub $field: $kind,)+ }
         }
     );

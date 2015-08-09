@@ -18,9 +18,11 @@ macro_rules! tag(
 #[derive(Default)]
 pub struct Font {
     pub offset_table: OffsetTable,
-    pub char_map_header: CharMapHeader,
-    pub font_header: FontHeader,
-    pub max_profile: MaxProfile,
+    pub table_records: Vec<TableRecord>,
+
+    pub char_map_header: Option<CharMapHeader>,
+    pub font_header: Option<FontHeader>,
+    pub max_profile: Option<MaxProfile>,
 }
 
 macro_rules! seek(
@@ -85,20 +87,21 @@ impl Font {
             }
         }
 
+        self.table_records.extend(records);
         Ok(())
     }
 
     fn read_char_map<T: Band>(&mut self, band: &mut T) -> Result<()> {
         let top = try!(band.position());
-        try!(self.char_map_header.read(band));
+        let mut header = CharMapHeader::default();
+        try!(header.read(band));
 
-        if self.char_map_header.version != CHAR_MAP_HEADER_VERSION_0_0 {
+        if header.version != CHAR_MAP_HEADER_VERSION_0_0 {
             raise!("the format of the character-to-glyph mapping header is not supported");
         }
 
         let mut records = vec![];
-
-        for _ in 0..self.char_map_header.numTables {
+        for _ in 0..header.numTables {
             let mut record = EncodingRecord::default();
             try!(record.read(band));
             records.push(record);
@@ -119,6 +122,7 @@ impl Font {
             }
         }
 
+        self.char_map_header = Some(header);
         Ok(())
     }
 
@@ -137,21 +141,25 @@ impl Font {
     }
 
     fn read_font_header<T: Band>(&mut self, band: &mut T) -> Result<()> {
-        try!(self.font_header.read(band));
-        if self.font_header.version != FONT_HEADER_VERSION_1_0 {
+        let mut header = FontHeader::default();
+        try!(header.read(band));
+        if header.version != FONT_HEADER_VERSION_1_0 {
             raise!("the format of the font header is not supported");
         }
-        if self.font_header.magicNumber != FONT_HEADER_MAGIC_NUMBER {
+        if header.magicNumber != FONT_HEADER_MAGIC_NUMBER {
             raise!("the font header is corrupted");
         }
+        self.font_header = Some(header);
         Ok(())
     }
 
     fn read_max_profile<T: Band>(&mut self, band: &mut T) -> Result<()> {
-        try!(self.max_profile.read(band));
-        if self.max_profile.version != MAX_PROFILE_VERSION_0_5 {
+        let mut profile = MaxProfile::default();
+        try!(profile.read(band));
+        if profile.version != MAX_PROFILE_VERSION_0_5 {
             raise!("the format of the maximum profile is not supported");
         }
+        self.max_profile = Some(profile);
         Ok(())
     }
 }
@@ -166,10 +174,12 @@ mod tests {
         let mut file = tests::open("SourceSerifPro-Regular.otf");
         let font = Font::read(&mut file).unwrap();
 
-        assert_eq!(font.font_header.fontRevision.as_f32(), 1.014);
-        assert_eq!(font.font_header.unitsPerEm, 1000);
-        assert_eq!(font.font_header.macStyle, 0);
+        let header = font.font_header.as_ref().unwrap();
+        assert_eq!(header.fontRevision.as_f32(), 1.014);
+        assert_eq!(header.unitsPerEm, 1000);
+        assert_eq!(header.macStyle, 0);
 
-        assert_eq!(font.max_profile.numGlyphs, 545);
+        let profile = font.max_profile.as_ref().unwrap();
+        assert_eq!(profile.numGlyphs, 545);
     }
 }

@@ -12,7 +12,7 @@ pub type SHORT = i16;
 pub type ULONG = u32;
 
 /// A 32-bit signed fixed-point number.
-#[derive(Clone, Copy, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct Fixed(pub u32);
 
 /// A date in seconds since January 1, 1904.

@@ -169,7 +169,7 @@ impl TableRecord {
             try!(band.jump(self.offset as u64));
             let mut checksum: u64 = 0;
             for i in 0..length {
-                checksum += process(i, try!(ULONG::read(band))) as u64;
+                checksum += process(i, try!(Value::read(band))) as u64;
             }
             Ok(self.checkSum == checksum as u32)
         })

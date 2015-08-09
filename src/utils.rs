@@ -1,7 +1,7 @@
 use std::mem;
 
 use Result;
-use band::{Atom, Band};
+use band::{Band, Primitive};
 use compound::TableRecord;
 use primitive::ULONG;
 

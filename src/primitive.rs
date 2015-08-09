@@ -6,7 +6,7 @@ use std::io::Read;
 use std::{mem, ptr};
 
 use Result;
-use band::{Atom, Band};
+use band::{Band, Primitive};
 
 /// A 32-bit signed fixed-point number.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -52,31 +52,31 @@ macro_rules! read(
     });
 );
 
-impl Atom for Fixed {
+impl Primitive for Fixed {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 4)
     }
 }
 
-impl Atom for LONGDATETIME {
+impl Primitive for LONGDATETIME {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 8)
     }
 }
 
-impl Atom for SHORT {
+impl Primitive for SHORT {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 2)
     }
 }
 
-impl Atom for ULONG {
+impl Primitive for ULONG {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 4)
     }
 }
 
-impl Atom for USHORT {
+impl Primitive for USHORT {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 2)
     }

@@ -2,6 +2,7 @@ use std::io::{Read, Seek, SeekFrom};
 
 use Result;
 
+#[doc(hidden)]
 pub trait Band: Read + Seek + Sized {
     #[inline]
     fn jump(&mut self, position: u64) -> Result<u64> {
@@ -9,8 +10,8 @@ pub trait Band: Read + Seek + Sized {
     }
 
     #[inline]
-    fn peek<T: Atom>(&mut self) -> Result<T> {
-        self.save(|band| Atom::read(band))
+    fn peek<T: Primitive>(&mut self) -> Result<T> {
+        self.save(|band| Primitive::read(band))
     }
 
     #[inline]
@@ -26,12 +27,14 @@ pub trait Band: Read + Seek + Sized {
     }
 }
 
-pub trait Atom {
-    fn read<T: Band>(&mut T) -> Result<Self>;
+#[doc(hidden)]
+pub trait Compound {
+    fn read<T: Band>(&mut self, &mut T) -> Result<()>;
 }
 
-pub trait Blob {
-    fn read<T: Band>(&mut self, &mut T) -> Result<()>;
+#[doc(hidden)]
+pub trait Primitive {
+    fn read<T: Band>(&mut T) -> Result<Self>;
 }
 
 impl<T: Read + Seek> Band for T {

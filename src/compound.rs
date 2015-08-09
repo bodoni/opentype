@@ -3,7 +3,7 @@
 #![allow(non_snake_case)]
 
 use Result;
-use band::{Atom, Band, Blob};
+use band::{Band, Compound, Primitive};
 use primitive::*;
 
 macro_rules! itemize(
@@ -28,7 +28,7 @@ macro_rules! declare(
 
 macro_rules! implement(
     ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
-        impl Blob for $structure {
+        impl Compound for $structure {
             fn read<T: Band>(&mut self, band: &mut T) -> Result<()> {
                 $(self.$field = read!($structure, self, band, $($kind)+ $(|$this| $body)*);)+
                 Ok(())
@@ -45,7 +45,7 @@ macro_rules! read(
         vec![]
     });
     ($structure:ident, $this:ident, $band:ident, $kind:ty) => ({
-        try!(Atom::read($band))
+        try!(Primitive::read($band))
     });
 );
 
@@ -154,7 +154,7 @@ mod tests {
 
     #[test]
     fn offset_table_read() {
-        use band::Blob;
+        use band::Compound;
         use compound::OffsetTable;
 
         let mut file = tests::open("SourceSerifPro-Regular.otf");
@@ -170,7 +170,7 @@ mod tests {
 
     #[test]
     fn char_map_read() {
-        use band::Blob;
+        use band::Compound;
         use compound::{CharMapHeader, EncodingRecord};
         use std::io::{Seek, SeekFrom};
 

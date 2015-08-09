@@ -1,7 +1,7 @@
 use std::io::{Read, Seek};
 
 use Result;
-use band::{Band, Blob};
+use band::{Band, Compound};
 use compound::*;
 use primitive::*;
 

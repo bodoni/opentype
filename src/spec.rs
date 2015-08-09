@@ -19,12 +19,6 @@ pub struct Fixed(u32);
 /// A date represented in seconds since 12:00 midnight, January 1, 1904.
 pub type LONGDATETIME = i64;
 
-/// A vector of `USHORT`.
-pub type VecUSHORT = Vec<USHORT>;
-
-/// A vector of `SHORT`.
-pub type VecSHORT = Vec<SHORT>;
-
 pub const CFF_FORMAT_TAG: &'static [u8; 4] = b"OTTO";
 
 pub const CHAR_MAPPING_TAG: &'static [u8; 4] = b"cmap";
@@ -41,136 +35,146 @@ pub trait Table {
     fn read<T: Band>(&mut self, band: &mut T) -> Result<()>;
 }
 
+macro_rules! table(
+    ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
+        define!($structure { $($field $($kind)+,)+ });
+        implement!($structure { $($field [$($kind)+] $(|$this| $body)*,)+ });
+    );
+);
+
 macro_rules! define(
-    ($name:ident: $($class:ident $field:ident,)+) => (
-        #[derive(Default)]
-        pub struct $name { $(pub $field: $class,)+ }
-        implement!($name: $($field as $class,)+);
-    )
+    ($structure:ident { $($field:ident $kind:ty,)+ }) => (
+        itemize! {
+            #[derive(Default)]
+            pub struct $structure { $(pub $field: $kind,)+ }
+        }
+    );
+);
+
+macro_rules! itemize(
+    ($code:item) => ($code);
 );
 
 macro_rules! implement(
-    ($name:ident: $($field:ident as $class:ident,)+) => (
-        impl Table for $name {
+    ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
+        impl Table for $structure {
             fn read<T: Band>(&mut self, band: &mut T) -> Result<()> {
-                $(self.$field = read!(band as $class);)+
+                $(self.$field = read!($structure, self, band, $($kind)+ $(|$this| $body)*);)+
                 Ok(())
             }
         }
-    )
+    );
 );
 
 macro_rules! read(
-    ($band:ident as USHORT) => (try!($band.read_u16()));
-    ($band:ident as SHORT) => (try!($band.read_i16()));
-    ($band:ident as ULONG) => (try!($band.read_u32()));
-    ($band:ident as Fixed) => (Fixed(try!($band.read_u32())));
-    ($band:ident as LONGDATETIME) => (try!($band.read_i64()));
-    ($band:ident as VecUSHORT) => ({
+    ($structure:ident, $this:ident, $band:ident, USHORT) => ({
+        try!($band.read_u16())
+    });
+    ($structure:ident, $this:ident, $band:ident, SHORT) => ({
+        try!($band.read_i16())
+    });
+    ($structure:ident, $this:ident, $band:ident, ULONG) => ({
+        try!($band.read_u32())
+    });
+    ($structure:ident, $this:ident, $band:ident, Fixed) => ({
+        Fixed(try!($band.read_u32()))
+    });
+    ($structure:ident, $this:ident, $band:ident, LONGDATETIME) => ({
+        try!($band.read_i64())
+    });
+    ($structure:ident, $this:ident, $band:ident, Vec<USHORT> |$that:ident| $body:block) => ({
+        #[allow(unused_variables)]
+        fn count($that: &$structure) -> usize $body
+        let _ = count($this);
         vec![]
     });
-    ($band:ident as VecSHORT) => ({
+    ($structure:ident, $this:ident, $band:ident, Vec<SHORT> |$that:ident| $body:block) => ({
+        #[allow(unused_variables)]
+        fn count($that: &$structure) -> usize $body
+        let _ = count($this);
         vec![]
     });
 );
 
-define!(
-    OffsetTable:
+table!(OffsetTable {
+    version       [Fixed ],
+    numTables     [USHORT],
+    searchRange   [USHORT],
+    entrySelector [USHORT],
+    rangeShift    [USHORT],
+});
 
-    Fixed version,
-    USHORT numTables,
-    USHORT searchRange,
-    USHORT entrySelector,
-    USHORT rangeShift,
-);
+table!(TableRecord {
+    tag      [ULONG],
+    checkSum [ULONG],
+    offset   [ULONG],
+    length   [ULONG],
+});
 
-define!(
-    TableRecord:
+table!(CharMappingHeader {
+    version   [USHORT],
+    numTables [USHORT],
+});
 
-    ULONG tag,
-    ULONG checkSum,
-    ULONG offset,
-    ULONG length,
-);
+table!(EncodingRecord {
+    platformID [USHORT],
+    encodingID [USHORT],
+    offset     [ULONG ],
+});
 
-define!(
-    CharMappingHeader:
+table!(CharMappingFormat {
+    version [USHORT],
+});
 
-    USHORT version,
-    USHORT numTables,
-);
+table!(CharMappingFormat4 {
+    format        [USHORT     ],
+    length        [USHORT     ],
+    language      [USHORT     ],
+    segCountX2    [USHORT     ],
+    searchRange   [USHORT     ],
+    entrySelector [USHORT     ],
+    rangeShift    [USHORT     ],
+    endCount      [Vec<USHORT>] |table| { 0 },
+    reservedPad   [USHORT     ],
+    startCount    [Vec<USHORT>] |table| { 0 },
+    idDelta       [Vec<SHORT> ] |table| { 0 },
+    idRangeOffset [Vec<USHORT>] |table| { 0 },
+    glyphIdArray  [Vec<USHORT>] |table| { 0 },
+});
 
-define!(
-    EncodingRecord:
+table!(CharMappingFormat6 {
+    format       [USHORT     ],
+    length       [USHORT     ],
+    language     [USHORT     ],
+    firstCode    [USHORT     ],
+    entryCount   [USHORT     ],
+    glyphIdArray [Vec<USHORT>] |table| { 0 },
+});
 
-    USHORT platformID,
-    USHORT encodingID,
-    ULONG offset,
-);
+table!(FontHeader {
+    version            [Fixed       ],
+    fontRevision       [Fixed       ],
+    checkSumAdjustment [ULONG       ],
+    magicNumber        [ULONG       ],
+    flags              [USHORT      ],
+    unitsPerEm         [USHORT      ],
+    created            [LONGDATETIME],
+    modified           [LONGDATETIME],
+    xMin               [SHORT       ],
+    yMin               [SHORT       ],
+    xMax               [SHORT       ],
+    yMax               [SHORT       ],
+    macStyle           [USHORT      ],
+    lowestRecPPEM      [USHORT      ],
+    fontDirectionHint  [SHORT       ],
+    indexToLocFormat   [SHORT       ],
+    glyphDataFormat    [SHORT       ],
+});
 
-define!(
-    CharMappingFormat:
-
-    USHORT version,
-);
-
-define!(
-    CharMappingFormat4:
-
-    USHORT format,
-    USHORT length,
-    USHORT language,
-    USHORT segCountX2,
-    USHORT searchRange,
-    USHORT entrySelector,
-    USHORT rangeShift,
-    VecUSHORT endCount,
-    USHORT reservedPad,
-    VecUSHORT startCount,
-    VecSHORT idDelta,
-    VecUSHORT idRangeOffset,
-    VecUSHORT glyphIdArray,
-);
-
-define!(
-    CharMappingFormat6:
-
-    USHORT format,
-    USHORT length,
-    USHORT language,
-    USHORT firstCode,
-    USHORT entryCount,
-    VecUSHORT glyphIdArray,
-);
-
-define!(
-    FontHeader:
-
-    Fixed version,
-    Fixed fontRevision,
-    ULONG checkSumAdjustment,
-    ULONG magicNumber,
-    USHORT flags,
-    USHORT unitsPerEm,
-    LONGDATETIME created,
-    LONGDATETIME modified,
-    SHORT xMin,
-    SHORT yMin,
-    SHORT xMax,
-    SHORT yMax,
-    USHORT macStyle,
-    USHORT lowestRecPPEM,
-    SHORT fontDirectionHint,
-    SHORT indexToLocFormat,
-    SHORT glyphDataFormat,
-);
-
-define!(
-    MaximumProfile:
-
-    Fixed version,
-    USHORT numGlyphs,
-);
+table!(MaximumProfile {
+    version   [Fixed ],
+    numGlyphs [USHORT],
+});
 
 impl Fixed {
     #[cfg(test)]

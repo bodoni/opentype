@@ -165,7 +165,7 @@ impl TableRecord {
             let size = mem::size_of::<ULONG>();
             ((self.length as usize + size - 1) & !(size - 1)) / size
         };
-        band.save(|band| {
+        band.stay(|band| {
             try!(band.jump(self.offset as u64));
             let mut checksum: u64 = 0;
             for i in 0..length {

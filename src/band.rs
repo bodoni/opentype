@@ -11,7 +11,7 @@ pub trait Band: Read + Seek + Sized {
 
     #[inline]
     fn peek<T: Value>(&mut self) -> Result<T> {
-        self.save(|band| Value::read(band))
+        self.stay(|band| Value::read(band))
     }
 
     #[inline]
@@ -19,7 +19,7 @@ pub trait Band: Read + Seek + Sized {
         self.seek(SeekFrom::Current(0))
     }
 
-    fn save<F, T>(&mut self, mut body: F) -> Result<T> where F: FnMut(&mut Self) -> Result<T> {
+    fn stay<F, T>(&mut self, mut body: F) -> Result<T> where F: FnMut(&mut Self) -> Result<T> {
         let position = try!(self.position());
         let value = body(self);
         try!(self.jump(position));

@@ -20,8 +20,12 @@ pub struct Font {
     pub offset_table: OffsetTable,
     pub table_records: Vec<TableRecord>,
 
-    pub char_map_header: Option<CharMapHeader>,
+    pub char_mapping_header: Option<CharMappingHeader>,
+    pub encoding_records: Vec<EncodingRecord>,
+    pub char_mappings: Vec<CharMapping>,
+
     pub font_header: Option<FontHeader>,
+
     pub max_profile: Option<MaxProfile>,
 }
 
@@ -56,7 +60,7 @@ impl Font {
                         raise!("the character-to-glyph mapping is corrupted");
                     }
                     try!(band.jump(record.offset as u64));
-                    try!(self.read_char_map(band));
+                    try!(self.read_char_mappings(band));
                 },
                 b"head" => {
                     if !try!(record.check(band, |i, chunk| if i == 2 { 0 } else { chunk })) {
@@ -80,11 +84,11 @@ impl Font {
         Ok(())
     }
 
-    fn read_char_map<T: Band>(&mut self, band: &mut T) -> Result<()> {
+    fn read_char_mappings<T: Band>(&mut self, band: &mut T) -> Result<()> {
         const VERSION_0_0: USHORT = 0;
 
         let top = try!(band.position());
-        let mut header = CharMapHeader::default();
+        let mut header = CharMappingHeader::default();
         try!(header.read(band));
 
         if header.version != VERSION_0_0 {
@@ -98,30 +102,27 @@ impl Font {
             records.push(record);
         }
 
+        let mut mappings = vec![];
         for record in records.iter() {
             try!(band.jump(top + record.offset as u64));
             match try!(band.peek::<USHORT>()) {
-                4 => try!(self.read_char_map_format_4(band)),
-                6 => try!(self.read_char_map_format_6(band)),
+                4 => {
+                    let mut mapping = CharMappingFormat4::default();
+                    try!(mapping.read(band));
+                    mappings.push(CharMapping::Format4(mapping));
+                },
+                6 => {
+                    let mut mapping = CharMappingFormat6::default();
+                    try!(mapping.read(band));
+                    mappings.push(CharMapping::Format6(mapping));
+                },
                 _ => raise!("the format of a character-to-glyph mapping is not supported"),
             }
         }
 
-        self.char_map_header = Some(header);
-        Ok(())
-    }
-
-    fn read_char_map_format_4<T: Band>(&mut self, band: &mut T) -> Result<()> {
-        let mut format = CharMapFormat4::default();
-        try!(format.read(band));
-        assert_eq!(format.format, 4);
-        Ok(())
-    }
-
-    fn read_char_map_format_6<T: Band>(&mut self, band: &mut T) -> Result<()> {
-        let mut format = CharMapFormat6::default();
-        try!(format.read(band));
-        assert_eq!(format.format, 6);
+        self.char_mapping_header = Some(header);
+        self.char_mappings.extend(mappings);
+        self.encoding_records.extend(records);
         Ok(())
     }
 

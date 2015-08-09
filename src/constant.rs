@@ -1,6 +1,6 @@
 //! Constants.
 
-use types::*;
+use primitive::*;
 
 pub const CFF_FORMAT_TAG: &'static [u8; 4] = b"OTTO";
 

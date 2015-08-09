@@ -1,7 +1,7 @@
 use std::mem;
 
 use band::Band;
-use structs::TableRecord;
+use compound::TableRecord;
 
 pub fn checksum<T, F>(band: &mut T, record: &TableRecord, process: F) -> bool
     where T: Band, F: Fn(usize, u32) -> u32
@@ -24,8 +24,8 @@ pub fn checksum<T, F>(band: &mut T, record: &TableRecord, process: F) -> bool
 
 #[cfg(test)]
 mod tests {
+    use compound::TableRecord;
     use std::io::Cursor;
-    use structs::TableRecord;
 
     macro_rules! checksum(
         ($length:expr, $checksum:expr, $data:expr) => ({

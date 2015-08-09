@@ -2,9 +2,8 @@ use std::io::{Read, Seek};
 
 use Result;
 use band::Band;
-use compound::Compound;
-use consts;
-use structs::*;
+use compound::*;
+use constant::*;
 
 macro_rules! tag(
     ($value:expr) => (unsafe {
@@ -41,7 +40,7 @@ impl Font {
     fn read_offset_table<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         try!(self.offset_table.read(reader));
 
-        if &tag!(self.offset_table.version) != consts::CFF_FORMAT_TAG {
+        if &tag!(self.offset_table.version) != CFF_FORMAT_TAG {
             raise!("the format of the font is not supported");
         }
 
@@ -61,7 +60,7 @@ impl Font {
 
         for record in records.iter() {
             match &tag!(record.tag) {
-                consts::CHAR_MAP_TAG => {
+                CHAR_MAP_TAG => {
                     seek!(reader, record.offset);
                     if !checksum(reader, record, |_, chunk| chunk) {
                         raise!("the character-to-glyph mapping is corrupted");
@@ -70,7 +69,7 @@ impl Font {
                     seek!(reader, record.offset);
                     try!(self.read_char_map(reader));
                 },
-                consts::FONT_HEADER_TAG => {
+                FONT_HEADER_TAG => {
                     seek!(reader, record.offset);
                     if !checksum(reader, record, |i, chunk| if i == 2 { 0 } else { chunk }) {
                         raise!("the font header is corrupted");
@@ -79,7 +78,7 @@ impl Font {
                     seek!(reader, record.offset);
                     try!(self.read_font_header(reader));
                 },
-                consts::MAX_PROFILE_TAG => {
+                MAX_PROFILE_TAG => {
                     seek!(reader, record.offset);
                     if !checksum(reader, record, |_, chunk| chunk) {
                         raise!("the maximal profile is corrupted");
@@ -99,7 +98,7 @@ impl Font {
         let top = try!(reader.position());
         try!(self.char_map_header.read(reader));
 
-        if self.char_map_header.version != consts::CHAR_MAP_HEADER_VERSION_0_0 {
+        if self.char_map_header.version != CHAR_MAP_HEADER_VERSION_0_0 {
             raise!("the format of the character-to-glyph mapping header is not supported");
         }
 
@@ -148,11 +147,11 @@ impl Font {
     fn read_font_header<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         try!(self.font_header.read(reader));
 
-        if self.font_header.version != consts::FONT_HEADER_VERSION_1_0 {
+        if self.font_header.version != FONT_HEADER_VERSION_1_0 {
             raise!("the format of the font header is not supported");
         }
 
-        if self.font_header.magicNumber != consts::FONT_HEADER_MAGIC_NUMBER {
+        if self.font_header.magicNumber != FONT_HEADER_MAGIC_NUMBER {
             raise!("the font header is corrupted");
         }
 
@@ -162,7 +161,7 @@ impl Font {
     fn read_max_profile<T: Band>(&mut self, reader: &mut T) -> Result<()> {
         try!(self.max_profile.read(reader));
 
-        if self.max_profile.version != consts::MAX_PROFILE_VERSION_0_5 {
+        if self.max_profile.version != MAX_PROFILE_VERSION_0_5 {
             raise!("the format of the maximum profile is not supported");
         }
 

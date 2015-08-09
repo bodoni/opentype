@@ -14,16 +14,13 @@ macro_rules! raise(
     );
 );
 
-#[macro_use]
-mod compound;
-
 mod band;
 mod font;
 mod utils;
 
-pub mod consts;
-pub mod structs;
-pub mod types;
+pub mod compound;
+pub mod constant;
+pub mod primitive;
 
 pub use font::Font;
 

@@ -1,4 +1,4 @@
-//! Data types.
+//! Primitive data types.
 
 #![allow(non_snake_case)]
 

@@ -19,7 +19,7 @@ compound!(TableRecord {
     length   [ULONG],
 });
 
-compound!(CharMappingHeader {
+compound!(CharMapHeader {
     version   [USHORT],
     numTables [USHORT],
 });
@@ -30,11 +30,11 @@ compound!(EncodingRecord {
     offset     [ULONG ],
 });
 
-compound!(CharMappingFormat {
+compound!(CharMapFormat {
     version [USHORT],
 });
 
-compound!(CharMappingFormat4 {
+compound!(CharMapFormat4 {
     format        [USHORT     ],
     length        [USHORT     ],
     language      [USHORT     ],
@@ -50,7 +50,7 @@ compound!(CharMappingFormat4 {
     glyphIdArray  [Vec<USHORT>] |this| { 0 },
 });
 
-compound!(CharMappingFormat6 {
+compound!(CharMapFormat6 {
     format       [USHORT     ],
     length       [USHORT     ],
     language     [USHORT     ],
@@ -79,7 +79,7 @@ compound!(FontHeader {
     glyphDataFormat    [SHORT       ],
 });
 
-compound!(MaximumProfile {
+compound!(MaxProfile {
     version   [Fixed ],
     numGlyphs [USHORT],
 });
@@ -107,11 +107,11 @@ mod tests {
     #[test]
     fn char_mapping_read() {
         use std::io::{Seek, SeekFrom};
-        use structs::{CharMappingHeader, EncodingRecord};
+        use structs::{CharMapHeader, EncodingRecord};
 
         let mut file = tests::open("SourceSerifPro-Regular.otf");
         file.seek(SeekFrom::Start(15668)).unwrap();
-        let mut header = CharMappingHeader::default();
+        let mut header = CharMapHeader::default();
         header.read(&mut file).unwrap();
 
         assert_eq!(header.version, 0);

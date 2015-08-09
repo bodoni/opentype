@@ -16,7 +16,6 @@ macro_rules! raise(
 
 mod band;
 mod font;
-mod utils;
 
 pub mod compound;
 pub mod primitive;

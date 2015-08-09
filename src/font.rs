@@ -42,8 +42,6 @@ impl Font {
     }
 
     fn read_table_records<T: Band>(&mut self, band: &mut T) -> Result<()> {
-        use utils::checksum;
-
         let mut records = vec![];
         for _ in 0..self.offset_table.numTables {
             let mut record = TableRecord::default();
@@ -54,21 +52,21 @@ impl Font {
         for record in records.iter() {
             match &tag!(record.tag) {
                 b"cmap" => {
-                    if !try!(checksum(band, record, |_, chunk| chunk)) {
+                    if !try!(record.check(band, |_, chunk| chunk)) {
                         raise!("the character-to-glyph mapping is corrupted");
                     }
                     try!(band.jump(record.offset as u64));
                     try!(self.read_char_map(band));
                 },
                 b"head" => {
-                    if !try!(checksum(band, record, |i, chunk| if i == 2 { 0 } else { chunk })) {
+                    if !try!(record.check(band, |i, chunk| if i == 2 { 0 } else { chunk })) {
                         raise!("the font header is corrupted");
                     }
                     try!(band.jump(record.offset as u64));
                     try!(self.read_font_header(band));
                 },
                 b"maxp" => {
-                    if !try!(checksum(band, record, |_, chunk| chunk)) {
+                    if !try!(record.check(band, |_, chunk| chunk)) {
                         raise!("the maximal profile is corrupted");
                     }
                     try!(band.jump(record.offset as u64));

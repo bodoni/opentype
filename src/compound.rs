@@ -3,13 +3,8 @@
 #![allow(non_snake_case)]
 
 use Result;
-use band::Band;
+use band::{Atom, Band, Blob};
 use primitive::*;
-
-#[doc(hidden)]
-pub trait Compound {
-    fn read<T: Band>(&mut self, &mut T) -> Result<()>;
-}
 
 macro_rules! itemize(
     ($code:item) => ($code);
@@ -33,7 +28,7 @@ macro_rules! declare(
 
 macro_rules! implement(
     ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
-        impl Compound for $structure {
+        impl Blob for $structure {
             fn read<T: Band>(&mut self, band: &mut T) -> Result<()> {
                 $(self.$field = read!($structure, self, band, $($kind)+ $(|$this| $body)*);)+
                 Ok(())
@@ -44,19 +39,19 @@ macro_rules! implement(
 
 macro_rules! read(
     ($structure:ident, $this:ident, $band:ident, USHORT) => ({
-        try!($band.read_u16())
+        try!(Atom::read($band))
     });
     ($structure:ident, $this:ident, $band:ident, SHORT) => ({
-        try!($band.read_i16())
+        try!(Atom::read($band))
     });
     ($structure:ident, $this:ident, $band:ident, ULONG) => ({
-        try!($band.read_u32())
+        try!(Atom::read($band))
     });
     ($structure:ident, $this:ident, $band:ident, Fixed) => ({
-        Fixed(try!($band.read_u32()))
+        try!(Atom::read($band))
     });
     ($structure:ident, $this:ident, $band:ident, LONGDATETIME) => ({
-        try!($band.read_i64())
+        try!(Atom::read($band))
     });
     ($structure:ident, $this:ident, $band:ident, Vec<USHORT> |$that:ident| $body:block) => ({
         #[allow(unused_variables)]
@@ -96,10 +91,6 @@ compound!(EncodingRecord {
     platformID [USHORT],
     encodingID [USHORT],
     offset     [ULONG ],
-});
-
-compound!(CharMapFormat {
-    version [USHORT],
 });
 
 compound!(CharMapFormat4 {
@@ -147,18 +138,41 @@ compound!(FontHeader {
     glyphDataFormat    [SHORT       ],
 });
 
-compound!(MaxProfile {
+pub enum MaxProfile {
+    Version05(MaxProfileVersion05),
+    Version10(MaxProfileVersion10),
+}
+
+compound!(MaxProfileVersion05 {
     version   [Fixed ],
     numGlyphs [USHORT],
 });
 
+compound!(MaxProfileVersion10 {
+    version               [Fixed ],
+    numGlyphs             [USHORT],
+    maxPoints             [USHORT],
+    maxContours           [USHORT],
+    maxCompositePoints    [USHORT],
+    maxCompositeContours  [USHORT],
+    maxZones              [USHORT],
+    maxTwilightPoints     [USHORT],
+    maxStorage            [USHORT],
+    maxFunctionDefs       [USHORT],
+    maxInstructionDefs    [USHORT],
+    maxStackElements      [USHORT],
+    maxSizeOfInstructions [USHORT],
+    maxComponentElements  [USHORT],
+    maxComponentDepth     [USHORT],
+});
+
 #[cfg(test)]
 mod tests {
-    use compound::Compound;
     use tests;
 
     #[test]
     fn offset_table_read() {
+        use band::Blob;
         use compound::OffsetTable;
 
         let mut file = tests::open("SourceSerifPro-Regular.otf");
@@ -174,6 +188,7 @@ mod tests {
 
     #[test]
     fn char_map_read() {
+        use band::Blob;
         use compound::{CharMapHeader, EncodingRecord};
         use std::io::{Seek, SeekFrom};
 

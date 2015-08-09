@@ -1,62 +1,38 @@
 use std::io::{Read, Seek, SeekFrom};
-use std::{mem, ptr};
 
 use Result;
 
-pub trait Band {
-    fn position(&mut self) -> Result<u64>;
-    fn read_i16(&mut self) -> Result<i16>;
-    fn read_i64(&mut self) -> Result<i64>;
-    fn read_u16(&mut self) -> Result<u16>;
-    fn read_u32(&mut self) -> Result<u32>;
-    fn seek(&mut self, u64) -> Result<u64>;
-}
-
-#[cfg(target_endian = "big")]
-macro_rules! big_endian_to_target(
-    ($data:ident) => ();
-);
-
-#[cfg(target_endian = "little")]
-macro_rules! big_endian_to_target(
-    ($data:ident) => ($data.reverse());
-);
-
-macro_rules! read(
-    ($this:ident, $count:expr) => (unsafe {
-        let mut buffer: [u8; $count] = mem::uninitialized();
-        if try!($this.read(&mut buffer)) != $count {
-            return raise!("failed to read as much as needed");
-        }
-        big_endian_to_target!(buffer);
-        Ok(ptr::read(buffer.as_ptr() as *const _))
-    });
-);
-
-impl<T> Band for T where T: Read + Seek {
-    fn read_i16(&mut self) -> Result<i16> {
-        read!(self, 2)
-    }
-
-    fn read_u16(&mut self) -> Result<u16> {
-        read!(self, 2)
-    }
-
-    fn read_u32(&mut self) -> Result<u32> {
-        read!(self, 4)
-    }
-
-    fn read_i64(&mut self) -> Result<i64> {
-        read!(self, 8)
+pub trait Band: Read + Seek + Sized {
+    #[inline]
+    fn goto(&mut self, position: u64) -> Result<u64> {
+        self.seek(SeekFrom::Start(position))
     }
 
     #[inline]
-    fn seek(&mut self, position: u64) -> Result<u64> {
-        Seek::seek(self, SeekFrom::Start(position))
+    fn peek<T: Atom>(&mut self) -> Result<T> {
+        self.save(|band| Atom::read(band))
     }
 
     #[inline]
     fn position(&mut self) -> Result<u64> {
-        Seek::seek(self, SeekFrom::Current(0))
+        self.seek(SeekFrom::Current(0))
     }
+
+    fn save<F, T>(&mut self, mut body: F) -> Result<T> where F: FnMut(&mut Self) -> Result<T> {
+        let position = try!(self.position());
+        let value = body(self);
+        try!(self.goto(position));
+        Ok(try!(value))
+    }
+}
+
+pub trait Atom {
+    fn read<T: Band>(&mut T) -> Result<Self>;
+}
+
+pub trait Blob {
+    fn read<T: Band>(&mut self, &mut T) -> Result<()>;
+}
+
+impl<T: Read + Seek> Band for T {
 }

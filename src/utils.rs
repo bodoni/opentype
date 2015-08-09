@@ -1,25 +1,25 @@
 use std::mem;
 
-use band::Band;
+use Result;
+use band::{Atom, Band};
 use compound::TableRecord;
+use primitive::ULONG;
 
-pub fn checksum<T, F>(band: &mut T, record: &TableRecord, process: F) -> bool
-    where T: Band, F: Fn(usize, u32) -> u32
+pub fn checksum<T, F>(band: &mut T, record: &TableRecord, process: F) -> Result<bool>
+    where T: Band, F: Fn(usize, ULONG) -> ULONG
 {
-    let mut checksum: u64 = 0;
     let length = {
-        let size = mem::size_of::<u32>();
+        let size = mem::size_of::<ULONG>();
         ((record.length as usize + size - 1) & !(size - 1)) / size
     };
-
-    for i in 0..length {
-        match band.read_u32() {
-            Ok(chunk) => checksum += process(i, chunk) as u64,
-            Err(_) => return false
+    band.save(|band| {
+        try!(band.goto(record.offset as u64));
+        let mut checksum: u64 = 0;
+        for i in 0..length {
+            checksum += process(i, try!(ULONG::read(band))) as u64;
         }
-    }
-
-    record.checkSum == checksum as u32
+        Ok(record.checkSum == checksum as u32)
+    })
 }
 
 #[cfg(test)]
@@ -36,18 +36,13 @@ mod tests {
                 checkSum: $checksum,
                 .. TableRecord::default()
             };
-            super::checksum(&mut reader, &table, |_, chunk| chunk)
+            super::checksum(&mut reader, &table, |_, chunk| chunk).unwrap()
         })
     );
 
     #[test]
     fn checksum() {
-        assert!(!checksum!(3 * 4,
-                           1 + 2 + 4,
-                           &[0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3]));
-
-        assert!(checksum!(3 * 4,
-                          1 + 2 + 3,
-                          &[0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3]));
+        assert!(!checksum!(3 * 4, 1 + 2 + 4, &[0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3]));
+        assert!( checksum!(3 * 4, 1 + 2 + 3, &[0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3]));
     }
 }

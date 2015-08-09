@@ -1,7 +1,7 @@
 use std::io::{Read, Seek};
 
 use Result;
-use band::Band;
+use band::{Band, Blob};
 use compound::*;
 use primitive::*;
 
@@ -24,12 +24,6 @@ pub struct Font {
     pub font_header: Option<FontHeader>,
     pub max_profile: Option<MaxProfile>,
 }
-
-macro_rules! seek(
-    ($band:expr, $position:expr) => (
-        try!($band.seek($position as u64))
-    );
-);
 
 impl Font {
     pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
@@ -60,27 +54,24 @@ impl Font {
         for record in records.iter() {
             match &tag!(record.tag) {
                 b"cmap" => {
-                    seek!(band, record.offset);
-                    if !checksum(band, record, |_, chunk| chunk) {
+                    if !try!(checksum(band, record, |_, chunk| chunk)) {
                         raise!("the character-to-glyph mapping is corrupted");
                     }
-                    seek!(band, record.offset);
+                    try!(band.goto(record.offset as u64));
                     try!(self.read_char_map(band));
                 },
                 b"head" => {
-                    seek!(band, record.offset);
-                    if !checksum(band, record, |i, chunk| if i == 2 { 0 } else { chunk }) {
+                    if !try!(checksum(band, record, |i, chunk| if i == 2 { 0 } else { chunk })) {
                         raise!("the font header is corrupted");
                     }
-                    seek!(band, record.offset);
+                    try!(band.goto(record.offset as u64));
                     try!(self.read_font_header(band));
                 },
                 b"maxp" => {
-                    seek!(band, record.offset);
-                    if !checksum(band, record, |_, chunk| chunk) {
+                    if !try!(checksum(band, record, |_, chunk| chunk)) {
                         raise!("the maximal profile is corrupted");
                     }
-                    seek!(band, record.offset);
+                    try!(band.goto(record.offset as u64));
                     try!(self.read_max_profile(band));
                 },
                 _ => (),
@@ -110,14 +101,8 @@ impl Font {
         }
 
         for record in records.iter() {
-            let offset = top + record.offset as u64;
-
-            seek!(band, offset);
-            let mut format = CharMapFormat::default();
-            try!(format.read(band));
-            seek!(band, offset);
-
-            match format.version {
+            try!(band.goto(top + record.offset as u64));
+            match try!(band.peek::<USHORT>()) {
                 4 => try!(self.read_char_map_format_4(band)),
                 6 => try!(self.read_char_map_format_6(band)),
                 _ => raise!("the format of a character-to-glyph mapping is not supported"),
@@ -160,19 +145,30 @@ impl Font {
 
     fn read_max_profile<T: Band>(&mut self, band: &mut T) -> Result<()> {
         const VERSION_0_5: Fixed = Fixed(0x00005000);
+        const VERSION_1_0: Fixed = Fixed(0x00010000);
 
-        let mut profile = MaxProfile::default();
-        try!(profile.read(band));
-        if profile.version != VERSION_0_5 {
-            raise!("the format of the maximum profile is not supported");
+        match try!(band.peek::<Fixed>()) {
+            VERSION_0_5 => {
+                let mut profile = MaxProfileVersion05::default();
+                try!(profile.read(band));
+                self.max_profile = Some(MaxProfile::Version05(profile));
+            },
+            VERSION_1_0 => {
+                let mut profile = MaxProfileVersion10::default();
+                try!(profile.read(band));
+                self.max_profile = Some(MaxProfile::Version10(profile));
+            },
+            _ => {
+                raise!("the format of the maximum profile is not supported");
+            },
         }
-        self.max_profile = Some(profile);
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use compound::MaxProfile;
     use super::Font;
     use tests;
 
@@ -181,12 +177,20 @@ mod tests {
         let mut file = tests::open("SourceSerifPro-Regular.otf");
         let font = Font::read(&mut file).unwrap();
 
-        let header = font.font_header.as_ref().unwrap();
-        assert_eq!(header.fontRevision.as_f32(), 1.014);
-        assert_eq!(header.unitsPerEm, 1000);
-        assert_eq!(header.macStyle, 0);
+        match font.font_header {
+            Some(ref header) => {
+                assert_eq!(header.fontRevision.as_f32(), 1.014);
+                assert_eq!(header.unitsPerEm, 1000);
+                assert_eq!(header.macStyle, 0);
+            },
+            _ => unreachable!(),
+        }
 
-        let profile = font.max_profile.as_ref().unwrap();
-        assert_eq!(profile.numGlyphs, 545);
+        match font.max_profile {
+            Some(MaxProfile::Version05(ref profile)) => {
+                assert_eq!(profile.numGlyphs, 545);
+            },
+            _ => unreachable!(),
+        }
     }
 }

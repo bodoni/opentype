@@ -10,8 +10,8 @@ pub trait Band: Read + Seek + Sized {
     }
 
     #[inline]
-    fn peek<T: Primitive>(&mut self) -> Result<T> {
-        self.save(|band| Primitive::read(band))
+    fn peek<T: Value>(&mut self) -> Result<T> {
+        self.save(|band| Value::read(band))
     }
 
     #[inline]
@@ -28,12 +28,7 @@ pub trait Band: Read + Seek + Sized {
 }
 
 #[doc(hidden)]
-pub trait Compound {
-    fn read<T: Band>(&mut self, &mut T) -> Result<()>;
-}
-
-#[doc(hidden)]
-pub trait Primitive {
+pub trait Value {
     fn read<T: Band>(&mut T) -> Result<Self>;
 }
 

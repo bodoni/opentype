@@ -6,7 +6,7 @@ use std::io::Read;
 use std::{mem, ptr};
 
 use Result;
-use band::{Band, Primitive};
+use band::{Band, Value};
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct Fixed(pub u32);
@@ -47,31 +47,31 @@ macro_rules! read(
     });
 );
 
-impl Primitive for Fixed {
+impl Value for Fixed {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 4)
     }
 }
 
-impl Primitive for LONGDATETIME {
+impl Value for LONGDATETIME {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 8)
     }
 }
 
-impl Primitive for SHORT {
+impl Value for SHORT {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 2)
     }
 }
 
-impl Primitive for ULONG {
+impl Value for ULONG {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 4)
     }
 }
 
-impl Primitive for USHORT {
+impl Value for USHORT {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
         read!(band, 2)
     }

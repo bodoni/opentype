@@ -5,7 +5,7 @@
 use std::mem;
 
 use Result;
-use band::{Band, Compound, Primitive};
+use band::{Band, Value};
 use primitive::*;
 
 macro_rules! itemize(
@@ -30,10 +30,11 @@ macro_rules! declare(
 
 macro_rules! implement(
     ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
-        impl Compound for $structure {
-            fn read<T: Band>(&mut self, band: &mut T) -> Result<()> {
-                $(self.$field = read!($structure, self, band, $($kind)+ $(|$this| $body)*);)+
-                Ok(())
+        impl Value for $structure {
+            fn read<T: Band>(band: &mut T) -> Result<Self> {
+                let mut value = $structure::default();
+                $(value.$field = read!($structure, value, band, $($kind)+ $(|$this| $body)*);)+
+                Ok(value)
             }
         }
     );
@@ -43,11 +44,11 @@ macro_rules! read(
     ($structure:ident, $this:ident, $band:ident, Vec<$kind:ty> |$that:ident| $body:block) => ({
         #[allow(unused_variables)]
         fn count($that: &$structure) -> usize $body
-        let _ = count($this);
+        let _ = count(&$this);
         vec![]
     });
     ($structure:ident, $this:ident, $band:ident, $kind:ty) => ({
-        try!(Primitive::read($band))
+        try!(Value::read($band))
     });
 );
 
@@ -181,23 +182,20 @@ mod tests {
 
     #[test]
     fn char_mapping() {
-        use band::Compound;
+        use band::Value;
         use compound::{CharMappingHeader, EncodingRecord};
         use std::io::{Seek, SeekFrom};
 
         let mut file = tests::open("SourceSerifPro-Regular.otf");
         file.seek(SeekFrom::Start(15668)).unwrap();
-        let mut header = CharMappingHeader::default();
-        header.read(&mut file).unwrap();
 
+        let header = CharMappingHeader::read(&mut file).unwrap();
         assert_eq!(header.version, 0);
         assert_eq!(header.numTables, 3);
 
         let (platforms, encodings) = ([0, 1, 3], [3, 0, 1]);
         for i in 0..3 {
-            let mut record = EncodingRecord::default();
-            record.read(&mut file).unwrap();
-
+            let record = EncodingRecord::read(&mut file).unwrap();
             assert_eq!(record.platformID, platforms[i]);
             assert_eq!(record.encodingID, encodings[i]);
         }
@@ -205,12 +203,11 @@ mod tests {
 
     #[test]
     fn offset_table() {
-        use band::Compound;
+        use band::Value;
         use compound::OffsetTable;
 
         let mut file = tests::open("SourceSerifPro-Regular.otf");
-        let mut table = OffsetTable::default();
-        table.read(&mut file).unwrap();
+        let table = OffsetTable::read(&mut file).unwrap();
 
         assert_eq!(table.version.0, 0x4f54544f);
         assert_eq!(table.numTables, 12);

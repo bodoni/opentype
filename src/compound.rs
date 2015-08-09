@@ -17,12 +17,12 @@ macro_rules! itemize(
 
 macro_rules! compound(
     ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
-        declare_compound!($structure { $($field $($kind)+,)+ });
-        implement_compound!($structure { $($field [$($kind)+] $(|$this| $body)*,)+ });
+        declare!($structure { $($field $($kind)+,)+ });
+        implement!($structure { $($field [$($kind)+] $(|$this| $body)*,)+ });
     );
 );
 
-macro_rules! declare_compound(
+macro_rules! declare(
     ($structure:ident { $($field:ident $kind:ty,)+ }) => (
         itemize! {
             #[derive(Default)]
@@ -31,18 +31,18 @@ macro_rules! declare_compound(
     );
 );
 
-macro_rules! implement_compound(
+macro_rules! implement(
     ($structure:ident { $($field:ident [$($kind:tt)+] $(|$this:ident| $body:block)*,)+ }) => (
         impl Compound for $structure {
             fn read<T: Band>(&mut self, band: &mut T) -> Result<()> {
-                $(self.$field = read_field!($structure, self, band, $($kind)+ $(|$this| $body)*);)+
+                $(self.$field = read!($structure, self, band, $($kind)+ $(|$this| $body)*);)+
                 Ok(())
             }
         }
     );
 );
 
-macro_rules! read_field(
+macro_rules! read(
     ($structure:ident, $this:ident, $band:ident, USHORT) => ({
         try!($band.read_u16())
     });
@@ -173,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn char_mapping_read() {
+    fn char_map_read() {
         use compound::{CharMapHeader, EncodingRecord};
         use std::io::{Seek, SeekFrom};
 

@@ -20,7 +20,6 @@ pub type ULONG = u32;
 pub type USHORT = u16;
 
 impl Fixed {
-    #[cfg(test)]
     pub fn as_f32(&self) -> f32 {
         ((self.0 as f32) * 0.0000152587890625 * 1000.0).round() / 1000.0
     }

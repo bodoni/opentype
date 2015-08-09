@@ -130,32 +130,3 @@ impl Font {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use compound::MaxProfile;
-    use super::Font;
-    use tests;
-
-    #[test]
-    fn read() {
-        let mut file = tests::open("SourceSerifPro-Regular.otf");
-        let font = Font::read(&mut file).unwrap();
-
-        match font.font_header {
-            Some(ref header) => {
-                assert_eq!(header.fontRevision.as_f32(), 1.014);
-                assert_eq!(header.unitsPerEm, 1000);
-                assert_eq!(header.macStyle, 0);
-            },
-            _ => unreachable!(),
-        }
-
-        match font.max_profile {
-            Some(MaxProfile::Version05(ref profile)) => {
-                assert_eq!(profile.numGlyphs, 545);
-            },
-            _ => unreachable!(),
-        }
-    }
-}

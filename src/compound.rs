@@ -44,8 +44,12 @@ macro_rules! read(
     ($structure:ident, $this:ident, $band:ident, Vec<$kind:ty> |$that:ident| $body:block) => ({
         #[allow(unused_variables)]
         fn count($that: &$structure) -> usize $body
-        let _ = count(&$this);
-        vec![]
+        let count = count(&$this);
+        let mut values = Vec::with_capacity(count);
+        for _ in 0..count {
+            values.push(try!(Value::read($band)));
+        }
+        values
     });
     ($structure:ident, $this:ident, $band:ident, $kind:ty) => ({
         try!(Value::read($band))
@@ -91,7 +95,7 @@ compound!(CharMappingFormat4 {
     searchRange   (USHORT     ),
     entrySelector (USHORT     ),
     rangeShift    (USHORT     ),
-    endCount      (Vec<USHORT>) |this| { 0 },
+    endCount      (Vec<USHORT>) |this| { this.segCountX2 as usize / 2 },
     reservedPad   (USHORT     ),
     startCount    (Vec<USHORT>) |this| { 0 },
     idDelta       (Vec<SHORT> ) |this| { 0 },
@@ -178,46 +182,8 @@ impl TableRecord {
 
 #[cfg(test)]
 mod tests {
-    use tests;
-
     #[test]
-    fn char_mapping() {
-        use band::Value;
-        use compound::{CharMappingHeader, EncodingRecord};
-        use std::io::{Seek, SeekFrom};
-
-        let mut file = tests::open("SourceSerifPro-Regular.otf");
-        file.seek(SeekFrom::Start(15668)).unwrap();
-
-        let header = CharMappingHeader::read(&mut file).unwrap();
-        assert_eq!(header.version, 0);
-        assert_eq!(header.numTables, 3);
-
-        let (platforms, encodings) = ([0, 1, 3], [3, 0, 1]);
-        for i in 0..3 {
-            let record = EncodingRecord::read(&mut file).unwrap();
-            assert_eq!(record.platformID, platforms[i]);
-            assert_eq!(record.encodingID, encodings[i]);
-        }
-    }
-
-    #[test]
-    fn offset_table() {
-        use band::Value;
-        use compound::OffsetTable;
-
-        let mut file = tests::open("SourceSerifPro-Regular.otf");
-        let table = OffsetTable::read(&mut file).unwrap();
-
-        assert_eq!(table.version.0, 0x4f54544f);
-        assert_eq!(table.numTables, 12);
-        assert_eq!(table.searchRange, 8 * 16);
-        assert_eq!(table.entrySelector, 3);
-        assert_eq!(table.rangeShift, table.numTables * 16 - table.searchRange);
-    }
-
-    #[test]
-    fn table_record() {
+    fn table_record_check() {
         use compound::TableRecord;
         use std::io::Cursor;
 

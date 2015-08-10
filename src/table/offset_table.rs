@@ -4,7 +4,7 @@ use Result;
 use band::{Band, Value};
 use primitive::*;
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct OffsetTable {
     pub header: OffsetTableHeader,
     pub records: Vec<OffsetTableRecord>,

@@ -4,15 +4,15 @@
 
 macro_rules! table(
     ($structure:ident { $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+ }) => (
-        declare!($structure { $($field $($kind)+,)+ });
+        declare!($structure { $($field ($($kind)+),)+ });
         implement!($structure { $($field ($($kind)+) $(|$this| $body)*,)+ });
     );
 );
 
 macro_rules! declare(
-    ($structure:ident { $($field:ident $kind:ty,)+ }) => (
+    ($structure:ident { $($field:ident ($kind:ty),)+ }) => (
         itemize! {
-            #[derive(Debug, Default)]
+            #[derive(Clone, Debug, Default, Eq, PartialEq)]
             pub struct $structure { $(pub $field: $kind,)+ }
         }
     );

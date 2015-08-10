@@ -3,14 +3,14 @@ use std::collections::HashMap;
 use Result;
 use primitive::*;
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct CharMapping {
     pub header: CharMappingHeader,
     pub records: Vec<CharMappingRecord>,
     pub encodings: Vec<CharMappingEncoding>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum CharMappingEncoding {
     Format4(CharMappingEncoding4),
     Format6(CharMappingEncoding6),

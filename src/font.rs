@@ -19,6 +19,7 @@ pub struct Font {
     pub offset_table: OffsetTable,
     pub char_mapping: CharMapping,
     pub font_header: FontHeader,
+    pub horizontal_header: HorizontalHeader,
     pub max_profile: MaxProfile,
 }
 
@@ -36,6 +37,7 @@ impl Font {
         let offset_table = try!(read_offset_table(reader));
 
         let mut font_header = None;
+        let mut horizontal_header = None;
         let mut max_profile = None;
         let mut char_mapping = None;
 
@@ -43,6 +45,7 @@ impl Font {
             match &tag!(record.tag) {
                 b"cmap" => char_mapping = Some(try!(read_char_mapping(reader, record))),
                 b"head" => font_header = Some(try!(read_font_header(reader, record))),
+                b"hhea" => horizontal_header = Some(try!(read_horizontal_header(reader, record))),
                 b"maxp" => max_profile = Some(try!(read_max_profile(reader, record))),
                 _ => (),
             }
@@ -50,9 +53,10 @@ impl Font {
 
         Ok(Font {
             offset_table: offset_table,
-            font_header: some!(font_header, "the font header"),
-            max_profile: some!(max_profile, "the maximum profile"),
             char_mapping: some!(char_mapping, "the character-to-glyph mapping"),
+            font_header: some!(font_header, "the font header"),
+            horizontal_header: some!(horizontal_header, "the horizontal header"),
+            max_profile: some!(max_profile, "the maximum profile"),
         })
     }
 }
@@ -116,6 +120,24 @@ fn read_font_header<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result
     }
     if header.magicNumber != MAGIC_NUMBER {
         raise!("the font header is malformed");
+    }
+
+    Ok(header)
+}
+
+fn read_horizontal_header<T: Band>(band: &mut T, record: &OffsetTableRecord)
+                                    -> Result<HorizontalHeader> {
+
+    const VERSION_1_0: Fixed = Fixed(0x00010000);
+
+    if !try!(record.check(band, |_, chunk| chunk)) {
+        raise!("the horizontal header is corrupted");
+    }
+
+    try!(band.jump(record.offset as u64));
+    let header = try!(HorizontalHeader::read(band));
+    if header.version != VERSION_1_0 {
+        raise!("the format of the horizontal header is not supported");
     }
 
     Ok(header)

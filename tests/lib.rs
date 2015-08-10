@@ -80,6 +80,17 @@ fn font_header() {
 }
 
 #[test]
+fn horizontal_header() {
+    let mut file = open("SourceSerifPro-Regular.otf");
+    let font = Font::read(&mut file).unwrap();
+    let header = &font.horizontal_header;
+
+    assert_eq!(header.Ascender, 918);
+    assert_eq!(header.Descender, -335);
+    assert_eq!(header.numberOfHMetrics, 521);
+}
+
+#[test]
 fn offset_table_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
@@ -111,4 +122,3 @@ fn open(name: &str) -> File {
     assert!(fs::metadata(&path).is_ok());
     File::open(&path).unwrap()
 }
-

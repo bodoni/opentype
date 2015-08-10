@@ -10,13 +10,11 @@ use band::{Band, Value};
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct Fixed(pub u32);
-
+pub type FWORD = SHORT;
 pub type LONGDATETIME = i64;
-
 pub type SHORT = i16;
-
+pub type UFWORD = USHORT;
 pub type ULONG = u32;
-
 pub type USHORT = u16;
 
 impl Fixed {

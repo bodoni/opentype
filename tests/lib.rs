@@ -1,7 +1,7 @@
 extern crate opentype;
 
 use opentype::Font;
-use opentype::compound::{CharMapping, MaxProfile};
+use opentype::table::{CharMapping, MaxProfile};
 use std::fs::{self, File};
 use std::path::PathBuf;
 

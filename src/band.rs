@@ -21,9 +21,9 @@ pub trait Band: Read + Seek + Sized {
 
     fn stay<F, T>(&mut self, mut body: F) -> Result<T> where F: FnMut(&mut Self) -> Result<T> {
         let position = try!(self.position());
-        let value = body(self);
+        let result = body(self);
         try!(self.jump(position));
-        Ok(try!(value))
+        Ok(try!(result))
     }
 }
 

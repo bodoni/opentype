@@ -1,4 +1,4 @@
-//! Compound data types.
+//! Tables making up a font file.
 
 #![allow(non_snake_case)]
 
@@ -13,7 +13,7 @@ macro_rules! itemize(
     ($code:item) => ($code);
 );
 
-macro_rules! compound(
+macro_rules! table(
     ($structure:ident { $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+ }) => (
         declare!($structure { $($field $($kind)+,)+ });
         implement!($structure { $($field ($($kind)+) $(|$this| $body)*,)+ });
@@ -57,7 +57,7 @@ macro_rules! read(
     });
 );
 
-compound!(OffsetTable {
+table!(OffsetTable {
     version       (Fixed ),
     numTables     (USHORT),
     searchRange   (USHORT),
@@ -65,19 +65,19 @@ compound!(OffsetTable {
     rangeShift    (USHORT),
 });
 
-compound!(TableRecord {
+table!(TableRecord {
     tag      (ULONG),
     checkSum (ULONG),
     offset   (ULONG),
     length   (ULONG),
 });
 
-compound!(CharMappingHeader {
+table!(CharMappingHeader {
     version   (USHORT),
     numTables (USHORT),
 });
 
-compound!(EncodingRecord {
+table!(EncodingRecord {
     platformID (USHORT),
     encodingID (USHORT),
     offset     (ULONG ),
@@ -88,7 +88,7 @@ pub enum CharMapping {
     Format6(CharMapping6),
 }
 
-compound!(CharMapping4 {
+table!(CharMapping4 {
     format        (USHORT     ),
     length        (USHORT     ),
     language      (USHORT     ),
@@ -104,7 +104,7 @@ compound!(CharMapping4 {
     glyphIdArray  (Vec<USHORT>) |this| { this.payload() },
 });
 
-compound!(CharMapping6 {
+table!(CharMapping6 {
     format       (USHORT     ),
     length       (USHORT     ),
     language     (USHORT     ),
@@ -113,7 +113,7 @@ compound!(CharMapping6 {
     glyphIdArray (Vec<USHORT>) |this| { Ok(this.entryCount as usize) },
 });
 
-compound!(FontHeader {
+table!(FontHeader {
     version            (Fixed       ),
     fontRevision       (Fixed       ),
     checkSumAdjustment (ULONG       ),
@@ -138,12 +138,12 @@ pub enum MaxProfile {
     Version10(MaxProfile10),
 }
 
-compound!(MaxProfile05 {
+table!(MaxProfile05 {
     version   (Fixed ),
     numGlyphs (USHORT),
 });
 
-compound!(MaxProfile10 {
+table!(MaxProfile10 {
     version               (Fixed ),
     numGlyphs             (USHORT),
     maxPoints             (USHORT),
@@ -241,8 +241,8 @@ impl CharMapping4 {
 mod tests {
     #[test]
     fn table_record_check() {
-        use compound::TableRecord;
         use std::io::Cursor;
+        use table::TableRecord;
 
         macro_rules! check(
             ($length:expr, $checksum:expr, $data:expr) => ({

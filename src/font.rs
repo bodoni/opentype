@@ -2,8 +2,8 @@ use std::io::{Read, Seek};
 
 use Result;
 use band::{Band, Value};
-use compound::*;
 use primitive::*;
+use table::*;
 
 macro_rules! tag(
     ($value:expr) => (unsafe {

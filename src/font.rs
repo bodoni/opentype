@@ -51,7 +51,7 @@ impl Font {
         Ok(Font {
             offset_table: offset_table,
             font_header: some!(font_header, "the font header"),
-            max_profile: some!(max_profile, "the maximal profile"),
+            max_profile: some!(max_profile, "the maximum profile"),
             char_mapping: some!(char_mapping, "the character-to-glyph mapping"),
         })
     }
@@ -126,7 +126,7 @@ fn read_max_profile<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result
     const VERSION_1_0: Fixed = Fixed(0x00010000);
 
     if !try!(record.check(band, |_, chunk| chunk)) {
-        raise!("the maximal profile is corrupted");
+        raise!("the maximum profile is corrupted");
     }
 
     try!(band.jump(record.offset as u64));

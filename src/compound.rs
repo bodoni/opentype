@@ -84,11 +84,11 @@ compound!(EncodingRecord {
 });
 
 pub enum CharMapping {
-    Format4(CharMappingFormat4),
-    Format6(CharMappingFormat6),
+    Format4(CharMapping4),
+    Format6(CharMapping6),
 }
 
-compound!(CharMappingFormat4 {
+compound!(CharMapping4 {
     format        (USHORT     ),
     length        (USHORT     ),
     language      (USHORT     ),
@@ -104,7 +104,7 @@ compound!(CharMappingFormat4 {
     glyphIdArray  (Vec<USHORT>) |this| { this.payload() },
 });
 
-compound!(CharMappingFormat6 {
+compound!(CharMapping6 {
     format       (USHORT     ),
     length       (USHORT     ),
     language     (USHORT     ),
@@ -134,16 +134,16 @@ compound!(FontHeader {
 });
 
 pub enum MaxProfile {
-    Version05(MaxProfileVersion05),
-    Version10(MaxProfileVersion10),
+    Version05(MaxProfile05),
+    Version10(MaxProfile10),
 }
 
-compound!(MaxProfileVersion05 {
+compound!(MaxProfile05 {
     version   (Fixed ),
     numGlyphs (USHORT),
 });
 
-compound!(MaxProfileVersion10 {
+compound!(MaxProfile10 {
     version               (Fixed ),
     numGlyphs             (USHORT),
     maxPoints             (USHORT),
@@ -181,7 +181,7 @@ impl TableRecord {
     }
 }
 
-impl CharMappingFormat4 {
+impl CharMapping4 {
     pub fn mapping(&self) -> HashMap<USHORT, USHORT> {
         let segments = self.segments();
 

@@ -30,7 +30,7 @@ impl Font {
     pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
         let mut font = Font { offset_table: try!(Value::read(reader)), .. Font::default() };
         if &tag!(font.offset_table.version) != b"OTTO" {
-            raise!("the format of the font is not supported");
+            raise!("the format of a font is not supported");
         }
         try!(font.read_table_records(reader));
         Ok(font)
@@ -45,7 +45,7 @@ impl Font {
             match &tag!(record.tag) {
                 b"cmap" => {
                     if !try!(record.check(band, |_, chunk| chunk)) {
-                        raise!("the character-to-glyph mapping is corrupted");
+                        raise!("the character-to-glyph mappings are corrupted");
                     }
                     try!(band.jump(record.offset as u64));
                     try!(self.read_char_mappings(band));
@@ -108,7 +108,7 @@ impl Font {
             raise!("the format of the font header is not supported");
         }
         if header.magicNumber != MAGIC_NUMBER {
-            raise!("the font header is corrupted");
+            raise!("the font header is malformed");
         }
         self.font_header = Some(header);
 

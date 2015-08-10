@@ -5,6 +5,8 @@ use opentype::compound::{CharMapping, MaxProfile};
 use std::fs::{self, File};
 use std::path::PathBuf;
 
+mod fixture;
+
 #[test]
 fn char_mapping_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
@@ -26,12 +28,12 @@ fn char_mappings() {
         &CharMapping::Format4(ref mapping) => {
             assert_eq!(mapping.segCountX2, 2 * 115);
             assert_eq!(mapping.searchRange, 2 * (1 << 115f64.log2().floor() as usize));
-            assert_eq!(mapping.endCount.len(), 115);
-            assert_eq!(mapping.endCount[114], 0xFFFF);
-            assert_eq!(mapping.startCount.len(), 115);
-            assert_eq!(mapping.startCount[114], 0xFFFF);
+            assert_eq!(mapping.endCode.len(), 115);
+            assert_eq!(mapping.startCode.len(), 115);
             assert_eq!(mapping.idDelta.len(), 115);
             assert_eq!(mapping.idRangeOffset.len(), 115);
+            assert_eq!(mapping.glyphIdArray.len(), 251);
+            assert_eq!(mapping.mapping(), fixture::mapping());
         },
         _ => unreachable!(),
     }
@@ -44,7 +46,9 @@ fn char_mappings() {
         _ => unreachable!(),
     }
     match &mappings[2] {
-        &CharMapping::Format4(..) => {},
+        &CharMapping::Format4(ref mapping) => {
+            assert_eq!(mapping.segCountX2, 2 * 115);
+        },
         _ => unreachable!(),
     }
 }
@@ -107,3 +111,4 @@ fn open(name: &str) -> File {
     assert!(fs::metadata(&path).is_ok());
     File::open(&path).unwrap()
 }
+

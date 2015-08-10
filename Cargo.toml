@@ -6,3 +6,7 @@ license = "MIT"
 repository = "https://github.com/stainless-steel/opentype"
 homepage = "https://github.com/stainless-steel/opentype"
 description = "The package provides a parser for OpenType fonts."
+
+[[test]]
+name = "opentype"
+path = "tests/lib.rs"

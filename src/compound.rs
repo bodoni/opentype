@@ -2,6 +2,7 @@
 
 #![allow(non_snake_case)]
 
+use std::collections::HashMap;
 use std::mem;
 
 use Result;
@@ -42,9 +43,9 @@ macro_rules! implement(
 
 macro_rules! read(
     ($structure:ident, $this:ident, $band:ident, [$kind:ty] |$that:ident| $body:block) => ({
-        #[allow(unused_variables)]
-        fn count($that: &$structure) -> usize $body
-        let count = count(&$this);
+        #[inline(always)]
+        fn count($that: &$structure) -> Result<usize> $body
+        let count = try!(count(&$this));
         let mut values = Vec::with_capacity(count);
         for _ in 0..count {
             values.push(try!(Value::read($band)));
@@ -95,12 +96,12 @@ compound!(CharMappingFormat4 {
     searchRange   (USHORT     ),
     entrySelector (USHORT     ),
     rangeShift    (USHORT     ),
-    endCount      (Vec<USHORT>) |this| { this.segCountX2 as usize / 2 },
+    endCode       (Vec<USHORT>) |this| { Ok(this.segments()) },
     reservedPad   (USHORT     ),
-    startCount    (Vec<USHORT>) |this| { this.segCountX2 as usize / 2 },
-    idDelta       (Vec<SHORT> ) |this| { this.segCountX2 as usize / 2 },
-    idRangeOffset (Vec<USHORT>) |this| { this.segCountX2 as usize / 2 },
-    glyphIdArray  (Vec<USHORT>) |this| { 0 },
+    startCode     (Vec<USHORT>) |this| { Ok(this.segments()) },
+    idDelta       (Vec<SHORT> ) |this| { Ok(this.segments()) },
+    idRangeOffset (Vec<USHORT>) |this| { Ok(this.segments()) },
+    glyphIdArray  (Vec<USHORT>) |this| { this.payload() },
 });
 
 compound!(CharMappingFormat6 {
@@ -109,7 +110,7 @@ compound!(CharMappingFormat6 {
     language     (USHORT     ),
     firstCode    (USHORT     ),
     entryCount   (USHORT     ),
-    glyphIdArray (Vec<USHORT>) |this| { this.entryCount as usize },
+    glyphIdArray (Vec<USHORT>) |this| { Ok(this.entryCount as usize) },
 });
 
 compound!(FontHeader {
@@ -177,6 +178,62 @@ impl TableRecord {
             }
             Ok(self.checkSum == checksum as u32)
         })
+    }
+}
+
+impl CharMappingFormat4 {
+    pub fn mapping(&self) -> HashMap<USHORT, USHORT> {
+        let segments = self.segments();
+
+        let mut map = HashMap::new();
+        for i in 0..(segments - 1) {
+            let startCode = self.startCode[i];
+            let idDelta = self.idDelta[i];
+            let idRangeOffset = self.idRangeOffset[i];
+            for j in startCode..(self.endCode[i] + 1) {
+                let index = if idRangeOffset > 0 {
+                    let offset = (idRangeOffset / 2 + (j - startCode)) - (segments - i) as USHORT;
+                    self.glyphIdArray[offset as usize]
+                } else {
+                    (idDelta + j as SHORT) as USHORT
+                };
+                map.insert(j, index);
+            }
+        }
+
+        map
+    }
+
+    fn payload(&self) -> Result<usize> {
+        let segments = self.segments();
+
+        if segments == 0 {
+            raise!("a character-to-glyph mapping has no segments");
+        }
+        if self.startCode[segments - 1] != 0xFFFF || self.endCode[segments - 1] != 0xFFFF {
+            raise!("a character-to-glyph mapping is malformed");
+        }
+
+        let mut count = 0;
+        for i in 0..(segments - 1) {
+            let startCode = self.startCode[i];
+            let idRangeOffset = self.idRangeOffset[i];
+            for j in startCode..(self.endCode[i] + 1) {
+                if idRangeOffset > 0 {
+                    let offset = (idRangeOffset / 2 + (j - startCode)) - (segments - i) as USHORT;
+                    if offset >= count {
+                        count = offset + 1;
+                    }
+                }
+            }
+        }
+
+        Ok(count as usize)
+    }
+
+    #[inline]
+    fn segments(&self) -> usize {
+        self.segCountX2 as usize / 2
     }
 }
 

@@ -27,14 +27,20 @@ fn char_mappings() {
             assert_eq!(mapping.segCountX2, 2 * 115);
             assert_eq!(mapping.searchRange, 2 * (1 << 115f64.log2().floor() as usize));
             assert_eq!(mapping.endCount.len(), 115);
+            assert_eq!(mapping.endCount[114], 0xFFFF);
             assert_eq!(mapping.startCount.len(), 115);
+            assert_eq!(mapping.startCount[114], 0xFFFF);
             assert_eq!(mapping.idDelta.len(), 115);
             assert_eq!(mapping.idRangeOffset.len(), 115);
         },
         _ => unreachable!(),
     }
     match &mappings[1] {
-        &CharMapping::Format6(..) => {},
+        &CharMapping::Format6(ref mapping) => {
+            assert_eq!(mapping.firstCode, 9);
+            assert_eq!(mapping.entryCount, 247);
+            assert_eq!(mapping.glyphIdArray.len(), 247);
+        },
         _ => unreachable!(),
     }
     match &mappings[2] {

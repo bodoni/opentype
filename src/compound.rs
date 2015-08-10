@@ -109,7 +109,7 @@ compound!(CharMappingFormat6 {
     language     (USHORT     ),
     firstCode    (USHORT     ),
     entryCount   (USHORT     ),
-    glyphIdArray (Vec<USHORT>) |this| { 0 },
+    glyphIdArray (Vec<USHORT>) |this| { this.entryCount as usize },
 });
 
 compound!(FontHeader {

@@ -9,8 +9,8 @@ use std::path::PathBuf;
 fn char_mapping_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-
     let header = font.char_mapping_header.as_ref().unwrap();
+
     assert_eq!(header.version, 0);
     assert_eq!(header.numTables, 3);
 }
@@ -19,9 +19,10 @@ fn char_mapping_header() {
 fn char_mappings() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
+    let mappings = &font.char_mappings;
 
-    assert_eq!(font.char_mappings.len(), 3);
-    match &font.char_mappings[0] {
+    assert_eq!(mappings.len(), 3);
+    match &mappings[0] {
         &CharMapping::Format4(ref mapping) => {
             assert_eq!(mapping.segCountX2, 2 * 115);
             assert_eq!(mapping.searchRange, 2 * (1 << 115f64.log2().floor() as usize));
@@ -29,19 +30,12 @@ fn char_mappings() {
         },
         _ => unreachable!(),
     }
-    match &font.char_mappings[1] {
+    match &mappings[1] {
         &CharMapping::Format6(..) => {},
         _ => unreachable!(),
     }
-    match &font.char_mappings[2] {
+    match &mappings[2] {
         &CharMapping::Format4(..) => {},
-        _ => unreachable!(),
-    }
-
-    match font.max_profile {
-        Some(MaxProfile::Version05(ref profile)) => {
-            assert_eq!(profile.numGlyphs, 545);
-        },
         _ => unreachable!(),
     }
 }
@@ -50,30 +44,26 @@ fn char_mappings() {
 fn encoding_records() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-
     let records = &font.encoding_records;
-    assert_eq!(records.len(), 3);
 
-    let (platforms, encodings) = ([0, 1, 3], [3, 0, 1]);
-    for i in 0..3 {
-        assert_eq!(records[i].platformID, platforms[i]);
-        assert_eq!(records[i].encodingID, encodings[i]);
-    }
+    assert_eq!(records.len(), 3);
+    assert_eq!(records[0].platformID, 0);
+    assert_eq!(records[0].encodingID, 3);
+    assert_eq!(records[1].platformID, 1);
+    assert_eq!(records[1].encodingID, 0);
+    assert_eq!(records[2].platformID, 3);
+    assert_eq!(records[2].encodingID, 1);
 }
 
 #[test]
 fn font_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
+    let header = font.font_header.as_ref().unwrap();
 
-    match font.font_header {
-        Some(ref header) => {
-            assert_eq!(header.fontRevision.as_f32(), 1.014);
-            assert_eq!(header.unitsPerEm, 1000);
-            assert_eq!(header.macStyle, 0);
-        },
-        _ => unreachable!(),
-    }
+    assert_eq!(header.fontRevision.as_f32(), 1.014);
+    assert_eq!(header.unitsPerEm, 1000);
+    assert_eq!(header.macStyle, 0);
 }
 
 #[test]
@@ -87,6 +77,20 @@ fn offset_table() {
     assert_eq!(table.searchRange, 8 * 16);
     assert_eq!(table.entrySelector, 3);
     assert_eq!(table.rangeShift, table.numTables * 16 - table.searchRange);
+}
+
+#[test]
+fn max_profile() {
+    let mut file = open("SourceSerifPro-Regular.otf");
+    let font = Font::read(&mut file).unwrap();
+    let profile = font.max_profile.as_ref().unwrap();
+
+    match profile {
+        &MaxProfile::Version05(ref profile) => {
+            assert_eq!(profile.numGlyphs, 545);
+        },
+        _ => unreachable!(),
+    }
 }
 
 fn open(name: &str) -> File {

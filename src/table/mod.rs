@@ -53,12 +53,12 @@ macro_rules! read(
 mod char_mapping;
 mod font_header;
 mod horizontal_header;
-mod max_profile;
+mod maximum_profile;
 mod offset_table;
 
 pub use self::char_mapping::{CharMapping, CharMappingHeader, CharMappingRecord};
 pub use self::char_mapping::{CharMappingEncoding, CharMappingEncoding4, CharMappingEncoding6};
 pub use self::font_header::FontHeader;
 pub use self::horizontal_header::HorizontalHeader;
-pub use self::max_profile::{MaxProfile, MaxProfile05, MaxProfile10};
+pub use self::maximum_profile::{MaximumProfile, MaximumProfile05, MaximumProfile10};
 pub use self::offset_table::{OffsetTable, OffsetTableHeader, OffsetTableRecord};

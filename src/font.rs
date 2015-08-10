@@ -20,7 +20,7 @@ pub struct Font {
     pub char_mapping: CharMapping,
     pub font_header: FontHeader,
     pub horizontal_header: HorizontalHeader,
-    pub max_profile: MaxProfile,
+    pub maximum_profile: MaximumProfile,
 }
 
 macro_rules! some(
@@ -38,7 +38,7 @@ impl Font {
 
         let mut font_header = None;
         let mut horizontal_header = None;
-        let mut max_profile = None;
+        let mut maximum_profile = None;
         let mut char_mapping = None;
 
         for record in offset_table.records.iter() {
@@ -46,7 +46,7 @@ impl Font {
                 b"cmap" => char_mapping = Some(try!(read_char_mapping(reader, record))),
                 b"head" => font_header = Some(try!(read_font_header(reader, record))),
                 b"hhea" => horizontal_header = Some(try!(read_horizontal_header(reader, record))),
-                b"maxp" => max_profile = Some(try!(read_max_profile(reader, record))),
+                b"maxp" => maximum_profile = Some(try!(read_maximum_profile(reader, record))),
                 _ => (),
             }
         }
@@ -56,7 +56,7 @@ impl Font {
             char_mapping: some!(char_mapping, "the character-to-glyph mapping"),
             font_header: some!(font_header, "the font header"),
             horizontal_header: some!(horizontal_header, "the horizontal header"),
-            max_profile: some!(max_profile, "the maximum profile"),
+            maximum_profile: some!(maximum_profile, "the maximum profile"),
         })
     }
 }
@@ -143,7 +143,9 @@ fn read_horizontal_header<T: Band>(band: &mut T, record: &OffsetTableRecord)
     Ok(header)
 }
 
-fn read_max_profile<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<MaxProfile> {
+fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
+                                 -> Result<MaximumProfile> {
+
     const VERSION_0_5: Fixed = Fixed(0x00005000);
     const VERSION_1_0: Fixed = Fixed(0x00010000);
 
@@ -153,8 +155,8 @@ fn read_max_profile<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result
 
     try!(band.jump(record.offset as u64));
     Ok(match try!(band.peek::<Fixed>()) {
-        VERSION_0_5 => MaxProfile::Version05(try!(Value::read(band))),
-        VERSION_1_0 => MaxProfile::Version10(try!(Value::read(band))),
+        VERSION_0_5 => MaximumProfile::Version05(try!(Value::read(band))),
+        VERSION_1_0 => MaximumProfile::Version10(try!(Value::read(band))),
         _ => {
             raise!("the format of the maximum profile is not supported");
         },

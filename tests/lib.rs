@@ -1,7 +1,7 @@
 extern crate opentype;
 
 use opentype::Font;
-use opentype::table::{CharMappingEncoding, MaxProfile};
+use opentype::table::{CharMappingEncoding, MaximumProfile};
 use std::fs::{self, File};
 use std::path::PathBuf;
 
@@ -104,13 +104,13 @@ fn offset_table_header() {
 }
 
 #[test]
-fn max_profile() {
+fn maximum_profile() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let profile = &font.max_profile;
+    let profile = &font.maximum_profile;
 
     match profile {
-        &MaxProfile::Version05(ref profile) => {
+        &MaximumProfile::Version05(ref profile) => {
             assert_eq!(profile.numGlyphs, 545);
         },
         _ => unreachable!(),

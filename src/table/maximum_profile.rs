@@ -1,17 +1,17 @@
 use primitive::*;
 
 #[derive(Debug)]
-pub enum MaxProfile {
-    Version05(MaxProfile05),
-    Version10(MaxProfile10),
+pub enum MaximumProfile {
+    Version05(MaximumProfile05),
+    Version10(MaximumProfile10),
 }
 
-table!(MaxProfile05 {
+table!(MaximumProfile05 {
     version   (Fixed ),
     numGlyphs (USHORT),
 });
 
-table!(MaxProfile10 {
+table!(MaximumProfile10 {
     version               (Fixed ),
     numGlyphs             (USHORT),
     maxPoints             (USHORT),

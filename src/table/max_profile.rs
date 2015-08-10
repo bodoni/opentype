@@ -1,5 +1,6 @@
 use primitive::*;
 
+#[derive(Debug)]
 pub enum MaxProfile {
     Version05(MaxProfile05),
     Version10(MaxProfile10),

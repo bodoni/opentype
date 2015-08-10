@@ -4,7 +4,13 @@ use Result;
 use band::{Band, Value};
 use primitive::*;
 
-table!(OffsetTable {
+#[derive(Debug, Default)]
+pub struct OffsetTable {
+    pub header: OffsetTableHeader,
+    pub records: Vec<OffsetTableRecord>,
+}
+
+table!(OffsetTableHeader {
     version       (Fixed ),
     numTables     (USHORT),
     searchRange   (USHORT),
@@ -12,14 +18,14 @@ table!(OffsetTable {
     rangeShift    (USHORT),
 });
 
-table!(TableRecord {
+table!(OffsetTableRecord {
     tag      (ULONG),
     checkSum (ULONG),
     offset   (ULONG),
     length   (ULONG),
 });
 
-impl TableRecord {
+impl OffsetTableRecord {
     #[doc(hidden)]
     pub fn check<T, F>(&self, band: &mut T, process: F) -> Result<bool>
         where T: Band, F: Fn(usize, ULONG) -> ULONG
@@ -42,18 +48,18 @@ impl TableRecord {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn table_record_check() {
+    fn record_check() {
         use std::io::Cursor;
-        use table::TableRecord;
+        use table::OffsetTableRecord;
 
         macro_rules! check(
             ($length:expr, $checksum:expr, $data:expr) => ({
                 let data: &[u8] = $data;
                 let mut reader = Cursor::new(data);
-                let table = TableRecord {
+                let table = OffsetTableRecord {
                     length: $length,
                     checkSum: $checksum,
-                    .. TableRecord::default()
+                    .. OffsetTableRecord::default()
                 };
                 table.check(&mut reader, |_, chunk| chunk).unwrap()
             })

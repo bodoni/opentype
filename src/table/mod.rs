@@ -50,13 +50,13 @@ macro_rules! read(
     });
 );
 
-mod header;
-mod mapping;
-mod prelude;
-mod profile;
+mod char_mapping;
+mod font_header;
+mod max_profile;
+mod offset_table;
 
-pub use self::header::FontHeader;
-pub use self::mapping::{CharMapping, CharMapping4, CharMapping6};
-pub use self::mapping::{CharMappingHeader, EncodingRecord};
-pub use self::prelude::{OffsetTable, TableRecord};
-pub use self::profile::{MaxProfile, MaxProfile05, MaxProfile10};
+pub use self::char_mapping::{CharMapping, CharMappingHeader, CharMappingRecord};
+pub use self::char_mapping::{CharMappingEncoding, CharMappingEncoding4, CharMappingEncoding6};
+pub use self::font_header::FontHeader;
+pub use self::max_profile::{MaxProfile, MaxProfile05, MaxProfile10};
+pub use self::offset_table::{OffsetTable, OffsetTableHeader, OffsetTableRecord};

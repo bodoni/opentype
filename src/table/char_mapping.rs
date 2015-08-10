@@ -3,23 +3,31 @@ use std::collections::HashMap;
 use Result;
 use primitive::*;
 
+#[derive(Debug, Default)]
+pub struct CharMapping {
+    pub header: CharMappingHeader,
+    pub records: Vec<CharMappingRecord>,
+    pub encodings: Vec<CharMappingEncoding>,
+}
+
+#[derive(Debug)]
+pub enum CharMappingEncoding {
+    Format4(CharMappingEncoding4),
+    Format6(CharMappingEncoding6),
+}
+
 table!(CharMappingHeader {
     version   (USHORT),
     numTables (USHORT),
 });
 
-table!(EncodingRecord {
+table!(CharMappingRecord {
     platformID (USHORT),
     encodingID (USHORT),
     offset     (ULONG ),
 });
 
-pub enum CharMapping {
-    Format4(CharMapping4),
-    Format6(CharMapping6),
-}
-
-table!(CharMapping4 {
+table!(CharMappingEncoding4 {
     format        (USHORT     ),
     length        (USHORT     ),
     language      (USHORT     ),
@@ -32,10 +40,10 @@ table!(CharMapping4 {
     startCode     (Vec<USHORT>) |this| { Ok(this.segments()) },
     idDelta       (Vec<SHORT> ) |this| { Ok(this.segments()) },
     idRangeOffset (Vec<USHORT>) |this| { Ok(this.segments()) },
-    glyphIdArray  (Vec<USHORT>) |this| { this.payload() },
+    glyphIdArray  (Vec<USHORT>) |this| { this.mappings() },
 });
 
-table!(CharMapping6 {
+table!(CharMappingEncoding6 {
     format       (USHORT     ),
     length       (USHORT     ),
     language     (USHORT     ),
@@ -44,7 +52,7 @@ table!(CharMapping6 {
     glyphIdArray (Vec<USHORT>) |this| { Ok(this.entryCount as usize) },
 });
 
-impl CharMapping4 {
+impl CharMappingEncoding4 {
     pub fn mapping(&self) -> HashMap<USHORT, USHORT> {
         let segments = self.segments();
 
@@ -67,7 +75,7 @@ impl CharMapping4 {
         map
     }
 
-    fn payload(&self) -> Result<usize> {
+    fn mappings(&self) -> Result<usize> {
         let segments = self.segments();
 
         if segments == 0 {

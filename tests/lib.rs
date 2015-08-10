@@ -1,63 +1,63 @@
 extern crate opentype;
 
 use opentype::Font;
-use opentype::table::{CharMapping, MaxProfile};
+use opentype::table::{CharMappingEncoding, MaxProfile};
 use std::fs::{self, File};
 use std::path::PathBuf;
 
 mod fixture;
 
 #[test]
+fn char_mapping_encodings() {
+    let mut file = open("SourceSerifPro-Regular.otf");
+    let font = Font::read(&mut file).unwrap();
+    let encodings = &font.char_mapping.encodings;
+
+    assert_eq!(encodings.len(), 3);
+    match &encodings[0] {
+        &CharMappingEncoding::Format4(ref encoding) => {
+            assert_eq!(encoding.segCountX2, 2 * 115);
+            assert_eq!(encoding.searchRange, 2 * (1 << 115f64.log2().floor() as usize));
+            assert_eq!(encoding.endCode.len(), 115);
+            assert_eq!(encoding.startCode.len(), 115);
+            assert_eq!(encoding.idDelta.len(), 115);
+            assert_eq!(encoding.idRangeOffset.len(), 115);
+            assert_eq!(encoding.glyphIdArray.len(), 251);
+            assert_eq!(encoding.mapping(), fixture::mapping());
+        },
+        _ => unreachable!(),
+    }
+    match &encodings[1] {
+        &CharMappingEncoding::Format6(ref encoding) => {
+            assert_eq!(encoding.firstCode, 9);
+            assert_eq!(encoding.entryCount, 247);
+            assert_eq!(encoding.glyphIdArray.len(), 247);
+        },
+        _ => unreachable!(),
+    }
+    match &encodings[2] {
+        &CharMappingEncoding::Format4(ref encoding) => {
+            assert_eq!(encoding.segCountX2, 2 * 115);
+        },
+        _ => unreachable!(),
+    }
+}
+
+#[test]
 fn char_mapping_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let header = font.char_mapping_header.as_ref().unwrap();
+    let header = &font.char_mapping.header;
 
     assert_eq!(header.version, 0);
     assert_eq!(header.numTables, 3);
 }
 
 #[test]
-fn char_mappings() {
+fn char_mapping_records() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let mappings = &font.char_mappings;
-
-    assert_eq!(mappings.len(), 3);
-    match &mappings[0] {
-        &CharMapping::Format4(ref mapping) => {
-            assert_eq!(mapping.segCountX2, 2 * 115);
-            assert_eq!(mapping.searchRange, 2 * (1 << 115f64.log2().floor() as usize));
-            assert_eq!(mapping.endCode.len(), 115);
-            assert_eq!(mapping.startCode.len(), 115);
-            assert_eq!(mapping.idDelta.len(), 115);
-            assert_eq!(mapping.idRangeOffset.len(), 115);
-            assert_eq!(mapping.glyphIdArray.len(), 251);
-            assert_eq!(mapping.mapping(), fixture::mapping());
-        },
-        _ => unreachable!(),
-    }
-    match &mappings[1] {
-        &CharMapping::Format6(ref mapping) => {
-            assert_eq!(mapping.firstCode, 9);
-            assert_eq!(mapping.entryCount, 247);
-            assert_eq!(mapping.glyphIdArray.len(), 247);
-        },
-        _ => unreachable!(),
-    }
-    match &mappings[2] {
-        &CharMapping::Format4(ref mapping) => {
-            assert_eq!(mapping.segCountX2, 2 * 115);
-        },
-        _ => unreachable!(),
-    }
-}
-
-#[test]
-fn encoding_records() {
-    let mut file = open("SourceSerifPro-Regular.otf");
-    let font = Font::read(&mut file).unwrap();
-    let records = &font.encoding_records;
+    let records = &font.char_mapping.records;
 
     assert_eq!(records.len(), 3);
     assert_eq!(records[0].platformID, 0);
@@ -72,7 +72,7 @@ fn encoding_records() {
 fn font_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let header = font.font_header.as_ref().unwrap();
+    let header = &font.font_header;
 
     assert_eq!(header.fontRevision.as_f32(), 1.014);
     assert_eq!(header.unitsPerEm, 1000);
@@ -80,23 +80,23 @@ fn font_header() {
 }
 
 #[test]
-fn offset_table() {
+fn offset_table_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.offset_table;
+    let header = &font.offset_table.header;
 
-    assert_eq!(table.version.0, 0x4f54544f);
-    assert_eq!(table.numTables, 12);
-    assert_eq!(table.searchRange, 8 * 16);
-    assert_eq!(table.entrySelector, 3);
-    assert_eq!(table.rangeShift, table.numTables * 16 - table.searchRange);
+    assert_eq!(header.version.0, 0x4f54544f);
+    assert_eq!(header.numTables, 12);
+    assert_eq!(header.searchRange, 8 * 16);
+    assert_eq!(header.entrySelector, 3);
+    assert_eq!(header.rangeShift, header.numTables * 16 - header.searchRange);
 }
 
 #[test]
 fn max_profile() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let profile = font.max_profile.as_ref().unwrap();
+    let profile = &font.max_profile;
 
     match profile {
         &MaxProfile::Version05(ref profile) => {

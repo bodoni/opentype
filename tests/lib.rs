@@ -27,6 +27,9 @@ fn char_mappings() {
             assert_eq!(mapping.segCountX2, 2 * 115);
             assert_eq!(mapping.searchRange, 2 * (1 << 115f64.log2().floor() as usize));
             assert_eq!(mapping.endCount.len(), 115);
+            assert_eq!(mapping.startCount.len(), 115);
+            assert_eq!(mapping.idDelta.len(), 115);
+            assert_eq!(mapping.idRangeOffset.len(), 115);
         },
         _ => unreachable!(),
     }

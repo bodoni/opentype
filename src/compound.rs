@@ -33,7 +33,7 @@ macro_rules! implement(
         impl Value for $structure {
             fn read<T: Band>(band: &mut T) -> Result<Self> {
                 let mut value = $structure::default();
-                $(value.$field = read!($structure, value, band, $($kind)+ $(|$this| $body)*);)+
+                $(value.$field = read!($structure, value, band, [$($kind)+] $(|$this| $body)*);)+
                 Ok(value)
             }
         }
@@ -41,7 +41,7 @@ macro_rules! implement(
 );
 
 macro_rules! read(
-    ($structure:ident, $this:ident, $band:ident, Vec<$kind:ty> |$that:ident| $body:block) => ({
+    ($structure:ident, $this:ident, $band:ident, [$kind:ty] |$that:ident| $body:block) => ({
         #[allow(unused_variables)]
         fn count($that: &$structure) -> usize $body
         let count = count(&$this);
@@ -51,7 +51,7 @@ macro_rules! read(
         }
         values
     });
-    ($structure:ident, $this:ident, $band:ident, $kind:ty) => ({
+    ($structure:ident, $this:ident, $band:ident, [$kind:ty]) => ({
         try!(Value::read($band))
     });
 );
@@ -97,9 +97,9 @@ compound!(CharMappingFormat4 {
     rangeShift    (USHORT     ),
     endCount      (Vec<USHORT>) |this| { this.segCountX2 as usize / 2 },
     reservedPad   (USHORT     ),
-    startCount    (Vec<USHORT>) |this| { 0 },
-    idDelta       (Vec<SHORT> ) |this| { 0 },
-    idRangeOffset (Vec<USHORT>) |this| { 0 },
+    startCount    (Vec<USHORT>) |this| { this.segCountX2 as usize / 2 },
+    idDelta       (Vec<SHORT> ) |this| { this.segCountX2 as usize / 2 },
+    idRangeOffset (Vec<USHORT>) |this| { this.segCountX2 as usize / 2 },
     glyphIdArray  (Vec<USHORT>) |this| { 0 },
 });
 

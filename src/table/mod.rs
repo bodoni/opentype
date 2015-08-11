@@ -67,5 +67,5 @@ pub use self::horizontal_header::HorizontalHeader;
 pub use self::horizontal_metrics::HorizontalMetrics;
 pub use self::maximum_profile::{MaximumProfile, MaximumProfile05, MaximumProfile10};
 pub use self::offset_table::{OffsetTable, OffsetTableHeader, OffsetTableRecord};
-pub use self::postscript::PostScript;
+pub use self::postscript::{PostScript, PostScript10, PostScript30};
 pub use self::windows_metrics::{WindowsMetrics, WindowsMetrics3, WindowsMetrics5};

@@ -219,13 +219,11 @@ fn read_postscript<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<
     }
     try!(band.jump(record.offset as u64));
 
-    let table = try!(PostScript::read(band));
-    match table.version {
-        VERSION_1_0 | VERSION_3_0 => {},
+    Ok(match try!(band.peek::<Fixed>()) {
+        VERSION_1_0 => PostScript::Version10(try!(Value::read(band))),
+        VERSION_3_0 => PostScript::Version30(try!(Value::read(band))),
         _ => raise!("the format of the PostScript information is not supported"),
-    }
-
-    Ok(table)
+    })
 }
 
 fn read_windows_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord)

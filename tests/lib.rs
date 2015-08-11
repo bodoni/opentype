@@ -1,7 +1,7 @@
 extern crate opentype;
 
 use opentype::Font;
-use opentype::table::{CharMappingEncoding, MaximumProfile, WindowsMetrics};
+use opentype::table::{CharMappingEncoding, MaximumProfile, PostScript, WindowsMetrics};
 use std::fs::{self, File};
 use std::path::PathBuf;
 
@@ -133,8 +133,13 @@ fn postscript() {
     let font = Font::read(&mut file).unwrap();
     let table = &font.postscript;
 
-    assert_eq!(table.version.as_f32(), 3.0);
-    assert_eq!(table.underlinePosition, -75);
+    match table {
+        &PostScript::Version30(ref table) => {
+            assert_eq!(table.version.as_f32(), 3.0);
+            assert_eq!(table.underlinePosition, -75);
+        },
+        _ => unreachable!(),
+    }
 }
 
 #[test]

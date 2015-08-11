@@ -1,7 +1,7 @@
 extern crate opentype;
 
 use opentype::Font;
-use opentype::table::{CharMappingEncoding, MaximumProfile};
+use opentype::table::{CharMappingEncoding, MaximumProfile, WindowsMetrics};
 use std::fs::{self, File};
 use std::path::PathBuf;
 
@@ -127,8 +127,32 @@ fn maximum_profile() {
     }
 }
 
+#[test]
+fn windows_metrics() {
+    let mut file = open("SourceSerifPro-Regular.otf");
+    let font = Font::read(&mut file).unwrap();
+    let metrics = &font.windows_metrics;
+
+    match metrics {
+        &WindowsMetrics::Version3(ref metrics) => {
+            assert_eq!(stringify(&metrics.achVendID), "ADBE");
+            assert_eq!(metrics.usBreakChar, 32);
+        },
+        _ => unreachable!(),
+    }
+}
+
 fn open(name: &str) -> File {
     let path = PathBuf::from("tests/fixtures").join(name);
     assert!(fs::metadata(&path).is_ok());
     File::open(&path).unwrap()
+}
+
+fn stringify<T>(data: &[T]) -> &str {
+    use std::{mem, slice, str};
+    unsafe {
+        let length = data.len() * mem::size_of::<T>();
+        let bytes = slice::from_raw_parts(data as *const _ as *const _, length);
+        str::from_utf8_unchecked(bytes)
+    }
 }

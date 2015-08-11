@@ -37,7 +37,8 @@ macro_rules! itemize(
 macro_rules! read(
     ($structure:ident, $this:ident, $band:ident, [$kind:ty] |$that:ident| $body:block) => ({
         #[inline(always)]
-        fn count($that: &$structure) -> Result<usize> $body
+        #[allow(unused_variables)]
+        fn count($that: &$structure) -> ::Result<usize> $body
         let count = try!(count(&$this));
         let mut values = Vec::with_capacity(count);
         for _ in 0..count {
@@ -56,6 +57,7 @@ mod horizontal_header;
 mod horizontal_metrics;
 mod maximum_profile;
 mod offset_table;
+mod windows_metrics;
 
 pub use self::char_mapping::{CharMapping, CharMappingHeader, CharMappingRecord};
 pub use self::char_mapping::{CharMappingEncoding, CharMappingEncoding4, CharMappingEncoding6};
@@ -64,3 +66,4 @@ pub use self::horizontal_header::HorizontalHeader;
 pub use self::horizontal_metrics::HorizontalMetrics;
 pub use self::maximum_profile::{MaximumProfile, MaximumProfile05, MaximumProfile10};
 pub use self::offset_table::{OffsetTable, OffsetTableHeader, OffsetTableRecord};
+pub use self::windows_metrics::{WindowsMetrics, WindowsMetrics5};

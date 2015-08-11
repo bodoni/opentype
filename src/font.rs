@@ -14,6 +14,7 @@ pub struct Font {
     pub horizontal_header: HorizontalHeader,
     pub horizontal_metrics: HorizontalMetrics,
     pub maximum_profile: MaximumProfile,
+    pub windows_metrics: WindowsMetrics,
 }
 
 #[cfg(target_endian = "big")]
@@ -35,12 +36,14 @@ macro_rules! tag(
 impl Font {
     pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
         macro_rules! some(
-            ($option:expr, $object:expr) => (
-                match $option {
-                    Some(value) => value,
-                    _ => raise!(concat!($object, " is missing")),
-                }
-            );
+            ($option:expr, $object:expr, plural) => (match $option {
+                Some(value) => value,
+                _ => raise!(concat!($object, " are missing")),
+            });
+            ($option:expr, $object:expr) => (match $option {
+                Some(value) => value,
+                _ => raise!(concat!($object, " is missing")),
+            });
         );
 
         macro_rules! sort(
@@ -60,6 +63,7 @@ impl Font {
         let mut horizontal_header = None;
         let mut horizontal_metrics = None;
         let mut maximum_profile = None;
+        let mut windows_metrics = None;
 
         for record in sort!(offset_table.records) {
             match &tag!(record.tag) {
@@ -73,6 +77,7 @@ impl Font {
                                                                            profile)));
                 },
                 b"maxp" => maximum_profile = Some(try!(read_maximum_profile(reader, record))),
+                b"OS/2" => windows_metrics = Some(try!(read_windows_metrics(reader, record))),
                 _ => (),
             }
         }
@@ -82,8 +87,9 @@ impl Font {
             char_mapping: some!(char_mapping, "the character-to-glyph mapping"),
             font_header: some!(font_header, "the font header"),
             horizontal_header: some!(horizontal_header, "the horizontal header"),
-            horizontal_metrics: some!(horizontal_metrics, "the horizontal metrics"),
+            horizontal_metrics: some!(horizontal_metrics, "the horizontal metrics", plural),
             maximum_profile: some!(maximum_profile, "the maximum profile"),
+            windows_metrics: some!(windows_metrics, "the OS/2 and Windows metrics", plural),
         })
     }
 }
@@ -175,7 +181,7 @@ fn read_horizontal_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord,
                                     -> Result<HorizontalMetrics> {
 
     if !try!(record.check(band, |_, chunk| chunk)) {
-        raise!("the horizontal metrics is corrupted");
+        raise!("the horizontal metrics are corrupted");
     }
     try!(band.jump(record.offset as u64));
 
@@ -197,6 +203,21 @@ fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
         VERSION_0_5 => MaximumProfile::Version05(try!(Value::read(band))),
         VERSION_1_0 => MaximumProfile::Version10(try!(Value::read(band))),
         _ => raise!("the format of the maximum profile is not supported"),
+    })
+}
+
+fn read_windows_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord)
+                                 -> Result<WindowsMetrics> {
+
+    if !try!(record.check(band, |_, chunk| chunk)) {
+        raise!("the OS/2 and Windows metrics are corrupted");
+    }
+    try!(band.jump(record.offset as u64));
+
+    Ok(match try!(band.peek::<USHORT>()) {
+        3 => WindowsMetrics::Version3(try!(Value::read(band))),
+        5 => WindowsMetrics::Version5(try!(Value::read(band))),
+        _ => raise!("the format of the OS/2 and Windows metrics is not supported"),
     })
 }
 

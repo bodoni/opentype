@@ -8,14 +8,21 @@ use std::{mem, ptr};
 use Result;
 use band::{Band, Value};
 
+pub type BYTE = u8;
+pub type CHAR = i8;
+
+pub type USHORT = u16;
+pub type SHORT = i16;
+
+pub type UFWORD = USHORT;
+pub type FWORD = SHORT;
+
+pub type ULONG = u32;
+
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct Fixed(pub u32);
-pub type FWORD = SHORT;
+
 pub type LONGDATETIME = i64;
-pub type SHORT = i16;
-pub type UFWORD = USHORT;
-pub type ULONG = u32;
-pub type USHORT = u16;
 
 impl Fixed {
     pub fn as_f32(&self) -> f32 {
@@ -44,15 +51,21 @@ macro_rules! read(
     });
 );
 
-impl Value for Fixed {
+impl Value for BYTE {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 4)
+        read!(band, 1)
     }
 }
 
-impl Value for LONGDATETIME {
+impl Value for CHAR {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 8)
+        read!(band, 1)
+    }
+}
+
+impl Value for USHORT {
+    fn read<T: Band>(band: &mut T) -> Result<Self> {
+        read!(band, 2)
     }
 }
 
@@ -68,8 +81,14 @@ impl Value for ULONG {
     }
 }
 
-impl Value for USHORT {
+impl Value for Fixed {
     fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 2)
+        read!(band, 4)
+    }
+}
+
+impl Value for LONGDATETIME {
+    fn read<T: Band>(band: &mut T) -> Result<Self> {
+        read!(band, 8)
     }
 }

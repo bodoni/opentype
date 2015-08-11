@@ -107,28 +107,23 @@ impl Font {
 }
 
 fn read_offset_table<T: Band>(band: &mut T) -> Result<OffsetTable> {
-    const CFF_TAG: &'static [u8; 4] = b"OTTO";
-
-    let header = try!(OffsetTableHeader::read(band));
-    if &tag!(header.version) != CFF_TAG {
-        raise!("the format of a font is not supported");
-    }
+    let header = match &tag!(try!(band.peek::<Fixed>())) {
+        b"OTTO" => try!(OffsetTableHeader::read(band)),
+        _ => raise!("the format of a font is not supported"),
+    };
     let mut records = vec![];
     for _ in 0..header.numTables {
         records.push(try!(OffsetTableRecord::read(band)));
     }
-
     Ok(OffsetTable { header: header, records: records })
 }
 
 fn read_char_mapping<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
-    const VERSION_0_0: USHORT = 0;
-
     verify_and_position!(record, band, "character-to-glyph mapping");
-    let header = try!(CharMappingHeader::read(band));
-    if header.version != VERSION_0_0 {
-        raise!("the format of the character-to-glyph mapping header is not supported");
-    }
+    let header = match try!(band.peek::<USHORT>()) {
+        0 => try!(CharMappingHeader::read(band)),
+        _ => raise!("the format of the character-to-glyph mapping header is not supported"),
+    };
     let mut records = vec![];
     for _ in 0..header.numTables {
         records.push(try!(CharMappingRecord::read(band)));
@@ -148,32 +143,26 @@ fn read_char_mapping<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Resul
 
 fn read_font_header<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
     const MAGIC_NUMBER: ULONG = 0x5F0F3CF5;
-    const VERSION_1_0: Fixed = Fixed(0x00010000);
 
     verify_and_position!(record, band, "font header", |i, word| if i == 2 { 0 } else { word });
-    let table = try!(FontHeader::read(band));
-    if table.version != VERSION_1_0 {
-        raise!("the format of the font header is not supported");
-    }
+    let table = match try!(band.peek::<Fixed>()) {
+        Fixed(0x00010000) => try!(FontHeader::read(band)),
+        _ => raise!("the format of the font header is not supported"),
+    };
     if table.magicNumber != MAGIC_NUMBER {
         raise!("the font header is malformed");
     }
-
     Ok(table)
 }
 
 fn read_horizontal_header<T: Band>(band: &mut T, record: &OffsetTableRecord)
                                    -> Result<HorizontalHeader> {
 
-    const VERSION_1_0: Fixed = Fixed(0x00010000);
-
     verify_and_position!(record, band, "horizontal header");
-    let table = try!(HorizontalHeader::read(band));
-    if table.version != VERSION_1_0 {
-        raise!("the format of the horizontal header is not supported");
-    }
-
-    Ok(table)
+    Ok(match try!(band.peek::<Fixed>()) {
+        Fixed(0x00010000) => try!(HorizontalHeader::read(band)),
+        _ => raise!("the format of the horizontal header is not supported"),
+    })
 }
 
 fn read_horizontal_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord,
@@ -187,25 +176,19 @@ fn read_horizontal_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord,
 fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
                                  -> Result<MaximumProfile> {
 
-    const VERSION_0_5: Fixed = Fixed(0x00005000);
-    const VERSION_1_0: Fixed = Fixed(0x00010000);
-
     verify_and_position!(record, band, "maximum profile");
     Ok(match try!(band.peek::<Fixed>()) {
-        VERSION_0_5 => MaximumProfile::Version05(try!(Value::read(band))),
-        VERSION_1_0 => MaximumProfile::Version10(try!(Value::read(band))),
+        Fixed(0x00005000) => MaximumProfile::Version05(try!(Value::read(band))),
+        Fixed(0x00010000) => MaximumProfile::Version10(try!(Value::read(band))),
         _ => raise!("the format of the maximum profile is not supported"),
     })
 }
 
 fn read_postscript<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<PostScript> {
-    const VERSION_1_0: Fixed = Fixed(0x00010000);
-    const VERSION_3_0: Fixed = Fixed(0x00030000);
-
     verify_and_position!(record, band, "PostScript information");
     Ok(match try!(band.peek::<Fixed>()) {
-        VERSION_1_0 => PostScript::Version10(try!(Value::read(band))),
-        VERSION_3_0 => PostScript::Version30(try!(Value::read(band))),
+        Fixed(0x00010000) => PostScript::Version10(try!(Value::read(band))),
+        Fixed(0x00030000) => PostScript::Version30(try!(Value::read(band))),
         _ => raise!("the format of the PostScript information is not supported"),
     })
 }

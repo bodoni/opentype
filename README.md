@@ -2,7 +2,7 @@
 
 The package provides a parser for OpenType fonts.
 
-## [Documentation][docs]
+## [Documentation][doc]
 
 ## Contributing
 

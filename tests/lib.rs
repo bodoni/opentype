@@ -91,6 +91,16 @@ fn horizontal_header() {
 }
 
 #[test]
+fn horizontal_metrics() {
+    let mut file = open("SourceSerifPro-Regular.otf");
+    let font = Font::read(&mut file).unwrap();
+    let metrics = &font.horizontal_metrics;
+
+    assert_eq!(metrics.hMetrics.len(), 521);
+    assert_eq!(metrics.leftSideBearing.len(), 545 - 521);
+}
+
+#[test]
 fn offset_table_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();

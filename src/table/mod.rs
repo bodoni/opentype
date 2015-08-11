@@ -1,6 +1,6 @@
 //! Tables making up a font file.
 
-#![allow(non_snake_case)]
+#![allow(non_camel_case_types, non_snake_case)]
 
 macro_rules! table(
     ($structure:ident { $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+ }) => (
@@ -53,6 +53,7 @@ macro_rules! read(
 mod char_mapping;
 mod font_header;
 mod horizontal_header;
+mod horizontal_metrics;
 mod maximum_profile;
 mod offset_table;
 
@@ -60,5 +61,6 @@ pub use self::char_mapping::{CharMapping, CharMappingHeader, CharMappingRecord};
 pub use self::char_mapping::{CharMappingEncoding, CharMappingEncoding4, CharMappingEncoding6};
 pub use self::font_header::FontHeader;
 pub use self::horizontal_header::HorizontalHeader;
+pub use self::horizontal_metrics::HorizontalMetrics;
 pub use self::maximum_profile::{MaximumProfile, MaximumProfile05, MaximumProfile10};
 pub use self::offset_table::{OffsetTable, OffsetTableHeader, OffsetTableRecord};

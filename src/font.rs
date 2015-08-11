@@ -12,25 +12,9 @@ pub struct Font {
     pub char_mapping: CharMapping,
     pub font_header: FontHeader,
     pub horizontal_header: HorizontalHeader,
+    pub horizontal_metrics: HorizontalMetrics,
     pub maximum_profile: MaximumProfile,
 }
-
-macro_rules! some(
-    ($option:expr, $object:expr) => (
-        match $option {
-            Some(value) => value,
-            _ => raise!(concat!($object, " is missing")),
-        }
-    );
-);
-
-macro_rules! sort_by_tag(
-    ($records:expr) => ({
-        let mut records = $records.iter().collect::<Vec<_>>();
-        records.sort_by(|one, other| tag!(one.tag).cmp(&tag!(other.tag)));
-        records
-    });
-);
 
 #[cfg(target_endian = "big")]
 macro_rules! tag(
@@ -50,18 +34,44 @@ macro_rules! tag(
 
 impl Font {
     pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
+        macro_rules! some(
+            ($option:expr, $object:expr) => (
+                match $option {
+                    Some(value) => value,
+                    _ => raise!(concat!($object, " is missing")),
+                }
+            );
+        );
+
+        macro_rules! sort(
+            ($records:expr) => ({
+                let mut records = $records.iter().collect::<Vec<_>>();
+                records.sort_by(|one, two| {
+                    priority(&tag!(one.tag)).cmp(&priority(&tag!(two.tag)))
+                });
+                records
+            });
+        );
+
         let offset_table = try!(read_offset_table(reader));
 
+        let mut char_mapping = None;
         let mut font_header = None;
         let mut horizontal_header = None;
+        let mut horizontal_metrics = None;
         let mut maximum_profile = None;
-        let mut char_mapping = None;
 
-        for record in sort_by_tag!(offset_table.records) {
+        for record in sort!(offset_table.records) {
             match &tag!(record.tag) {
                 b"cmap" => char_mapping = Some(try!(read_char_mapping(reader, record))),
                 b"head" => font_header = Some(try!(read_font_header(reader, record))),
                 b"hhea" => horizontal_header = Some(try!(read_horizontal_header(reader, record))),
+                b"hmtx" => {
+                    let header = some!(horizontal_header.as_ref(), "the horizontal header");
+                    let profile = some!(maximum_profile.as_ref(), "the maximum profile");
+                    horizontal_metrics = Some(try!(read_horizontal_metrics(reader, record, header,
+                                                                           profile)));
+                },
                 b"maxp" => maximum_profile = Some(try!(read_maximum_profile(reader, record))),
                 _ => (),
             }
@@ -72,6 +82,7 @@ impl Font {
             char_mapping: some!(char_mapping, "the character-to-glyph mapping"),
             font_header: some!(font_header, "the font header"),
             horizontal_header: some!(horizontal_header, "the horizontal header"),
+            horizontal_metrics: some!(horizontal_metrics, "the horizontal metrics"),
             maximum_profile: some!(maximum_profile, "the maximum profile"),
         })
     }
@@ -98,8 +109,8 @@ fn read_char_mapping<T: Band>(band: &mut T, table: &OffsetTableRecord) -> Result
     if !try!(table.check(band, |_, chunk| chunk)) {
         raise!("the character-to-glyph mapping is corrupted");
     }
-
     try!(band.jump(table.offset as u64));
+
     let header = try!(CharMappingHeader::read(band));
     if header.version != VERSION_0_0 {
         raise!("the format of the character-to-glyph mapping header is not supported");
@@ -128,8 +139,8 @@ fn read_font_header<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result
     if !try!(record.check(band, |i, chunk| if i == 2 { 0 } else { chunk })) {
         raise!("the font header is corrupted");
     }
-
     try!(band.jump(record.offset as u64));
+
     let header = try!(FontHeader::read(band));
     if header.version != VERSION_1_0 {
         raise!("the format of the font header is not supported");
@@ -142,21 +153,33 @@ fn read_font_header<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result
 }
 
 fn read_horizontal_header<T: Band>(band: &mut T, record: &OffsetTableRecord)
-                                    -> Result<HorizontalHeader> {
+                                   -> Result<HorizontalHeader> {
 
     const VERSION_1_0: Fixed = Fixed(0x00010000);
 
     if !try!(record.check(band, |_, chunk| chunk)) {
         raise!("the horizontal header is corrupted");
     }
-
     try!(band.jump(record.offset as u64));
+
     let header = try!(HorizontalHeader::read(band));
     if header.version != VERSION_1_0 {
         raise!("the format of the horizontal header is not supported");
     }
 
     Ok(header)
+}
+
+fn read_horizontal_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord,
+                                    header: &HorizontalHeader, profile: &MaximumProfile)
+                                    -> Result<HorizontalMetrics> {
+
+    if !try!(record.check(band, |_, chunk| chunk)) {
+        raise!("the horizontal metrics is corrupted");
+    }
+    try!(band.jump(record.offset as u64));
+
+    Ok(try!(HorizontalMetrics::read(band, header, profile)))
 }
 
 fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
@@ -168,13 +191,31 @@ fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
     if !try!(record.check(band, |_, chunk| chunk)) {
         raise!("the maximum profile is corrupted");
     }
-
     try!(band.jump(record.offset as u64));
+
     Ok(match try!(band.peek::<Fixed>()) {
         VERSION_0_5 => MaximumProfile::Version05(try!(Value::read(band))),
         VERSION_1_0 => MaximumProfile::Version10(try!(Value::read(band))),
-        _ => {
-            raise!("the format of the maximum profile is not supported");
-        },
+        _ => raise!("the format of the maximum profile is not supported"),
     })
+}
+
+fn priority(tag: &[u8; 4]) -> usize {
+    use std::collections::HashMap;
+    use std::sync::{Once, ONCE_INIT};
+
+    unsafe {
+        static mut PRIORITY: *const HashMap<[u8; 4], usize> = 0 as *const _;
+        static ONCE: Once = ONCE_INIT;
+        ONCE.call_once(|| {
+            let mut map: HashMap<[u8; 4], usize> = HashMap::new();
+            map.insert(*b"head", 0);
+            map.insert(*b"cmap", 1);
+            map.insert(*b"hhea", 2);
+            map.insert(*b"maxp", 3);
+            map.insert(*b"hmtx", 4);
+            PRIORITY = mem::transmute(Box::new(map));
+        });
+        *(&*PRIORITY).get(tag).unwrap_or(&42)
+    }
 }

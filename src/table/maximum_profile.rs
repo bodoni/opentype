@@ -28,3 +28,12 @@ table!(MaximumProfile10 {
     maxComponentElements  (USHORT),
     maxComponentDepth     (USHORT),
 });
+
+impl MaximumProfile {
+    pub fn glyphs(&self) -> usize {
+        match self {
+            &MaximumProfile::Version05(ref profile) => profile.numGlyphs as usize,
+            &MaximumProfile::Version10(ref profile) => profile.numGlyphs as usize,
+        }
+    }
+}

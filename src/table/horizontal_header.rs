@@ -1,6 +1,7 @@
 use primitive::*;
 
 spec! {
+    #[derive(Copy)]
     pub HorizontalHeader {
         version             (Fixed ),
         Ascender            (FWORD ),

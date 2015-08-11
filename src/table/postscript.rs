@@ -7,6 +7,7 @@ pub enum PostScript {
 }
 
 spec! {
+    #[derive(Copy)]
     pub PostScript10 {
         version            (Fixed),
         italicAngle        (Fixed),

@@ -17,6 +17,7 @@ pub enum CharMappingEncoding {
 }
 
 spec! {
+    #[derive(Copy)]
     pub CharMappingHeader {
         version   (USHORT),
         numTables (USHORT),
@@ -24,6 +25,7 @@ spec! {
 }
 
 spec! {
+    #[derive(Copy)]
     pub CharMappingRecord {
         platformID (USHORT),
         encodingID (USHORT),

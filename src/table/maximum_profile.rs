@@ -7,6 +7,7 @@ pub enum MaximumProfile {
 }
 
 spec! {
+    #[derive(Copy)]
     pub MaximumProfile05 {
         version   (Fixed ),
         numGlyphs (USHORT),
@@ -14,6 +15,7 @@ spec! {
 }
 
 spec! {
+    #[derive(Copy)]
     pub MaximumProfile10 {
         version               (Fixed ),
         numGlyphs             (USHORT),

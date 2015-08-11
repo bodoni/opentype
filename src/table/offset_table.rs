@@ -11,6 +11,7 @@ pub struct OffsetTable {
 }
 
 spec! {
+    #[derive(Copy)]
     pub OffsetTableHeader {
         version       (Fixed ),
         numTables     (USHORT),
@@ -21,6 +22,7 @@ spec! {
 }
 
 spec! {
+    #[derive(Copy)]
     pub OffsetTableRecord {
         tag      (ULONG),
         checkSum (ULONG),

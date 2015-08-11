@@ -1,6 +1,7 @@
 use primitive::*;
 
 spec! {
+    #[derive(Copy)]
     pub FontHeader {
         version            (Fixed       ),
         fontRevision       (Fixed       ),

@@ -14,6 +14,7 @@ pub struct Font {
     pub horizontal_header: HorizontalHeader,
     pub horizontal_metrics: HorizontalMetrics,
     pub maximum_profile: MaximumProfile,
+    pub naming_table: NamingTable,
     pub postscript: PostScript,
     pub windows_metrics: WindowsMetrics,
 }
@@ -72,6 +73,7 @@ impl Font {
         let mut horizontal_header = None;
         let mut horizontal_metrics = None;
         let mut maximum_profile = None;
+        let mut naming_table = None;
         let mut postscript = None;
         let mut windows_metrics = None;
 
@@ -87,6 +89,7 @@ impl Font {
                                                                            profile)));
                 },
                 b"maxp" => maximum_profile = Some(try!(read_maximum_profile(reader, record))),
+                b"name" => naming_table = Some(try!(read_naming_table(reader, record))),
                 b"post" => postscript = Some(try!(read_postscript(reader, record))),
                 b"OS/2" => windows_metrics = Some(try!(read_windows_metrics(reader, record))),
                 _ => (),
@@ -100,6 +103,7 @@ impl Font {
             horizontal_header: some!(horizontal_header, "horizontal header"),
             horizontal_metrics: some!(horizontal_metrics, "horizontal metrics"),
             maximum_profile: some!(maximum_profile, "maximum profile"),
+            naming_table: some!(naming_table, "naming table"),
             postscript: some!(postscript, "PostScript information"),
             windows_metrics: some!(windows_metrics, "OS/2 and Windows metrics"),
         })
@@ -181,6 +185,15 @@ fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
         Fixed(0x00005000) => MaximumProfile::Version05(try!(Value::read(band))),
         Fixed(0x00010000) => MaximumProfile::Version10(try!(Value::read(band))),
         _ => raise!("the format of the maximum profile is not supported"),
+    })
+}
+
+fn read_naming_table<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<NamingTable> {
+    verify_and_position!(record, band, "naming table");
+    Ok(match try!(band.peek::<USHORT>()) {
+        0 => NamingTable::Format0(try!(Value::read(band))),
+        1 => NamingTable::Format1(try!(Value::read(band))),
+        _ => raise!("the format of the naming table is not supported"),
     })
 }
 

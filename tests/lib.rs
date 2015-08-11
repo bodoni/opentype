@@ -1,7 +1,6 @@
 extern crate opentype;
 
 use opentype::Font;
-use opentype::table::{CharMappingEncoding, MaximumProfile, PostScript, WindowsMetrics};
 use std::fs::{self, File};
 use std::path::PathBuf;
 
@@ -9,6 +8,8 @@ mod fixture;
 
 #[test]
 fn char_mapping_encodings() {
+    use opentype::table::CharMappingEncoding;
+
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
     let tables = &font.char_mapping.encodings;
@@ -115,6 +116,8 @@ fn offset_table_header() {
 
 #[test]
 fn maximum_profile() {
+    use opentype::table::MaximumProfile;
+
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
     let table = &font.maximum_profile;
@@ -128,7 +131,25 @@ fn maximum_profile() {
 }
 
 #[test]
+fn naming_table() {
+    use opentype::table::NamingTable;
+
+    let mut file = open("SourceSerifPro-Regular.otf");
+    let font = Font::read(&mut file).unwrap();
+    let table = &font.naming_table;
+
+    match table {
+        &NamingTable::Format0(ref table) => {
+            assert_eq!(table.count, 26);
+        },
+        _ => unreachable!(),
+    }
+}
+
+#[test]
 fn postscript() {
+    use opentype::table::PostScript;
+
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
     let table = &font.postscript;
@@ -144,6 +165,8 @@ fn postscript() {
 
 #[test]
 fn windows_metrics() {
+    use opentype::table::WindowsMetrics;
+
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
     let table = &font.windows_metrics;

@@ -10,8 +10,9 @@ macro_rules! table(
 );
 
 macro_rules! declare(
-    ($structure:ident { $($field:ident ($kind:ty),)+ }) => (
+    ($structure:ident $(#[$attribute:meta])* { $($field:ident ($kind:ty),)+ }) => (
         itemize! {
+            $(#[$attribute])*
             #[derive(Clone, Debug, Default, Eq, PartialEq)]
             pub struct $structure { $(pub $field: $kind,)+ }
         }

@@ -4,15 +4,14 @@ use primitive::*;
 use table::HorizontalHeader;
 use table::MaximumProfile;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct longHorMetric {
-    advanceWidth: USHORT,
-    lsb: SHORT,
-}
-
 declare!(HorizontalMetrics {
     hMetrics        (Vec<longHorMetric>),
     leftSideBearing (Vec<SHORT>        ),
+});
+
+declare!(longHorMetric #[derive(Copy)] {
+    advanceWidth (USHORT),
+    lsb          (SHORT ),
 });
 
 impl HorizontalMetrics {

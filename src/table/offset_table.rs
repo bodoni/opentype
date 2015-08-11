@@ -10,20 +10,24 @@ pub struct OffsetTable {
     pub records: Vec<OffsetTableRecord>,
 }
 
-table!(OffsetTableHeader {
-    version       (Fixed ),
-    numTables     (USHORT),
-    searchRange   (USHORT),
-    entrySelector (USHORT),
-    rangeShift    (USHORT),
-});
+spec! {
+    pub OffsetTableHeader {
+        version       (Fixed ),
+        numTables     (USHORT),
+        searchRange   (USHORT),
+        entrySelector (USHORT),
+        rangeShift    (USHORT),
+    }
+}
 
-table!(OffsetTableRecord {
-    tag      (ULONG),
-    checkSum (ULONG),
-    offset   (ULONG),
-    length   (ULONG),
-});
+spec! {
+    pub OffsetTableRecord {
+        tag      (ULONG),
+        checkSum (ULONG),
+        offset   (ULONG),
+        length   (ULONG),
+    }
+}
 
 impl OffsetTableRecord {
     #[doc(hidden)]

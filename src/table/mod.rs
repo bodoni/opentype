@@ -2,25 +2,39 @@
 
 #![allow(non_camel_case_types, non_snake_case)]
 
-macro_rules! table(
-    ($structure:ident { $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+ }) => (
-        declare!($structure { $($field ($($kind)+),)+ });
-        implement!($structure { $($field ($($kind)+) $(|$this| $body)*,)+ });
-    );
-);
-
-macro_rules! declare(
-    ($structure:ident $(#[$attribute:meta])* { $($field:ident ($kind:ty),)+ }) => (
-        itemize! {
-            $(#[$attribute])*
-            #[derive(Clone, Debug, Default, Eq, PartialEq)]
-            pub struct $structure { $(pub $field: $kind,)+ }
+macro_rules! spec {
+    ($(#[$attribute:meta])* pub $structure:ident {
+        $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+
+    }) => (
+        declare! {
+            $(#[$attribute])* pub $structure {
+                $($field ($($kind)+),)+
+            }
+        }
+        implement! {
+            pub $structure {
+                $($field ($($kind)+) $(|$this| $body)*,)+
+            }
         }
     );
-);
+}
 
-macro_rules! implement(
-    ($structure:ident { $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+ }) => (
+macro_rules! declare {
+    ($(#[$attribute:meta])* pub $structure:ident {
+        $($field:ident ($kind:ty),)+
+    }) => (itemize! {
+        $(#[$attribute])*
+        #[derive(Clone, Debug, Default, Eq, PartialEq)]
+        pub struct $structure {
+            $(pub $field: $kind,)+
+        }
+    });
+}
+
+macro_rules! implement {
+    (pub $structure:ident {
+        $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+
+    }) => (
         impl ::band::Value for $structure {
             fn read<T: ::band::Band>(band: &mut T) -> ::Result<Self> {
                 let mut value = $structure::default();
@@ -29,7 +43,7 @@ macro_rules! implement(
             }
         }
     );
-);
+}
 
 macro_rules! itemize(
     ($code:item) => ($code);

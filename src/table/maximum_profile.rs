@@ -6,28 +6,32 @@ pub enum MaximumProfile {
     Version10(MaximumProfile10),
 }
 
-table!(MaximumProfile05 {
-    version   (Fixed ),
-    numGlyphs (USHORT),
-});
+spec! {
+    pub MaximumProfile05 {
+        version   (Fixed ),
+        numGlyphs (USHORT),
+    }
+}
 
-table!(MaximumProfile10 {
-    version               (Fixed ),
-    numGlyphs             (USHORT),
-    maxPoints             (USHORT),
-    maxContours           (USHORT),
-    maxCompositePoints    (USHORT),
-    maxCompositeContours  (USHORT),
-    maxZones              (USHORT),
-    maxTwilightPoints     (USHORT),
-    maxStorage            (USHORT),
-    maxFunctionDefs       (USHORT),
-    maxInstructionDefs    (USHORT),
-    maxStackElements      (USHORT),
-    maxSizeOfInstructions (USHORT),
-    maxComponentElements  (USHORT),
-    maxComponentDepth     (USHORT),
-});
+spec! {
+    pub MaximumProfile10 {
+        version               (Fixed ),
+        numGlyphs             (USHORT),
+        maxPoints             (USHORT),
+        maxContours           (USHORT),
+        maxCompositePoints    (USHORT),
+        maxCompositeContours  (USHORT),
+        maxZones              (USHORT),
+        maxTwilightPoints     (USHORT),
+        maxStorage            (USHORT),
+        maxFunctionDefs       (USHORT),
+        maxInstructionDefs    (USHORT),
+        maxStackElements      (USHORT),
+        maxSizeOfInstructions (USHORT),
+        maxComponentElements  (USHORT),
+        maxComponentDepth     (USHORT),
+    }
+}
 
 impl MaximumProfile {
     pub fn glyphs(&self) -> usize {

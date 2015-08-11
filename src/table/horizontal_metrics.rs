@@ -4,15 +4,20 @@ use primitive::*;
 use table::HorizontalHeader;
 use table::MaximumProfile;
 
-declare!(HorizontalMetrics {
-    hMetrics        (Vec<longHorMetric>),
-    leftSideBearing (Vec<SHORT>        ),
-});
+declare! {
+    pub HorizontalMetrics {
+        hMetrics        (Vec<longHorMetric>),
+        leftSideBearing (Vec<SHORT>        ),
+    }
+}
 
-declare!(longHorMetric #[derive(Copy)] {
-    advanceWidth (USHORT),
-    lsb          (SHORT ),
-});
+spec! {
+    #[derive(Copy)]
+    pub longHorMetric {
+        advanceWidth (USHORT),
+        lsb          (SHORT ),
+    }
+}
 
 impl HorizontalMetrics {
     #[doc(hidden)]
@@ -29,10 +34,7 @@ impl HorizontalMetrics {
             leftSideBearing: Vec::with_capacity(bearings),
         };
         for _ in 0..metrics {
-            value.hMetrics.push(longHorMetric {
-                advanceWidth: try!(Value::read(band)),
-                lsb: try!(Value::read(band)),
-            });
+            value.hMetrics.push(try!(Value::read(band)));
         }
         for _ in 0..bearings {
             value.leftSideBearing.push(try!(Value::read(band)));

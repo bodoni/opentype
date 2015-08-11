@@ -16,41 +16,49 @@ pub enum CharMappingEncoding {
     Format6(CharMappingEncoding6),
 }
 
-table!(CharMappingHeader {
-    version   (USHORT),
-    numTables (USHORT),
-});
+spec! {
+    pub CharMappingHeader {
+        version   (USHORT),
+        numTables (USHORT),
+    }
+}
 
-table!(CharMappingRecord {
-    platformID (USHORT),
-    encodingID (USHORT),
-    offset     (ULONG ),
-});
+spec! {
+    pub CharMappingRecord {
+        platformID (USHORT),
+        encodingID (USHORT),
+        offset     (ULONG ),
+    }
+}
 
-table!(CharMappingEncoding4 {
-    format        (USHORT     ),
-    length        (USHORT     ),
-    language      (USHORT     ),
-    segCountX2    (USHORT     ),
-    searchRange   (USHORT     ),
-    entrySelector (USHORT     ),
-    rangeShift    (USHORT     ),
-    endCode       (Vec<USHORT>) |this| { Ok(this.segments()) },
-    reservedPad   (USHORT     ),
-    startCode     (Vec<USHORT>) |this| { Ok(this.segments()) },
-    idDelta       (Vec<SHORT> ) |this| { Ok(this.segments()) },
-    idRangeOffset (Vec<USHORT>) |this| { Ok(this.segments()) },
-    glyphIdArray  (Vec<USHORT>) |this| { this.mappings() },
-});
+spec! {
+    pub CharMappingEncoding4 {
+        format        (USHORT     ),
+        length        (USHORT     ),
+        language      (USHORT     ),
+        segCountX2    (USHORT     ),
+        searchRange   (USHORT     ),
+        entrySelector (USHORT     ),
+        rangeShift    (USHORT     ),
+        endCode       (Vec<USHORT>) |this| { Ok(this.segments()) },
+        reservedPad   (USHORT     ),
+        startCode     (Vec<USHORT>) |this| { Ok(this.segments()) },
+        idDelta       (Vec<SHORT> ) |this| { Ok(this.segments()) },
+        idRangeOffset (Vec<USHORT>) |this| { Ok(this.segments()) },
+        glyphIdArray  (Vec<USHORT>) |this| { this.mappings() },
+    }
+}
 
-table!(CharMappingEncoding6 {
-    format       (USHORT     ),
-    length       (USHORT     ),
-    language     (USHORT     ),
-    firstCode    (USHORT     ),
-    entryCount   (USHORT     ),
-    glyphIdArray (Vec<USHORT>) |this| { Ok(this.entryCount as usize) },
-});
+spec! {
+    pub CharMappingEncoding6 {
+        format       (USHORT     ),
+        length       (USHORT     ),
+        language     (USHORT     ),
+        firstCode    (USHORT     ),
+        entryCount   (USHORT     ),
+        glyphIdArray (Vec<USHORT>) |this| { Ok(this.entryCount as usize) },
+    }
+}
 
 impl CharMappingEncoding4 {
     pub fn mapping(&self) -> HashMap<USHORT, USHORT> {

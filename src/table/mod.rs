@@ -4,7 +4,7 @@
 
 macro_rules! spec {
     ($(#[$attribute:meta])* pub $structure:ident {
-        $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+
+        $($field:ident ($($kind:tt)+) $(|$($argument:ident),+| $body:block)*,)+
     }) => (
         declare! {
             $(#[$attribute])* pub $structure {
@@ -13,7 +13,7 @@ macro_rules! spec {
         }
         implement! {
             pub $structure {
-                $($field ($($kind)+) $(|$this| $body)*,)+
+                $($field ($($kind)+) $(|$($argument),+| $body)*,)+
             }
         }
     );
@@ -33,13 +33,16 @@ macro_rules! declare {
 
 macro_rules! implement {
     (pub $structure:ident {
-        $($field:ident ($($kind:tt)+) $(|$this:ident| $body:block)*,)+
+        $($field:ident ($($kind:tt)+) $(|$($argument:ident),+| $body:block)*,)+
     }) => (
         impl ::band::Value for $structure {
             fn read<T: ::band::Band>(band: &mut T) -> ::Result<Self> {
-                let mut value = $structure::default();
-                $(value.$field = read!($structure, value, band, [$($kind)+] $(|$this| $body)*);)+
-                Ok(value)
+                let mut table = $structure::default();
+                $(
+                    table.$field = read_field!($structure, band, table, [$($kind)+]
+                                               $(|$($argument),+| $body)*);
+                )+
+                Ok(table)
             }
         }
     );
@@ -49,20 +52,27 @@ macro_rules! itemize(
     ($code:item) => ($code);
 );
 
-macro_rules! read(
-    ($structure:ident, $this:ident, $band:ident, [$kind:ty] |$that:ident| $body:block) => ({
+macro_rules! read_field(
+    ($structure:ident, $band:ident, $table:ident, [$kind:ty]
+                                                  |$gang:ident, $chair:ident| $body:block) => ({
         #[inline(always)]
         #[allow(unused_variables)]
-        fn count($that: &$structure) -> ::Result<usize> $body
-        let count = try!(count(&$this));
+        fn read<T: ::band::Band>($gang: &mut T, $chair: &$structure) -> ::Result<$kind> $body
+        try!(read($band, &$table))
+    });
+    ($structure:ident, $band:expr, $table:expr, [$kind:ty]) => ({
+        try!(::band::Value::read($band))
+    });
+);
+
+macro_rules! read_vector(
+    ($band:ident, $count:expr) => ({
+        let count = $count as usize;
         let mut values = Vec::with_capacity(count);
         for _ in 0..count {
             values.push(try!(::band::Value::read($band)));
         }
-        values
-    });
-    ($structure:ident, $this:ident, $band:ident, [$kind:ty]) => ({
-        try!(::band::Value::read($band))
+        Ok(values)
     });
 );
 

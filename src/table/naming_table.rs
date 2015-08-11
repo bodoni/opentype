@@ -11,7 +11,7 @@ spec! {
         format       (USHORT         ),
         count        (USHORT         ),
         stringOffset (USHORT         ),
-        nameRecord   (Vec<NameRecord>) |this| { Ok(this.count as usize) },
+        nameRecord   (Vec<NameRecord>) |band, this| { read_vector!(band, this.count) },
     }
 }
 
@@ -20,9 +20,9 @@ spec! {
         format        (USHORT            ),
         count         (USHORT            ),
         stringOffset  (USHORT            ),
-        nameRecord    (Vec<NameRecord>   ) |this| { Ok(this.count as usize) },
+        nameRecord    (Vec<NameRecord>   ) |band, this| { read_vector!(band, this.count) },
         langTagCount  (USHORT            ),
-        langTagRecord (Vec<LangTagRecord>) |this| { Ok(this.langTagCount as usize) },
+        langTagRecord (Vec<LangTagRecord>) |band, this| { read_vector!(band, this.langTagCount) },
     }
 }
 

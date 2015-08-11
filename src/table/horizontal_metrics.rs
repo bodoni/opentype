@@ -29,17 +29,17 @@ impl HorizontalMetrics {
         debug_assert!(metrics <= glyphs);
         let bearings = glyphs - metrics;
 
-        let mut value = HorizontalMetrics {
+        let mut table = HorizontalMetrics {
             hMetrics: Vec::with_capacity(metrics),
             leftSideBearing: Vec::with_capacity(bearings),
         };
         for _ in 0..metrics {
-            value.hMetrics.push(try!(Value::read(band)));
+            table.hMetrics.push(try!(Value::read(band)));
         }
         for _ in 0..bearings {
-            value.leftSideBearing.push(try!(Value::read(band)));
+            table.leftSideBearing.push(try!(Value::read(band)));
         }
 
-        Ok(value)
+        Ok(table)
     }
 }

@@ -42,12 +42,12 @@ spec! {
         searchRange   (USHORT     ),
         entrySelector (USHORT     ),
         rangeShift    (USHORT     ),
-        endCode       (Vec<USHORT>) |this| { Ok(this.segments()) },
+        endCode       (Vec<USHORT>) |band, this| { read_vector!(band, this.segments()) },
         reservedPad   (USHORT     ),
-        startCode     (Vec<USHORT>) |this| { Ok(this.segments()) },
-        idDelta       (Vec<SHORT> ) |this| { Ok(this.segments()) },
-        idRangeOffset (Vec<USHORT>) |this| { Ok(this.segments()) },
-        glyphIdArray  (Vec<USHORT>) |this| { this.mappings() },
+        startCode     (Vec<USHORT>) |band, this| { read_vector!(band, this.segments()) },
+        idDelta       (Vec<SHORT> ) |band, this| { read_vector!(band, this.segments()) },
+        idRangeOffset (Vec<USHORT>) |band, this| { read_vector!(band, this.segments()) },
+        glyphIdArray  (Vec<USHORT>) |band, this| { read_vector!(band, try!(this.mappings())) },
     }
 }
 
@@ -58,7 +58,7 @@ spec! {
         language     (USHORT     ),
         firstCode    (USHORT     ),
         entryCount   (USHORT     ),
-        glyphIdArray (Vec<USHORT>) |this| { Ok(this.entryCount as usize) },
+        glyphIdArray (Vec<USHORT>) |band, this| { read_vector!(band, this.entryCount) },
     }
 }
 

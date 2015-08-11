@@ -16,13 +16,13 @@ fn char_mapping_encodings() {
     assert_eq!(encodings.len(), 3);
     match &encodings[0] {
         &CharMappingEncoding::Format4(ref encoding) => {
-            assert_eq!(encoding.segCountX2, 2 * 115);
-            assert_eq!(encoding.searchRange, 2 * (1 << 115f64.log2().floor() as usize));
-            assert_eq!(encoding.endCode.len(), 115);
-            assert_eq!(encoding.startCode.len(), 115);
-            assert_eq!(encoding.idDelta.len(), 115);
-            assert_eq!(encoding.idRangeOffset.len(), 115);
-            assert_eq!(encoding.glyphIdArray.len(), 251);
+            assert_eq!(encoding.segCountX2, 2 * 103);
+            assert_eq!(encoding.searchRange, 2 * (1 << 103f64.log2().floor() as usize));
+            assert_eq!(encoding.endCode.len(), 103);
+            assert_eq!(encoding.startCode.len(), 103);
+            assert_eq!(encoding.idDelta.len(), 103);
+            assert_eq!(encoding.idRangeOffset.len(), 103);
+            assert_eq!(encoding.glyphIdArray.len(), 353);
             assert_eq!(encoding.mapping(), fixture::mapping());
         },
         _ => unreachable!(),
@@ -37,7 +37,7 @@ fn char_mapping_encodings() {
     }
     match &encodings[2] {
         &CharMappingEncoding::Format4(ref encoding) => {
-            assert_eq!(encoding.segCountX2, 2 * 115);
+            assert_eq!(encoding.segCountX2, 2 * 103);
         },
         _ => unreachable!(),
     }
@@ -74,7 +74,7 @@ fn font_header() {
     let font = Font::read(&mut file).unwrap();
     let header = &font.font_header;
 
-    assert_eq!(header.fontRevision.as_f32(), 1.014);
+    assert_eq!(header.fontRevision.as_f32(), 1.017);
     assert_eq!(header.unitsPerEm, 1000);
     assert_eq!(header.macStyle, 0);
 }
@@ -87,7 +87,7 @@ fn horizontal_header() {
 
     assert_eq!(header.Ascender, 918);
     assert_eq!(header.Descender, -335);
-    assert_eq!(header.numberOfHMetrics, 521);
+    assert_eq!(header.numberOfHMetrics, 547);
 }
 
 #[test]
@@ -96,8 +96,8 @@ fn horizontal_metrics() {
     let font = Font::read(&mut file).unwrap();
     let metrics = &font.horizontal_metrics;
 
-    assert_eq!(metrics.hMetrics.len(), 521);
-    assert_eq!(metrics.leftSideBearing.len(), 545 - 521);
+    assert_eq!(metrics.hMetrics.len(), 547);
+    assert_eq!(metrics.leftSideBearing.len(), 547 - 547);
 }
 
 #[test]
@@ -121,7 +121,7 @@ fn maximum_profile() {
 
     match profile {
         &MaximumProfile::Version05(ref profile) => {
-            assert_eq!(profile.numGlyphs, 545);
+            assert_eq!(profile.numGlyphs, 547);
         },
         _ => unreachable!(),
     }

@@ -47,7 +47,7 @@ spec! {
         startCode     (Vec<USHORT>) |band, this| { read_vector!(band, this.segments()) },
         idDelta       (Vec<SHORT> ) |band, this| { read_vector!(band, this.segments()) },
         idRangeOffset (Vec<USHORT>) |band, this| { read_vector!(band, this.segments()) },
-        glyphIdArray  (Vec<USHORT>) |band, this| { read_vector!(band, try!(this.mappings())) },
+        glyphIdArray  (Vec<USHORT>) |band, this| { read_vector!(band, try!(this.array_length())) },
     }
 }
 
@@ -85,7 +85,7 @@ impl CharMappingEncoding4 {
         map
     }
 
-    fn mappings(&self) -> Result<usize> {
+    fn array_length(&self) -> Result<usize> {
         let segments = self.segments();
 
         if segments == 0 {
@@ -95,21 +95,21 @@ impl CharMappingEncoding4 {
             raise!("a character-to-glyph mapping is malformed");
         }
 
-        let mut count = 0;
+        let mut length = 0;
         for i in 0..(segments - 1) {
             let startCode = self.startCode[i];
             let idRangeOffset = self.idRangeOffset[i];
             for j in startCode..(self.endCode[i] + 1) {
                 if idRangeOffset > 0 {
-                    let offset = (idRangeOffset / 2 + (j - startCode)) - (segments - i) as USHORT;
-                    if offset >= count {
-                        count = offset + 1;
+                    let end = (idRangeOffset / 2 + (j - startCode)) - (segments - i) as USHORT + 1;
+                    if end > length {
+                        length = end;
                     }
                 }
             }
         }
 
-        Ok(count as usize)
+        Ok(length as usize)
     }
 
     #[inline]

@@ -135,6 +135,7 @@ fn windows_metrics() {
 
     match metrics {
         &WindowsMetrics::Version3(ref metrics) => {
+            assert_eq!(metrics.panose, &[2, 4, 6, 3, 5, 4, 5, 2, 2, 4]);
             assert_eq!(stringify(&metrics.achVendID), "ADBE");
             assert_eq!(metrics.usBreakChar, 32);
         },

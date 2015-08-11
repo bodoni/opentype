@@ -1,18 +1,10 @@
 use std::io::{Read, Seek};
+use std::mem;
 
 use Result;
 use band::{Band, Value};
 use primitive::*;
 use table::*;
-
-macro_rules! tag(
-    ($value:expr) => (unsafe {
-        let mut value: [u8; 4] = ::std::mem::transmute($value);
-        value.swap(0, 3);
-        value.swap(1, 2);
-        value
-    })
-);
 
 /// A font.
 pub struct Font {
@@ -32,6 +24,30 @@ macro_rules! some(
     );
 );
 
+macro_rules! sort_by_tag(
+    ($records:expr) => ({
+        let mut records = $records.iter().collect::<Vec<_>>();
+        records.sort_by(|one, other| tag!(one.tag).cmp(&tag!(other.tag)));
+        records
+    });
+);
+
+#[cfg(target_endian = "big")]
+macro_rules! tag(
+    ($value:expr) => (unsafe {
+        mem::transmute($value);
+    })
+);
+
+#[cfg(target_endian = "little")]
+macro_rules! tag(
+    ($value:expr) => (unsafe {
+        let mut value: [u8; 4] = mem::transmute($value);
+        value.reverse();
+        value
+    })
+);
+
 impl Font {
     pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
         let offset_table = try!(read_offset_table(reader));
@@ -41,7 +57,7 @@ impl Font {
         let mut maximum_profile = None;
         let mut char_mapping = None;
 
-        for record in offset_table.records.iter() {
+        for record in sort_by_tag!(offset_table.records) {
             match &tag!(record.tag) {
                 b"cmap" => char_mapping = Some(try!(read_char_mapping(reader, record))),
                 b"head" => font_header = Some(try!(read_font_header(reader, record))),

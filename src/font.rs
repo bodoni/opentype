@@ -14,6 +14,7 @@ pub struct Font {
     pub horizontal_header: HorizontalHeader,
     pub horizontal_metrics: HorizontalMetrics,
     pub maximum_profile: MaximumProfile,
+    pub postscript: PostScript,
     pub windows_metrics: WindowsMetrics,
 }
 
@@ -63,6 +64,7 @@ impl Font {
         let mut horizontal_header = None;
         let mut horizontal_metrics = None;
         let mut maximum_profile = None;
+        let mut postscript = None;
         let mut windows_metrics = None;
 
         for record in sort!(offset_table.records) {
@@ -77,6 +79,7 @@ impl Font {
                                                                            profile)));
                 },
                 b"maxp" => maximum_profile = Some(try!(read_maximum_profile(reader, record))),
+                b"post" => postscript = Some(try!(read_postscript(reader, record))),
                 b"OS/2" => windows_metrics = Some(try!(read_windows_metrics(reader, record))),
                 _ => (),
             }
@@ -89,6 +92,7 @@ impl Font {
             horizontal_header: some!(horizontal_header, "the horizontal header"),
             horizontal_metrics: some!(horizontal_metrics, "the horizontal metrics", plural),
             maximum_profile: some!(maximum_profile, "the maximum profile"),
+            postscript: some!(postscript, "the PostScript information"),
             windows_metrics: some!(windows_metrics, "the OS/2 and Windows metrics", plural),
         })
     }
@@ -147,15 +151,15 @@ fn read_font_header<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result
     }
     try!(band.jump(record.offset as u64));
 
-    let header = try!(FontHeader::read(band));
-    if header.version != VERSION_1_0 {
+    let table = try!(FontHeader::read(band));
+    if table.version != VERSION_1_0 {
         raise!("the format of the font header is not supported");
     }
-    if header.magicNumber != MAGIC_NUMBER {
+    if table.magicNumber != MAGIC_NUMBER {
         raise!("the font header is malformed");
     }
 
-    Ok(header)
+    Ok(table)
 }
 
 fn read_horizontal_header<T: Band>(band: &mut T, record: &OffsetTableRecord)
@@ -168,12 +172,12 @@ fn read_horizontal_header<T: Band>(band: &mut T, record: &OffsetTableRecord)
     }
     try!(band.jump(record.offset as u64));
 
-    let header = try!(HorizontalHeader::read(band));
-    if header.version != VERSION_1_0 {
+    let table = try!(HorizontalHeader::read(band));
+    if table.version != VERSION_1_0 {
         raise!("the format of the horizontal header is not supported");
     }
 
-    Ok(header)
+    Ok(table)
 }
 
 fn read_horizontal_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord,
@@ -206,6 +210,24 @@ fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
     })
 }
 
+fn read_postscript<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<PostScript> {
+    const VERSION_1_0: Fixed = Fixed(0x00010000);
+    const VERSION_3_0: Fixed = Fixed(0x00030000);
+
+    if !try!(record.check(band, |_, chunk| chunk)) {
+        raise!("the PostScript information is corrupted");
+    }
+    try!(band.jump(record.offset as u64));
+
+    let table = try!(PostScript::read(band));
+    match table.version {
+        VERSION_1_0 | VERSION_3_0 => {},
+        _ => raise!("the format of the PostScript information is not supported"),
+    }
+
+    Ok(table)
+}
+
 fn read_windows_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord)
                                  -> Result<WindowsMetrics> {
 
@@ -230,13 +252,9 @@ fn priority(tag: &[u8; 4]) -> usize {
         static ONCE: Once = ONCE_INIT;
         ONCE.call_once(|| {
             let mut map: HashMap<[u8; 4], usize> = HashMap::new();
-            map.insert(*b"head", 0);
-            map.insert(*b"cmap", 1);
-            map.insert(*b"hhea", 2);
-            map.insert(*b"maxp", 3);
-            map.insert(*b"hmtx", 4);
+            map.insert(*b"hmtx", 42);
             PRIORITY = mem::transmute(Box::new(map));
         });
-        *(&*PRIORITY).get(tag).unwrap_or(&42)
+        *(&*PRIORITY).get(tag).unwrap_or(&0)
     }
 }

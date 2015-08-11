@@ -11,33 +11,33 @@ mod fixture;
 fn char_mapping_encodings() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let encodings = &font.char_mapping.encodings;
+    let tables = &font.char_mapping.encodings;
 
-    assert_eq!(encodings.len(), 3);
-    match &encodings[0] {
-        &CharMappingEncoding::Format4(ref encoding) => {
-            assert_eq!(encoding.segCountX2, 2 * 103);
-            assert_eq!(encoding.searchRange, 2 * (1 << 103f64.log2().floor() as usize));
-            assert_eq!(encoding.endCode.len(), 103);
-            assert_eq!(encoding.startCode.len(), 103);
-            assert_eq!(encoding.idDelta.len(), 103);
-            assert_eq!(encoding.idRangeOffset.len(), 103);
-            assert_eq!(encoding.glyphIdArray.len(), 353);
-            assert_eq!(encoding.mapping(), fixture::mapping());
+    assert_eq!(tables.len(), 3);
+    match &tables[0] {
+        &CharMappingEncoding::Format4(ref table) => {
+            assert_eq!(table.segCountX2, 2 * 103);
+            assert_eq!(table.searchRange, 2 * (1 << 103f64.log2().floor() as usize));
+            assert_eq!(table.endCode.len(), 103);
+            assert_eq!(table.startCode.len(), 103);
+            assert_eq!(table.idDelta.len(), 103);
+            assert_eq!(table.idRangeOffset.len(), 103);
+            assert_eq!(table.glyphIdArray.len(), 353);
+            assert_eq!(table.mapping(), fixture::mapping());
         },
         _ => unreachable!(),
     }
-    match &encodings[1] {
-        &CharMappingEncoding::Format6(ref encoding) => {
-            assert_eq!(encoding.firstCode, 9);
-            assert_eq!(encoding.entryCount, 247);
-            assert_eq!(encoding.glyphIdArray.len(), 247);
+    match &tables[1] {
+        &CharMappingEncoding::Format6(ref table) => {
+            assert_eq!(table.firstCode, 9);
+            assert_eq!(table.entryCount, 247);
+            assert_eq!(table.glyphIdArray.len(), 247);
         },
         _ => unreachable!(),
     }
-    match &encodings[2] {
-        &CharMappingEncoding::Format4(ref encoding) => {
-            assert_eq!(encoding.segCountX2, 2 * 103);
+    match &tables[2] {
+        &CharMappingEncoding::Format4(ref table) => {
+            assert_eq!(table.segCountX2, 2 * 103);
         },
         _ => unreachable!(),
     }
@@ -47,10 +47,10 @@ fn char_mapping_encodings() {
 fn char_mapping_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let header = &font.char_mapping.header;
+    let table = &font.char_mapping.header;
 
-    assert_eq!(header.version, 0);
-    assert_eq!(header.numTables, 3);
+    assert_eq!(table.version, 0);
+    assert_eq!(table.numTables, 3);
 }
 
 #[test]
@@ -72,72 +72,82 @@ fn char_mapping_records() {
 fn font_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let header = &font.font_header;
+    let table = &font.font_header;
 
-    assert_eq!(header.fontRevision.as_f32(), 1.017);
-    assert_eq!(header.unitsPerEm, 1000);
-    assert_eq!(header.macStyle, 0);
+    assert_eq!(table.fontRevision.as_f32(), 1.017);
+    assert_eq!(table.unitsPerEm, 1000);
+    assert_eq!(table.macStyle, 0);
 }
 
 #[test]
 fn horizontal_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let header = &font.horizontal_header;
+    let table = &font.horizontal_header;
 
-    assert_eq!(header.Ascender, 918);
-    assert_eq!(header.Descender, -335);
-    assert_eq!(header.numberOfHMetrics, 547);
+    assert_eq!(table.Ascender, 918);
+    assert_eq!(table.Descender, -335);
+    assert_eq!(table.numberOfHMetrics, 547);
 }
 
 #[test]
 fn horizontal_metrics() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let metrics = &font.horizontal_metrics;
+    let table = &font.horizontal_metrics;
 
-    assert_eq!(metrics.hMetrics.len(), 547);
-    assert_eq!(metrics.leftSideBearing.len(), 547 - 547);
+    assert_eq!(table.hMetrics.len(), 547);
+    assert_eq!(table.leftSideBearing.len(), 547 - 547);
 }
 
 #[test]
 fn offset_table_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let header = &font.offset_table.header;
+    let table = &font.offset_table.header;
 
-    assert_eq!(header.version.0, 0x4f54544f);
-    assert_eq!(header.numTables, 12);
-    assert_eq!(header.searchRange, 8 * 16);
-    assert_eq!(header.entrySelector, 3);
-    assert_eq!(header.rangeShift, header.numTables * 16 - header.searchRange);
+    assert_eq!(table.version.0, 0x4f54544f);
+    assert_eq!(table.numTables, 12);
+    assert_eq!(table.searchRange, 8 * 16);
+    assert_eq!(table.entrySelector, 3);
+    assert_eq!(table.rangeShift, table.numTables * 16 - table.searchRange);
 }
 
 #[test]
 fn maximum_profile() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let profile = &font.maximum_profile;
+    let table = &font.maximum_profile;
 
-    match profile {
-        &MaximumProfile::Version05(ref profile) => {
-            assert_eq!(profile.numGlyphs, 547);
+    match table {
+        &MaximumProfile::Version05(ref table) => {
+            assert_eq!(table.numGlyphs, 547);
         },
         _ => unreachable!(),
     }
 }
 
 #[test]
+fn postscript() {
+    let mut file = open("SourceSerifPro-Regular.otf");
+    let font = Font::read(&mut file).unwrap();
+    let table = &font.postscript;
+
+    assert_eq!(table.version.as_f32(), 3.0);
+    assert_eq!(table.underlinePosition, -75);
+}
+
+#[test]
 fn windows_metrics() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let metrics = &font.windows_metrics;
+    let table = &font.windows_metrics;
 
-    match metrics {
-        &WindowsMetrics::Version3(ref metrics) => {
-            assert_eq!(metrics.panose, &[2, 4, 6, 3, 5, 4, 5, 2, 2, 4]);
-            assert_eq!(stringify(&metrics.achVendID), "ADBE");
-            assert_eq!(metrics.usBreakChar, 32);
+    match table {
+        &WindowsMetrics::Version3(ref table) => {
+            assert_eq!(table.panose, &[2, 4, 6, 3, 5, 4, 5, 2, 2, 4]);
+            assert_eq!(stringify(&table.achVendID), "ADBE");
+            assert_eq!(table.usBreakChar, 32);
         },
         _ => unreachable!(),
     }

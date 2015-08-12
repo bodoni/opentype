@@ -12,16 +12,22 @@
 //! let mut file = File::open(path).unwrap();
 //! let font = Font::read(&mut file).unwrap();
 //!
-//! assert_eq!(font.font_header.unitsPerEm, 1000);
-//! assert_eq!(font.horizontal_header.Ascender, 918);
-//!
-//! let strings = match font.naming_table {
-//!     NamingTable::Format0(ref table) => table.strings().unwrap(),
+//! match font.font_header {
+//!     Some(ref table) => assert_eq!(table.unitsPerEm, 1000),
 //!     _ => unreachable!(),
-//! };
-//!
-//! assert_eq!(&strings[1], "Source Serif Pro");
-//! assert_eq!(&strings[9], "Frank Grießhammer");
+//! }
+//! match font.horizontal_header {
+//!     Some(ref table) => assert_eq!(table.Ascender, 918),
+//!     _ => unreachable!(),
+//! }
+//! match font.naming_table {
+//!     Some(NamingTable::Format0(ref table)) => {
+//!         let strings = table.strings().unwrap();
+//!         assert_eq!(&strings[1], "Source Serif Pro");
+//!         assert_eq!(&strings[9], "Frank Grießhammer");
+//!     },
+//!     _ => unreachable!(),
+//! }
 //! ```
 
 /// An error.

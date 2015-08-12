@@ -12,7 +12,7 @@ fn char_mapping_encodings() {
 
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let tables = &font.char_mapping.encodings;
+    let tables = &font.char_mapping.as_ref().unwrap().encodings;
 
     assert_eq!(tables.len(), 3);
     match &tables[0] {
@@ -48,7 +48,7 @@ fn char_mapping_encodings() {
 fn char_mapping_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.char_mapping.header;
+    let table = &font.char_mapping.as_ref().unwrap().header;
 
     assert_eq!(table.version, 0);
     assert_eq!(table.numTables, 3);
@@ -58,7 +58,7 @@ fn char_mapping_header() {
 fn char_mapping_records() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let records = &font.char_mapping.records;
+    let records = &font.char_mapping.as_ref().unwrap().records;
 
     assert_eq!(records.len(), 3);
     assert_eq!(records[0].platformID, 0);
@@ -73,7 +73,7 @@ fn char_mapping_records() {
 fn font_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.font_header;
+    let table = &font.font_header.as_ref().unwrap();
 
     assert_eq!(table.fontRevision.as_f32(), 1.017);
     assert_eq!(table.unitsPerEm, 1000);
@@ -84,7 +84,7 @@ fn font_header() {
 fn horizontal_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.horizontal_header;
+    let table = font.horizontal_header.as_ref().unwrap();
 
     assert_eq!(table.Ascender, 918);
     assert_eq!(table.Descender, -335);
@@ -95,7 +95,7 @@ fn horizontal_header() {
 fn horizontal_metrics() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.horizontal_metrics;
+    let table = font.horizontal_metrics.as_ref().unwrap();
 
     assert_eq!(table.hMetrics.len(), 547);
     assert_eq!(table.leftSideBearing.len(), 547 - 547);
@@ -120,7 +120,7 @@ fn maximum_profile() {
 
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.maximum_profile;
+    let table = font.maximum_profile.as_ref().unwrap();
 
     match table {
         &MaximumProfile::Version05(ref table) => {
@@ -136,7 +136,7 @@ fn naming_table() {
 
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.naming_table;
+    let table = font.naming_table.as_ref().unwrap();
 
     match table {
         &NamingTable::Format0(ref table) => {
@@ -153,7 +153,7 @@ fn postscript() {
 
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.postscript;
+    let table = font.postscript.as_ref().unwrap();
 
     match table {
         &PostScript::Version30(ref table) => {
@@ -170,7 +170,7 @@ fn windows_metrics() {
 
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();
-    let table = &font.windows_metrics;
+    let table = font.windows_metrics.as_ref().unwrap();
 
     match table {
         &WindowsMetrics::Version3(ref table) => {

@@ -7,16 +7,17 @@ use primitive::*;
 use table::*;
 
 /// A font.
+#[derive(Default)]
 pub struct Font {
     pub offset_table: OffsetTable,
-    pub char_mapping: CharMapping,
-    pub font_header: FontHeader,
-    pub horizontal_header: HorizontalHeader,
-    pub horizontal_metrics: HorizontalMetrics,
-    pub maximum_profile: MaximumProfile,
-    pub naming_table: NamingTable,
-    pub postscript: PostScript,
-    pub windows_metrics: WindowsMetrics,
+    pub char_mapping: Option<CharMapping>,
+    pub font_header: Option<FontHeader>,
+    pub horizontal_header: Option<HorizontalHeader>,
+    pub horizontal_metrics: Option<HorizontalMetrics>,
+    pub maximum_profile: Option<MaximumProfile>,
+    pub naming_table: Option<NamingTable>,
+    pub postscript: Option<PostScript>,
+    pub windows_metrics: Option<WindowsMetrics>,
 }
 
 #[cfg(target_endian = "big")]
@@ -66,47 +67,32 @@ impl Font {
             });
         );
 
-        let offset_table = try!(read_offset_table(reader));
+        let mut font = Font { offset_table: try!(read_offset_table(reader)), .. Font::default() };
 
-        let mut char_mapping = None;
-        let mut font_header = None;
-        let mut horizontal_header = None;
-        let mut horizontal_metrics = None;
-        let mut maximum_profile = None;
-        let mut naming_table = None;
-        let mut postscript = None;
-        let mut windows_metrics = None;
-
-        for record in sort!(offset_table.records) {
+        for record in sort!(font.offset_table.records) {
+            macro_rules! set(
+                ($name:ident, $read:ident $($argument:tt)*) => (
+                    font.$name = Some(try!($read(reader, record $($argument)*)))
+                );
+            );
             match &tag!(record.tag) {
-                b"cmap" => char_mapping = Some(try!(read_char_mapping(reader, record))),
-                b"head" => font_header = Some(try!(read_font_header(reader, record))),
-                b"hhea" => horizontal_header = Some(try!(read_horizontal_header(reader, record))),
+                b"cmap" => set!(char_mapping, read_char_mapping),
+                b"head" => set!(font_header, read_font_header),
+                b"hhea" => set!(horizontal_header, read_horizontal_header),
                 b"hmtx" => {
-                    let header = some!(horizontal_header.as_ref(), "horizontal header");
-                    let profile = some!(maximum_profile.as_ref(), "maximum profile");
-                    horizontal_metrics = Some(try!(read_horizontal_metrics(reader, record, header,
-                                                                           profile)));
+                    let header = some!(font.horizontal_header.as_ref(), "horizontal header");
+                    let profile = some!(font.maximum_profile.as_ref(), "maximum profile");
+                    set!(horizontal_metrics, read_horizontal_metrics, header, profile);
                 },
-                b"maxp" => maximum_profile = Some(try!(read_maximum_profile(reader, record))),
-                b"name" => naming_table = Some(try!(read_naming_table(reader, record))),
-                b"post" => postscript = Some(try!(read_postscript(reader, record))),
-                b"OS/2" => windows_metrics = Some(try!(read_windows_metrics(reader, record))),
+                b"maxp" => set!(maximum_profile, read_maximum_profile),
+                b"name" => set!(naming_table, read_naming_table),
+                b"post" => set!(postscript, read_postscript),
+                b"OS/2" => set!(windows_metrics, read_windows_metrics),
                 _ => (),
             }
         }
 
-        Ok(Font {
-            offset_table: offset_table,
-            char_mapping: some!(char_mapping, "character-to-glyph mapping"),
-            font_header: some!(font_header, "font header"),
-            horizontal_header: some!(horizontal_header, "horizontal header"),
-            horizontal_metrics: some!(horizontal_metrics, "horizontal metrics"),
-            maximum_profile: some!(maximum_profile, "maximum profile"),
-            naming_table: some!(naming_table, "naming table"),
-            postscript: some!(postscript, "PostScript information"),
-            windows_metrics: some!(windows_metrics, "OS/2 and Windows metrics"),
-        })
+        Ok(font)
     }
 }
 

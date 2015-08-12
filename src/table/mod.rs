@@ -90,7 +90,7 @@ pub use self::char_mapping::{CharMapping, CharMappingHeader, CharMappingRecord};
 pub use self::char_mapping::{CharMappingEncoding, CharMappingEncoding4, CharMappingEncoding6};
 pub use self::font_header::FontHeader;
 pub use self::horizontal_header::HorizontalHeader;
-pub use self::horizontal_metrics::HorizontalMetrics;
+pub use self::horizontal_metrics::{HorizontalMetrics, LongHorizontalMetric};
 pub use self::maximum_profile::{MaximumProfile, MaximumProfile05, MaximumProfile10};
 pub use self::naming_table::{NamingTable, NamingTable0, NamingTable1};
 pub use self::naming_table::{NameRecord, LanguageTagRecord};

@@ -51,44 +51,24 @@ macro_rules! read(
     });
 );
 
-impl Value for BYTE {
-    fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 1)
-    }
+macro_rules! implement {
+    ($name:ty, $count:expr) => (
+        impl Value for $name {
+            fn read<T: Band>(band: &mut T) -> Result<Self> {
+                read!(band, $count)
+            }
+        }
+    );
 }
 
-impl Value for CHAR {
-    fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 1)
-    }
-}
+implement!(BYTE, 1);
+implement!(CHAR, 1);
 
-impl Value for USHORT {
-    fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 2)
-    }
-}
+implement!(USHORT, 2);
+implement!(SHORT, 2);
 
-impl Value for SHORT {
-    fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 2)
-    }
-}
+implement!(ULONG, 4);
 
-impl Value for ULONG {
-    fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 4)
-    }
-}
+implement!(Fixed, 4);
 
-impl Value for Fixed {
-    fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 4)
-    }
-}
-
-impl Value for LONGDATETIME {
-    fn read<T: Band>(band: &mut T) -> Result<Self> {
-        read!(band, 8)
-    }
-}
+implement!(LONGDATETIME, 8);

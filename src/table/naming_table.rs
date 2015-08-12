@@ -103,7 +103,7 @@ fn strings(records: &[NameRecord], storage: &[u8]) -> Result<Vec<String>> {
         let (offset, length) = (record.offset as usize, record.length as usize);
         let bytes = &storage[offset..(offset + length)];
         match record.platformID {
-            1 => match decodeMacintosh(bytes, record.encodingID) {
+            1 => match decode_macintosh(bytes, record.encodingID) {
                 Some(string) => {
                     strings.push(string);
                     continue;
@@ -119,7 +119,7 @@ fn strings(records: &[NameRecord], storage: &[u8]) -> Result<Vec<String>> {
 
 // The implementation is based on
 // https://github.com/nodebox/opentype.js/blob/master/src/types.js#L300
-fn decodeMacintosh(bytes: &[BYTE], encoding: USHORT) -> Option<String> {
+fn decode_macintosh(bytes: &[BYTE], encoding: USHORT) -> Option<String> {
     const ROMAN: [char; 128] = ['Ä', 'Å', 'Ç', 'É', 'Ñ', 'Ö', 'Ü', 'á', 'à', 'â', 'ä', 'ã', 'å',
                                 'ç', 'é', 'è', 'ê', 'ë', 'í', 'ì', 'î', 'ï', 'ñ', 'ó', 'ò', 'ô',
                                 'ö', 'õ', 'ú', 'ù', 'û', 'ü', '†', '°', '¢', '£', '§', '•', '¶',

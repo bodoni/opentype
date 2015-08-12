@@ -109,7 +109,7 @@ fn read_offset_table<T: Band>(band: &mut T) -> Result<OffsetTable> {
 
 fn read_char_mapping<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
     verify_and_position!(record, band, "character-to-glyph mapping");
-    let header = match try!(band.peek::<USHORT>()) {
+    let header = match try!(band.peek::<UShort>()) {
         0 => try!(CharMappingHeader::read(band)),
         _ => raise!("the format of the character-to-glyph mapping header is not supported"),
     };
@@ -120,7 +120,7 @@ fn read_char_mapping<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Resul
     let mut encodings = vec![];
     for encoding in records.iter() {
         try!(band.jump(record.offset as u64 + encoding.offset as u64));
-        encodings.push(match try!(band.peek::<USHORT>()) {
+        encodings.push(match try!(band.peek::<UShort>()) {
             4 => CharMappingEncoding::Format4(try!(Value::read(band))),
             6 => CharMappingEncoding::Format6(try!(Value::read(band))),
             _ => raise!("the format of a character-to-glyph mapping is not supported"),
@@ -131,7 +131,7 @@ fn read_char_mapping<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Resul
 }
 
 fn read_font_header<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
-    const MAGIC_NUMBER: ULONG = 0x5F0F3CF5;
+    const MAGIC_NUMBER: ULong = 0x5F0F3CF5;
 
     verify_and_position!(record, band, "font header", |i, word| if i == 2 { 0 } else { word });
     let table = match try!(band.peek::<Fixed>()) {
@@ -175,7 +175,7 @@ fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
 
 fn read_naming_table<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<NamingTable> {
     verify_and_position!(record, band, "naming table");
-    Ok(match try!(band.peek::<USHORT>()) {
+    Ok(match try!(band.peek::<UShort>()) {
         0 => NamingTable::Format0(try!(Value::read(band))),
         1 => NamingTable::Format1(try!(Value::read(band))),
         _ => raise!("the format of the naming table is not supported"),
@@ -195,7 +195,7 @@ fn read_windows_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord)
                                  -> Result<WindowsMetrics> {
 
     verify_and_position!(record, band, "OS/2 and Windows metrics");
-    Ok(match try!(band.peek::<USHORT>()) {
+    Ok(match try!(band.peek::<UShort>()) {
         3 => WindowsMetrics::Version3(try!(Value::read(band))),
         5 => WindowsMetrics::Version5(try!(Value::read(band))),
         _ => raise!("the format of the OS/2 and Windows metrics is not supported"),

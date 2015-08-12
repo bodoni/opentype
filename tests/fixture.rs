@@ -1,7 +1,7 @@
-use opentype::primitive::USHORT;
+use opentype::primitive::UShort;
 use std::collections::HashMap;
 
-pub fn mapping() -> HashMap<USHORT, USHORT> {
+pub fn mapping() -> HashMap<UShort, UShort> {
     macro_rules! map(
         ($($key:expr => $value:expr,)*) => ({
             let mut map = HashMap::new();

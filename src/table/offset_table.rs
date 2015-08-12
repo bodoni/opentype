@@ -14,30 +14,30 @@ spec! {
     #[derive(Copy)]
     pub OffsetTableHeader {
         version       (Fixed ),
-        numTables     (USHORT),
-        searchRange   (USHORT),
-        entrySelector (USHORT),
-        rangeShift    (USHORT),
+        numTables     (UShort),
+        searchRange   (UShort),
+        entrySelector (UShort),
+        rangeShift    (UShort),
     }
 }
 
 spec! {
     #[derive(Copy)]
     pub OffsetTableRecord {
-        tag      (ULONG),
-        checkSum (ULONG),
-        offset   (ULONG),
-        length   (ULONG),
+        tag      (ULong),
+        checkSum (ULong),
+        offset   (ULong),
+        length   (ULong),
     }
 }
 
 impl OffsetTableRecord {
     #[doc(hidden)]
     pub fn check<T, F>(&self, band: &mut T, process: F) -> Result<bool>
-        where T: Band, F: Fn(usize, ULONG) -> ULONG
+        where T: Band, F: Fn(usize, ULong) -> ULong
     {
         let length = {
-            let size = mem::size_of::<ULONG>();
+            let size = mem::size_of::<ULong>();
             ((self.length as usize + size - 1) & !(size - 1)) / size
         };
         band.stay(|band| {

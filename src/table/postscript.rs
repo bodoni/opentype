@@ -11,13 +11,13 @@ spec! {
     pub PostScript10 {
         version            (Fixed),
         italicAngle        (Fixed),
-        underlinePosition  (FWORD),
-        underlineThickness (FWORD),
-        isFixedPitch       (ULONG),
-        minMemType42       (ULONG),
-        maxMemType42       (ULONG),
-        minMemType1        (ULONG),
-        maxMemType1        (ULONG),
+        underlinePosition  (FWord),
+        underlineThickness (FWord),
+        isFixedPitch       (ULong),
+        minMemType42       (ULong),
+        maxMemType42       (ULong),
+        minMemType1        (ULong),
+        maxMemType1        (ULong),
     }
 }
 

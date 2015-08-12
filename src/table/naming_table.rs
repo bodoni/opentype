@@ -12,24 +12,24 @@ pub enum NamingTable {
 
 spec! {
     pub NamingTable0 {
-        format       (USHORT         ),
-        count        (USHORT         ),
-        stringOffset (USHORT         ),
+        format       (UShort         ),
+        count        (UShort         ),
+        stringOffset (UShort         ),
         nameRecord   (Vec<NameRecord>) |band, this| { read_vector!(band, this.count) },
-        storage      (Vec<BYTE>      ) |band, this| { this.read_storage(band) },
+        storage      (Vec<Byte>      ) |band, this| { this.read_storage(band) },
     }
 }
 
 spec! {
     pub NamingTable1 {
-        format        (USHORT                ),
-        count         (USHORT                ),
-        stringOffset  (USHORT                ),
+        format        (UShort                ),
+        count         (UShort                ),
+        stringOffset  (UShort                ),
         nameRecord    (Vec<NameRecord>       ) |band, this| { read_vector!(band, this.count) },
-        langTagCount  (USHORT                ),
+        langTagCount  (UShort                ),
         langTagRecord (Vec<LanguageTagRecord>) |band, this| { read_vector!(band,
                                                                            this.langTagCount) },
-        storage       (Vec<BYTE>             ) |band, this| { this.read_storage(band) },
+        storage       (Vec<Byte>             ) |band, this| { this.read_storage(band) },
     }
 }
 
@@ -37,12 +37,12 @@ spec! {
     #[repr(C)]
     #[derive(Copy)]
     pub NameRecord {
-        platformID (USHORT),
-        encodingID (USHORT),
-        languageID (USHORT),
-        nameID     (USHORT),
-        length     (USHORT),
-        offset     (USHORT),
+        platformID (UShort),
+        encodingID (UShort),
+        languageID (UShort),
+        nameID     (UShort),
+        length     (UShort),
+        offset     (UShort),
     }
 }
 
@@ -50,8 +50,8 @@ spec! {
     #[repr(C)]
     #[derive(Copy)]
     pub LanguageTagRecord {
-        length (USHORT),
-        ffset  (USHORT),
+        length (UShort),
+        ffset  (UShort),
     }
 }
 
@@ -63,7 +63,7 @@ impl NamingTable0 {
 
     fn read_storage<T: Band>(&self, band: &mut T) -> Result<Vec<u8>> {
         let current = try!(band.position());
-        let above = 3 * mem::size_of::<USHORT>() +
+        let above = 3 * mem::size_of::<UShort>() +
                     self.nameRecord.len() * mem::size_of::<NameRecord>();
         try!(band.jump(current - above as u64 + self.stringOffset as u64));
         read_vector!(band, storage_length(&self.nameRecord))
@@ -78,7 +78,7 @@ impl NamingTable1 {
 
     fn read_storage<T: Band>(&self, band: &mut T) -> Result<Vec<u8>> {
         let current = try!(band.position());
-        let above = 4 * mem::size_of::<USHORT>() +
+        let above = 4 * mem::size_of::<UShort>() +
                     self.nameRecord.len() * mem::size_of::<NameRecord>() +
                     self.langTagRecord.len() * mem::size_of::<LanguageTagRecord>();
         try!(band.jump(current - above as u64 + self.stringOffset as u64));
@@ -119,7 +119,7 @@ fn strings(records: &[NameRecord], storage: &[u8]) -> Result<Vec<String>> {
 
 // The implementation is based on
 // https://github.com/nodebox/opentype.js/blob/master/src/types.js#L300
-fn decode_macintosh(bytes: &[BYTE], encoding: USHORT) -> Option<String> {
+fn decode_macintosh(bytes: &[Byte], encoding: UShort) -> Option<String> {
     const ROMAN: [char; 128] = ['Ä', 'Å', 'Ç', 'É', 'Ñ', 'Ö', 'Ü', 'á', 'à', 'â', 'ä', 'ã', 'å',
                                 'ç', 'é', 'è', 'ê', 'ë', 'í', 'ì', 'î', 'ï', 'ñ', 'ó', 'ò', 'ô',
                                 'ö', 'õ', 'ú', 'ù', 'û', 'ü', '†', '°', '¢', '£', '§', '•', '¶',

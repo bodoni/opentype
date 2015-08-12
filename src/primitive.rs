@@ -1,28 +1,26 @@
 //! Primitive data types.
 
-#![allow(non_snake_case)]
-
 use std::io::Read;
 use std::{mem, ptr};
 
 use Result;
 use band::{Band, Value};
 
-pub type BYTE = u8;
-pub type CHAR = i8;
+pub type Byte = u8;
+pub type Char = i8;
 
-pub type USHORT = u16;
-pub type SHORT = i16;
+pub type UShort = u16;
+pub type Short = i16;
 
-pub type UFWORD = USHORT;
-pub type FWORD = SHORT;
+pub type UFWord = UShort;
+pub type FWord = Short;
 
-pub type ULONG = u32;
+pub type ULong = u32;
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct Fixed(pub u32);
 
-pub type LONGDATETIME = i64;
+pub type LongDateTime = i64;
 
 impl Fixed {
     pub fn as_f32(&self) -> f32 {
@@ -62,14 +60,14 @@ macro_rules! implement {
     );
 }
 
-implement!(BYTE, 1);
-implement!(CHAR, 1);
+implement!(Byte, 1);
+implement!(Char, 1);
 
-implement!(USHORT, 2);
-implement!(SHORT, 2);
+implement!(UShort, 2);
+implement!(Short, 2);
 
-implement!(ULONG, 4);
+implement!(ULong, 4);
 
 implement!(Fixed, 4);
 
-implement!(LONGDATETIME, 8);
+implement!(LongDateTime, 8);

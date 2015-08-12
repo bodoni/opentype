@@ -10,7 +10,7 @@ spec! {
     #[derive(Copy)]
     pub MaximumProfile05 {
         version   (Fixed ),
-        numGlyphs (USHORT),
+        numGlyphs (UShort),
     }
 }
 
@@ -18,20 +18,20 @@ spec! {
     #[derive(Copy)]
     pub MaximumProfile10 {
         version               (Fixed ),
-        numGlyphs             (USHORT),
-        maxPoints             (USHORT),
-        maxContours           (USHORT),
-        maxCompositePoints    (USHORT),
-        maxCompositeContours  (USHORT),
-        maxZones              (USHORT),
-        maxTwilightPoints     (USHORT),
-        maxStorage            (USHORT),
-        maxFunctionDefs       (USHORT),
-        maxInstructionDefs    (USHORT),
-        maxStackElements      (USHORT),
-        maxSizeOfInstructions (USHORT),
-        maxComponentElements  (USHORT),
-        maxComponentDepth     (USHORT),
+        numGlyphs             (UShort),
+        maxPoints             (UShort),
+        maxContours           (UShort),
+        maxCompositePoints    (UShort),
+        maxCompositeContours  (UShort),
+        maxZones              (UShort),
+        maxTwilightPoints     (UShort),
+        maxStorage            (UShort),
+        maxFunctionDefs       (UShort),
+        maxInstructionDefs    (UShort),
+        maxStackElements      (UShort),
+        maxSizeOfInstructions (UShort),
+        maxComponentElements  (UShort),
+        maxComponentDepth     (UShort),
     }
 }
 

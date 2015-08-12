@@ -6,16 +6,16 @@ use table::MaximumProfile;
 
 declare! {
     pub HorizontalMetrics {
-        hMetrics        (Vec<longHorMetric>),
-        leftSideBearing (Vec<SHORT>        ),
+        hMetrics        (Vec<LongHorizontalMetric>),
+        leftSideBearing (Vec<Short>               ),
     }
 }
 
 spec! {
     #[derive(Copy)]
-    pub longHorMetric {
-        advanceWidth (USHORT),
-        lsb          (SHORT ),
+    pub LongHorizontalMetric {
+        advanceWidth (UShort),
+        lsb          (Short ),
     }
 }
 

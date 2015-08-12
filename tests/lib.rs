@@ -75,7 +75,7 @@ fn font_header() {
     let font = Font::read(&mut file).unwrap();
     let table = &font.font_header.as_ref().unwrap();
 
-    assert_eq!(table.fontRevision.as_f32(), 1.017);
+    assert_eq!(format!("{:.3}", table.fontRevision.as_f32()), "1.017");
     assert_eq!(table.unitsPerEm, 1000);
     assert_eq!(table.macStyle, 0);
 }

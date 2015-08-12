@@ -50,13 +50,6 @@ macro_rules! verify_and_position(
 
 impl Font {
     pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
-        macro_rules! some(
-            ($option:expr, $table:expr) => (match $option {
-                Some(value) => value,
-                _ => raise!(concat!("the ", $table, " is missing")),
-            });
-        );
-
         macro_rules! sort(
             ($records:expr) => ({
                 let mut records = $records.iter().collect::<Vec<_>>();
@@ -80,15 +73,21 @@ impl Font {
                 b"head" => set!(font_header, read_font_header),
                 b"hhea" => set!(horizontal_header, read_horizontal_header),
                 b"hmtx" => {
-                    let header = some!(font.horizontal_header.as_ref(), "horizontal header");
-                    let profile = some!(font.maximum_profile.as_ref(), "maximum profile");
+                    let header = match font.horizontal_header {
+                        Some(ref table) => table,
+                        _ => continue,
+                    };
+                    let profile = match font.maximum_profile {
+                        Some(ref table) => table,
+                        _ => continue,
+                    };
                     set!(horizontal_metrics, read_horizontal_metrics, header, profile);
                 },
                 b"maxp" => set!(maximum_profile, read_maximum_profile),
                 b"name" => set!(naming_table, read_naming_table),
                 b"post" => set!(postscript, read_postscript),
                 b"OS/2" => set!(windows_metrics, read_windows_metrics),
-                _ => (),
+                _ => {},
             }
         }
 

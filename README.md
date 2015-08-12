@@ -39,8 +39,8 @@ match font.naming_table {
 2. Implement your idea.
 3. Open a pull request.
 
-[version-img]: http://stainless-steel.github.io/images/crates.svg
+[version-img]: https://bodoni.github.io/images/crates.svg
 [version-url]: https://crates.io/crates/opentype
-[status-img]: https://travis-ci.org/stainless-steel/opentype.svg?branch=master
-[status-url]: https://travis-ci.org/stainless-steel/opentype
-[doc]: https://stainless-steel.github.io/opentype
+[status-img]: https://travis-ci.org/bodoni/opentype.svg?branch=master
+[status-url]: https://travis-ci.org/bodoni/opentype
+[doc]: https://bodoni.github.io/opentype

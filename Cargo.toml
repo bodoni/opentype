@@ -1,11 +1,11 @@
 [package]
 name = "opentype"
-version = "0.3.2"
+version = "0.3.3"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "MIT"
-repository = "https://github.com/stainless-steel/opentype"
-homepage = "https://github.com/stainless-steel/opentype"
-documentation = "https://stainless-steel.github.io/opentype"
+repository = "https://github.com/bodoni/opentype"
+homepage = "https://github.com/bodoni/opentype"
+documentation = "https://bodoni.github.io/opentype"
 description = "The package provides a parser for OpenType fonts."
 
 [[test]]

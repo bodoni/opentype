@@ -12,7 +12,6 @@ use opentype::table::NamingTable;
 use std::fs::File;
 
 let path = "SourceSerifPro-Regular.otf";
-# let path = "tests/fixtures/SourceSerifPro-Regular.otf";
 let mut file = File::open(path).unwrap();
 let font = Font::read(&mut file).unwrap();
 

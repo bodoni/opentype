@@ -141,6 +141,7 @@ fn naming_table() {
     match table {
         &NamingTable::Format0(ref table) => {
             assert_eq!(table.count, 26);
+            assert_eq!(table.strings().unwrap()[9], "Frank Grießhammer");
         },
         _ => unreachable!(),
     }

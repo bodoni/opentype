@@ -1,7 +1,7 @@
 //! Primitive data types.
 
 use std::io::Read;
-use std::{mem, ptr};
+use std::mem;
 
 use Result;
 use band::{Band, Value};
@@ -12,8 +12,8 @@ pub type Char = i8;
 pub type UShort = u16;
 pub type Short = i16;
 
-pub type UFWord = UShort;
-pub type FWord = Short;
+pub type UFWord = u16;
+pub type FWord = i16;
 
 pub type ULong = u32;
 
@@ -29,45 +29,46 @@ impl Fixed {
     }
 }
 
-#[cfg(target_endian = "big")]
-macro_rules! convert(
-    ($data:ident) => ();
-);
-
-#[cfg(target_endian = "little")]
-macro_rules! convert(
-    ($data:ident) => ($data.reverse());
-);
-
 macro_rules! read(
-    ($band:ident, $count:expr) => (unsafe {
-        let mut buffer: [u8; $count] = mem::uninitialized();
-        if try!($band.read(&mut buffer)) != $count {
+    ($band:ident, $bytes:expr) => (unsafe {
+        let mut buffer: [u8; $bytes] = mem::uninitialized();
+        if try!($band.read(&mut buffer)) != $bytes {
             return raise!("failed to read as much as needed");
         }
-        convert!(buffer);
-        Ok(ptr::read(buffer.as_ptr() as *const _))
+        mem::transmute(buffer)
     });
 );
 
 macro_rules! implement {
-    ($name:ty, $count:expr) => (
+    ($name:ident, 1) => (
         impl Value for $name {
             fn read<T: Band>(band: &mut T) -> Result<Self> {
-                read!(band, $count)
+                Ok(read!(band, 1))
+            }
+        }
+    );
+    ($name:ident, $bytes:expr) => (
+        impl Value for $name {
+            fn read<T: Band>(band: &mut T) -> Result<Self> {
+                Ok($name::from_be(read!(band, $bytes)))
             }
         }
     );
 }
 
-implement!(Byte, 1);
-implement!(Char, 1);
+implement!(i8, 1);
+implement!(u8, 1);
 
-implement!(UShort, 2);
-implement!(Short, 2);
+implement!(i16, 2);
+implement!(u16, 2);
 
-implement!(ULong, 4);
+implement!(u32, 4);
 
-implement!(Fixed, 4);
+implement!(i64, 8);
 
-implement!(LongDateTime, 8);
+impl Value for Fixed {
+    #[inline(always)]
+    fn read<T: Band>(band: &mut T) -> Result<Self> {
+        Ok(Fixed(try!(Value::read(band))))
+    }
+}

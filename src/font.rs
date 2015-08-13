@@ -20,19 +20,9 @@ pub struct Font {
     pub windows_metrics: Option<WindowsMetrics>,
 }
 
-#[cfg(target_endian = "big")]
 macro_rules! tag(
     ($value:expr) => (unsafe {
-        mem::transmute::<_, [u8; 4]>($value)
-    });
-);
-
-#[cfg(target_endian = "little")]
-macro_rules! tag(
-    ($value:expr) => (unsafe {
-        let mut value = mem::transmute::<_, [u8; 4]>($value);
-        value.reverse();
-        value
+        mem::transmute::<_, [u8; 4]>(u32::from_be(mem::transmute($value)))
     });
 );
 

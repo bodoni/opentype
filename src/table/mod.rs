@@ -66,23 +66,23 @@ macro_rules! read_field(
 );
 
 macro_rules! read_vector(
-    ($band:ident, $count:expr, Byte) => ({
+    ($band:ident, $count:expr, Byte) => (unsafe {
         let count = $count as usize;
         let mut values = Vec::with_capacity(count);
-        unsafe { values.set_len(count) };
+        values.set_len(count);
         if try!(::std::io::Read::read($band, &mut values)) != count {
             return raise!("failed to read as much as needed");
         }
         Ok(values)
     });
-    ($band:ident, $count:expr, Char) => ({
+    ($band:ident, $count:expr, Char) => (unsafe {
         let count = $count as usize;
         let mut values = Vec::with_capacity(count);
-        unsafe { values.set_len(count) };
+        values.set_len(count);
         if try!(::std::io::Read::read($band, &mut values)) != count {
             return raise!("failed to read as much as needed");
         }
-        Ok(unsafe { ::std::mem::transmute(values) })
+        Ok(::std::mem::transmute(values))
     });
     ($band:ident, $count:expr) => ({
         let count = $count as usize;

@@ -66,7 +66,7 @@ impl NamingTable0 {
         let above = 3 * mem::size_of::<UShort>() +
                     self.nameRecord.len() * mem::size_of::<NameRecord>();
         try!(band.jump(current - above as u64 + self.stringOffset as u64));
-        read_vector!(band, storage_length(&self.nameRecord))
+        read_vector!(band, storage_length(&self.nameRecord), Byte)
     }
 }
 
@@ -82,7 +82,7 @@ impl NamingTable1 {
                     self.nameRecord.len() * mem::size_of::<NameRecord>() +
                     self.langTagRecord.len() * mem::size_of::<LanguageTagRecord>();
         try!(band.jump(current - above as u64 + self.stringOffset as u64));
-        read_vector!(band, storage_length(&self.nameRecord))
+        read_vector!(band, storage_length(&self.nameRecord), Byte)
     }
 }
 

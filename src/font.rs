@@ -39,7 +39,14 @@ macro_rules! verify_and_position(
 );
 
 impl Font {
+    #[inline]
     pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
+        Value::read(reader)
+    }
+}
+
+impl Value for Font {
+    fn read<T: Band>(band: &mut T) -> Result<Font> {
         macro_rules! sort(
             ($records:expr) => ({
                 let mut records = $records.iter().collect::<Vec<_>>();
@@ -50,12 +57,12 @@ impl Font {
             });
         );
 
-        let mut font = Font { offset_table: try!(read_offset_table(reader)), .. Font::default() };
+        let mut font = Font { offset_table: try!(read_offset_table(band)), .. Font::default() };
 
         for record in sort!(font.offset_table.records) {
             macro_rules! set(
                 ($name:ident, $read:ident $($argument:tt)*) => (
-                    font.$name = Some(try!($read(reader, record $($argument)*)))
+                    font.$name = Some(try!($read(band, record $($argument)*)))
                 );
             );
             match &tag!(record.tag) {

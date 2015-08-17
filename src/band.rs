@@ -28,7 +28,7 @@ pub trait Band: Read + Seek + Sized {
 }
 
 #[doc(hidden)]
-pub trait Value {
+pub trait Value: Sized {
     fn read<T: Band>(&mut T) -> Result<Self>;
 }
 

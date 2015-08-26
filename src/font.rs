@@ -26,7 +26,7 @@ macro_rules! tag(
     });
 );
 
-macro_rules! verify_and_position(
+macro_rules! verify_and_jump(
     ($record:ident, $band:ident, $table:expr, $process:expr) => ({
         if !try!($record.check($band, $process)) {
             raise!(concat!("the ", $table, " is corrupted"));
@@ -34,7 +34,7 @@ macro_rules! verify_and_position(
         try!($band.jump($record.offset as u64));
     });
     ($record:ident, $band:ident, $table:expr) => (
-        verify_and_position!($record, $band, $table, |_, word| word);
+        verify_and_jump!($record, $band, $table, |_, word| word);
     );
 );
 
@@ -105,7 +105,7 @@ fn read_offset_table<T: Band>(band: &mut T) -> Result<OffsetTable> {
 }
 
 fn read_char_mapping<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
-    verify_and_position!(record, band, "character-to-glyph mapping");
+    verify_and_jump!(record, band, "character-to-glyph mapping");
     let header = match try!(band.peek::<UShort>()) {
         0 => try!(CharMappingHeader::read(band)),
         _ => raise!("the format of the character-to-glyph mapping header is not supported"),
@@ -130,7 +130,7 @@ fn read_char_mapping<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Resul
 fn read_font_header<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
     const MAGIC_NUMBER: ULong = 0x5F0F3CF5;
 
-    verify_and_position!(record, band, "font header", |i, word| if i == 2 { 0 } else { word });
+    verify_and_jump!(record, band, "font header", |i, word| if i == 2 { 0 } else { word });
     let table = match try!(band.peek::<Fixed>()) {
         Fixed(0x00010000) => try!(FontHeader::read(band)),
         _ => raise!("the format of the font header is not supported"),
@@ -144,7 +144,7 @@ fn read_font_header<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result
 fn read_horizontal_header<T: Band>(band: &mut T, record: &OffsetTableRecord)
                                    -> Result<HorizontalHeader> {
 
-    verify_and_position!(record, band, "horizontal header");
+    verify_and_jump!(record, band, "horizontal header");
     Ok(match try!(band.peek::<Fixed>()) {
         Fixed(0x00010000) => try!(HorizontalHeader::read(band)),
         _ => raise!("the format of the horizontal header is not supported"),
@@ -155,14 +155,14 @@ fn read_horizontal_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord,
                                     header: &HorizontalHeader, profile: &MaximumProfile)
                                     -> Result<HorizontalMetrics> {
 
-    verify_and_position!(record, band, "horizontal metrics");
+    verify_and_jump!(record, band, "horizontal metrics");
     Ok(try!(HorizontalMetrics::read(band, header, profile)))
 }
 
 fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
                                  -> Result<MaximumProfile> {
 
-    verify_and_position!(record, band, "maximum profile");
+    verify_and_jump!(record, band, "maximum profile");
     Ok(match try!(band.peek::<Fixed>()) {
         Fixed(0x00005000) => MaximumProfile::Version05(try!(Value::read(band))),
         Fixed(0x00010000) => MaximumProfile::Version10(try!(Value::read(band))),
@@ -171,7 +171,7 @@ fn read_maximum_profile<T: Band>(band: &mut T, record: &OffsetTableRecord)
 }
 
 fn read_naming_table<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<NamingTable> {
-    verify_and_position!(record, band, "naming table");
+    verify_and_jump!(record, band, "naming table");
     Ok(match try!(band.peek::<UShort>()) {
         0 => NamingTable::Format0(try!(Value::read(band))),
         1 => NamingTable::Format1(try!(Value::read(band))),
@@ -180,7 +180,7 @@ fn read_naming_table<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Resul
 }
 
 fn read_postscript<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<PostScript> {
-    verify_and_position!(record, band, "PostScript information");
+    verify_and_jump!(record, band, "PostScript information");
     Ok(match try!(band.peek::<Fixed>()) {
         Fixed(0x00010000) => PostScript::Version10(try!(Value::read(band))),
         Fixed(0x00030000) => PostScript::Version30(try!(Value::read(band))),
@@ -191,7 +191,7 @@ fn read_postscript<T: Band>(band: &mut T, record: &OffsetTableRecord) -> Result<
 fn read_windows_metrics<T: Band>(band: &mut T, record: &OffsetTableRecord)
                                  -> Result<WindowsMetrics> {
 
-    verify_and_position!(record, band, "OS/2 and Windows metrics");
+    verify_and_jump!(record, band, "OS/2 and Windows metrics");
     Ok(match try!(band.peek::<UShort>()) {
         3 => WindowsMetrics::Version3(try!(Value::read(band))),
         5 => WindowsMetrics::Version5(try!(Value::read(band))),

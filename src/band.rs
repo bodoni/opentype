@@ -23,7 +23,7 @@ pub trait Band: Read + Seek + Sized {
         let position = try!(self.position());
         let result = body(self);
         try!(self.jump(position));
-        Ok(try!(result))
+        result
     }
 }
 

@@ -37,9 +37,7 @@ pub type Error = std::io::Error;
 pub type Result<T> = std::result::Result<T, Error>;
 
 macro_rules! raise(
-    ($message:expr) => (
-        return Err(::Error::new(::std::io::ErrorKind::Other, $message));
-    );
+    ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
 );
 
 mod band;

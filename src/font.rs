@@ -96,31 +96,25 @@ impl Value for Font {
 fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
     use truetype::Value;
 
-    match &tag!(try!(tape.peek::<Fixed>())) {
-        b"OTTO" => OffsetTable::read(tape),
-        _ => raise!("the format of a font is not supported"),
+    let table = try!(OffsetTable::read(tape));
+    if &tag!(table.header.version) != b"OTTO" {
+        raise!("the font format is invalid");
     }
+    Ok(table)
 }
 
 fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
     use truetype::Value;
 
     checksum_and_jump!(record, tape, "character-to-glyph mapping");
-    match try!(tape.peek::<UShort>()) {
-        0 => CharMapping::read(tape),
-        _ => raise!("the format of the character-to-glyph mapping header is not supported"),
-    }
+    CharMapping::read(tape)
 }
 
 fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
     use truetype::Value;
 
     checksum_and_jump!(record, tape, "font header", |i, word| if i == 2 { 0 } else { word });
-    let table = match try!(tape.peek::<Fixed>()) {
-        Fixed(0x00010000) => try!(FontHeader::read(tape)),
-        _ => raise!("the format of the font header is not supported"),
-    };
-    Ok(table)
+    FontHeader::read(tape)
 }
 
 fn read_horizontal_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord)

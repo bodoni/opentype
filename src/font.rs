@@ -2,9 +2,10 @@ use std::io::{Read, Seek};
 use std::mem;
 
 use Result;
-use tape::{Tape, Value};
 use primitive::*;
 use table::*;
+use tape::{Tape, Value};
+use truetype::compound::{OffsetTable, OffsetTableRecord};
 
 /// A font.
 #[derive(Default)]
@@ -93,15 +94,13 @@ impl Value for Font {
 }
 
 fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
-    let header = match &tag!(try!(tape.peek::<Fixed>())) {
-        b"OTTO" => try!(OffsetTableHeader::read(tape)),
-        _ => raise!("the format of a font is not supported"),
-    };
-    let mut records = vec![];
-    for _ in 0..header.numTables {
-        records.push(try!(OffsetTableRecord::read(tape)));
+    use truetype::Value;
+
+    let table = try!(OffsetTable::read(tape));
+    if &tag!(table.header.version) != b"OTTO" {
+        raise!("the format of a font is not supported");
     }
-    Ok(OffsetTable { header: header, records: records })
+    Ok(table)
 }
 
 fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {

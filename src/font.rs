@@ -25,6 +25,18 @@ macro_rules! tag(
     });
 );
 
+macro_rules! checksum_and_jump(
+    ($record:ident, $tape:ident, $process:expr) => ({
+        if !try!($record.checksum($tape, $process)) {
+            raise!("found a corrupted font table");
+        }
+        try!($tape.jump($record.offset as u64));
+    });
+    ($record:ident, $tape:ident) => (
+        checksum_and_jump!($record, $tape, |_, word| word);
+    );
+);
+
 impl Font {
     #[inline]
     pub fn read<T: Read + Seek>(tape: &mut T) -> Result<Font> {
@@ -38,18 +50,26 @@ impl Font {
             });
         );
 
-        let mut font = Font { offset_table: try!(read_offset_table(tape)), .. Font::default() };
+        let mut font = Font { offset_table: try!(Value::read(tape)), .. Font::default() };
+        if &tag!(font.offset_table.header.version) != b"OTTO" {
+            raise!("the font format is invalid");
+        }
 
         for record in sort!(font.offset_table.records) {
             macro_rules! set(
-                ($name:ident, $read:ident $($argument:tt)*) => (
-                    font.$name = Some(try!($read(tape, record $($argument)*)))
-                );
+                ($field:ident, $value:expr) => ({
+                    checksum_and_jump!(record, tape);
+                    font.$field = Some(try!($value));
+                });
+                ($field:ident) => (set!($field, Value::read(tape)));
             );
             match &tag!(record.tag) {
-                b"cmap" => set!(char_mapping, read_char_mapping),
-                b"head" => set!(font_header, read_font_header),
-                b"hhea" => set!(horizontal_header, read_horizontal_header),
+                b"cmap" => set!(char_mapping),
+                b"head" => {
+                    checksum_and_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
+                    font.font_header = Some(try!(Value::read(tape)));
+                },
+                b"hhea" => set!(horizontal_header),
                 b"hmtx" => {
                     let header = match font.horizontal_header {
                         Some(ref table) => table,
@@ -59,87 +79,18 @@ impl Font {
                         Some(ref table) => table,
                         _ => continue,
                     };
-                    set!(horizontal_metrics, read_horizontal_metrics, header, profile);
+                    set!(horizontal_metrics,HorizontalMetrics::read(tape, header, profile));
                 },
-                b"maxp" => set!(maximum_profile, read_maximum_profile),
-                b"name" => set!(naming_table, read_naming_table),
-                b"post" => set!(postscript, read_postscript),
-                b"OS/2" => set!(windows_metrics, read_windows_metrics),
+                b"maxp" => set!(maximum_profile),
+                b"name" => set!(naming_table),
+                b"post" => set!(postscript),
+                b"OS/2" => set!(windows_metrics),
                 _ => {},
             }
         }
 
         Ok(font)
     }
-}
-
-macro_rules! checksum_and_jump(
-    ($record:ident, $tape:ident, $table:expr, $process:expr) => ({
-        if !try!($record.checksum($tape, $process)) {
-            raise!(concat!("the ", $table, " is corrupted"));
-        }
-        try!($tape.jump($record.offset as u64));
-    });
-    ($record:ident, $tape:ident, $table:expr) => (
-        checksum_and_jump!($record, $tape, $table, |_, word| word);
-    );
-);
-
-fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
-    let table = try!(OffsetTable::read(tape));
-    if &tag!(table.header.version) != b"OTTO" {
-        raise!("the font format is invalid");
-    }
-    Ok(table)
-}
-
-fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
-    checksum_and_jump!(record, tape, "character-to-glyph mapping");
-    CharMapping::read(tape)
-}
-
-fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
-    checksum_and_jump!(record, tape, "font header", |i, word| if i == 2 { 0 } else { word });
-    FontHeader::read(tape)
-}
-
-fn read_horizontal_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
-                                   -> Result<HorizontalHeader> {
-
-    checksum_and_jump!(record, tape, "horizontal header");
-    HorizontalHeader::read(tape)
-}
-
-fn read_horizontal_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord,
-                                    header: &HorizontalHeader, profile: &MaximumProfile)
-                                    -> Result<HorizontalMetrics> {
-
-    checksum_and_jump!(record, tape, "horizontal metrics");
-    HorizontalMetrics::read(tape, header, profile)
-}
-
-fn read_maximum_profile<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
-                                 -> Result<MaximumProfile> {
-
-    checksum_and_jump!(record, tape, "maximum profile");
-    MaximumProfile::read(tape)
-}
-
-fn read_naming_table<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<NamingTable> {
-    checksum_and_jump!(record, tape, "naming table");
-    NamingTable::read(tape)
-}
-
-fn read_postscript<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<PostScript> {
-    checksum_and_jump!(record, tape, "PostScript information");
-    PostScript::read(tape)
-}
-
-fn read_windows_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
-                                 -> Result<WindowsMetrics> {
-
-    checksum_and_jump!(record, tape, "OS/2 and Windows metrics");
-    WindowsMetrics::read(tape)
 }
 
 fn priority(tag: &[u8; 4]) -> usize {

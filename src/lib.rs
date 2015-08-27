@@ -46,3 +46,4 @@ mod font;
 
 pub use font::Font;
 pub use truetype::compound;
+pub use truetype::primitive;

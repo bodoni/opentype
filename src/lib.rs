@@ -43,9 +43,6 @@ macro_rules! raise(
 );
 
 mod font;
-mod tape;
-
-pub mod primitive;
 
 pub use font::Font;
 pub use truetype::compound;

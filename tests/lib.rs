@@ -5,29 +5,6 @@ use std::fs::{self, File};
 use std::path::PathBuf;
 
 #[test]
-fn horizontal_metrics() {
-    let mut file = open("SourceSerifPro-Regular.otf");
-    let font = Font::read(&mut file).unwrap();
-    let table = font.horizontal_metrics.as_ref().unwrap();
-
-    assert_eq!(table.hMetrics.len(), 547);
-    assert_eq!(table.leftSideBearing.len(), 547 - 547);
-}
-
-#[test]
-fn offset_table_header() {
-    let mut file = open("SourceSerifPro-Regular.otf");
-    let font = Font::read(&mut file).unwrap();
-    let table = &font.offset_table.header;
-
-    assert_eq!(table.version.0, 0x4f54544f);
-    assert_eq!(table.numTables, 12);
-    assert_eq!(table.searchRange, 8 * 16);
-    assert_eq!(table.entrySelector, 3);
-    assert_eq!(table.rangeShift, table.numTables * 16 - table.searchRange);
-}
-
-#[test]
 fn windows_metrics() {
     use opentype::table::WindowsMetrics;
 

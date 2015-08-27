@@ -5,8 +5,7 @@ use Result;
 use primitive::*;
 use table::*;
 use tape::{Tape, Value};
-use truetype::compound::{CharMapping, FontHeader, HorizontalHeader, MaximumProfile};
-use truetype::compound::{NamingTable, OffsetTable, OffsetTableRecord, PostScript};
+use truetype::compound::*;
 
 /// A font.
 #[derive(Default)]

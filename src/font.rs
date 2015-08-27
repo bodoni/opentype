@@ -5,7 +5,8 @@ use Result;
 use primitive::*;
 use table::*;
 use tape::{Tape, Value};
-use truetype::compound::{CharMapping, FontHeader, MaximumProfile, OffsetTable, OffsetTableRecord};
+use truetype::compound::{CharMapping, FontHeader, MaximumProfile};
+use truetype::compound::{NamingTable, OffsetTable, OffsetTableRecord};
 
 /// A font.
 #[derive(Default)]
@@ -141,12 +142,9 @@ fn read_maximum_profile<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
 }
 
 fn read_naming_table<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<NamingTable> {
+    use truetype::Value;
     checksum_and_jump!(record, tape, "naming table");
-    Ok(match try!(tape.peek::<UShort>()) {
-        0 => NamingTable::Format0(try!(Value::read(tape))),
-        1 => NamingTable::Format1(try!(Value::read(tape))),
-        _ => raise!("the format of the naming table is not supported"),
-    })
+    NamingTable::read(tape)
 }
 
 fn read_postscript<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<PostScript> {

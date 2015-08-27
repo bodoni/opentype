@@ -8,7 +8,7 @@ The package provides a parser for OpenType fonts.
 
 ```rust
 use opentype::Font;
-use opentype::table::NamingTable;
+use opentype::compound::NamingTable;
 use std::fs::File;
 
 let path = "SourceSerifPro-Regular.otf";

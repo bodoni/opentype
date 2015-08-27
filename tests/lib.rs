@@ -39,23 +39,6 @@ fn offset_table_header() {
 }
 
 #[test]
-fn naming_table() {
-    use opentype::table::NamingTable;
-
-    let mut file = open("SourceSerifPro-Regular.otf");
-    let font = Font::read(&mut file).unwrap();
-    let table = font.naming_table.as_ref().unwrap();
-
-    match table {
-        &NamingTable::Format0(ref table) => {
-            assert_eq!(table.count, 26);
-            assert_eq!(table.strings().unwrap()[9], "Frank Grießhammer");
-        },
-        _ => unreachable!(),
-    }
-}
-
-#[test]
 fn postscript() {
     use opentype::table::PostScript;
 

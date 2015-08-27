@@ -96,13 +96,10 @@ macro_rules! read_vector(
 
 mod horizontal_header;
 mod horizontal_metrics;
-mod naming_table;
 mod postscript;
 mod windows_metrics;
 
 pub use self::horizontal_header::HorizontalHeader;
 pub use self::horizontal_metrics::{HorizontalMetrics, LongHorizontalMetric};
-pub use self::naming_table::{NamingTable, NamingTable0, NamingTable1};
-pub use self::naming_table::{NameRecord, LanguageTagRecord};
 pub use self::postscript::{PostScript, PostScript10, PostScript30};
 pub use self::windows_metrics::{WindowsMetrics, WindowsMetrics3, WindowsMetrics5};

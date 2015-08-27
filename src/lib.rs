@@ -4,7 +4,7 @@
 //!
 //! ```
 //! use opentype::Font;
-//! use opentype::table::NamingTable;
+//! use opentype::compound::NamingTable;
 //! use std::fs::File;
 //!
 //! let path = "SourceSerifPro-Regular.otf";
@@ -47,5 +47,7 @@ mod tape;
 
 pub mod primitive;
 pub mod table;
+
+pub use truetype::compound;
 
 pub use font::Font;

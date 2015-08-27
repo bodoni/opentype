@@ -5,17 +5,6 @@ use std::fs::{self, File};
 use std::path::PathBuf;
 
 #[test]
-fn font_header() {
-    let mut file = open("SourceSerifPro-Regular.otf");
-    let font = Font::read(&mut file).unwrap();
-    let table = &font.font_header.as_ref().unwrap();
-
-    assert_eq!(format!("{:.3}", table.fontRevision.as_f32()), "1.017");
-    assert_eq!(table.unitsPerEm, 1000);
-    assert_eq!(table.macStyle, 0);
-}
-
-#[test]
 fn horizontal_header() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();

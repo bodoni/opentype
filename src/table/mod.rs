@@ -94,7 +94,6 @@ macro_rules! read_vector(
     });
 );
 
-mod font_header;
 mod horizontal_header;
 mod horizontal_metrics;
 mod maximum_profile;
@@ -102,7 +101,6 @@ mod naming_table;
 mod postscript;
 mod windows_metrics;
 
-pub use self::font_header::FontHeader;
 pub use self::horizontal_header::HorizontalHeader;
 pub use self::horizontal_metrics::{HorizontalMetrics, LongHorizontalMetric};
 pub use self::maximum_profile::{MaximumProfile, MaximumProfile05, MaximumProfile10};

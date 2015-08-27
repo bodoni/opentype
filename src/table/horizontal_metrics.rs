@@ -1,8 +1,7 @@
 use Result;
 use primitive::*;
-use table::HorizontalHeader;
 use tape::{Tape, Value};
-use truetype::compound::MaximumProfile;
+use truetype::compound::{HorizontalHeader, MaximumProfile};
 
 declare! {
     pub HorizontalMetrics {

@@ -5,8 +5,8 @@ use Result;
 use primitive::*;
 use table::*;
 use tape::{Tape, Value};
-use truetype::compound::{CharMapping, FontHeader, MaximumProfile, NamingTable};
-use truetype::compound::{OffsetTable, OffsetTableRecord, PostScript};
+use truetype::compound::{CharMapping, FontHeader, HorizontalHeader, MaximumProfile};
+use truetype::compound::{NamingTable, OffsetTable, OffsetTableRecord, PostScript};
 
 /// A font.
 #[derive(Default)]
@@ -118,11 +118,9 @@ fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result
 fn read_horizontal_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
                                    -> Result<HorizontalHeader> {
 
+    use truetype::Value;
     checksum_and_jump!(record, tape, "horizontal header");
-    Ok(match try!(tape.peek::<Fixed>()) {
-        Fixed(0x00010000) => try!(HorizontalHeader::read(tape)),
-        _ => raise!("the format of the horizontal header is not supported"),
-    })
+    HorizontalHeader::read(tape)
 }
 
 fn read_horizontal_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord,

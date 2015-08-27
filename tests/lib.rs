@@ -5,17 +5,6 @@ use std::fs::{self, File};
 use std::path::PathBuf;
 
 #[test]
-fn horizontal_header() {
-    let mut file = open("SourceSerifPro-Regular.otf");
-    let font = Font::read(&mut file).unwrap();
-    let table = font.horizontal_header.as_ref().unwrap();
-
-    assert_eq!(table.Ascender, 918);
-    assert_eq!(table.Descender, -335);
-    assert_eq!(table.numberOfHMetrics, 547);
-}
-
-#[test]
 fn horizontal_metrics() {
     let mut file = open("SourceSerifPro-Regular.otf");
     let font = Font::read(&mut file).unwrap();

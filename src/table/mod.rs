@@ -94,10 +94,8 @@ macro_rules! read_vector(
     });
 );
 
-mod horizontal_header;
 mod horizontal_metrics;
 mod windows_metrics;
 
-pub use self::horizontal_header::HorizontalHeader;
 pub use self::horizontal_metrics::{HorizontalMetrics, LongHorizontalMetric};
 pub use self::windows_metrics::{WindowsMetrics, WindowsMetrics3, WindowsMetrics5};

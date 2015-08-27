@@ -94,7 +94,6 @@ macro_rules! read_vector(
     });
 );
 
-mod char_mapping;
 mod font_header;
 mod horizontal_header;
 mod horizontal_metrics;
@@ -103,8 +102,6 @@ mod naming_table;
 mod postscript;
 mod windows_metrics;
 
-pub use self::char_mapping::{CharMapping, CharMappingHeader, CharMappingRecord};
-pub use self::char_mapping::{CharMappingEncoding, CharMappingEncoding4, CharMappingEncoding6};
 pub use self::font_header::FontHeader;
 pub use self::horizontal_header::HorizontalHeader;
 pub use self::horizontal_metrics::{HorizontalMetrics, LongHorizontalMetric};

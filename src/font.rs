@@ -5,7 +5,7 @@ use Result;
 use primitive::*;
 use table::*;
 use tape::{Tape, Value};
-use truetype::compound::{OffsetTable, OffsetTableRecord};
+use truetype::compound::{CharMapping, OffsetTable, OffsetTableRecord};
 
 /// A font.
 #[derive(Default)]
@@ -29,7 +29,7 @@ macro_rules! tag(
 
 macro_rules! verify_and_jump(
     ($record:ident, $tape:ident, $table:expr, $process:expr) => ({
-        if !try!($record.check($tape, $process)) {
+        if !try!($record.checksum($tape, $process)) {
             raise!(concat!("the ", $table, " is corrupted"));
         }
         try!($tape.jump($record.offset as u64));
@@ -96,34 +96,20 @@ impl Value for Font {
 fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
     use truetype::Value;
 
-    let table = try!(OffsetTable::read(tape));
-    if &tag!(table.header.version) != b"OTTO" {
-        raise!("the format of a font is not supported");
+    match &tag!(try!(tape.peek::<Fixed>())) {
+        b"OTTO" => OffsetTable::read(tape),
+        _ => raise!("the format of a font is not supported"),
     }
-    Ok(table)
 }
 
 fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
-    verify_and_jump!(record, tape, "character-to-glyph mapping");
-    let header = match try!(tape.peek::<UShort>()) {
-        0 => try!(CharMappingHeader::read(tape)),
-        _ => raise!("the format of the character-to-glyph mapping header is not supported"),
-    };
-    let mut records = vec![];
-    for _ in 0..header.numTables {
-        records.push(try!(CharMappingRecord::read(tape)));
-    }
-    let mut encodings = vec![];
-    for encoding in records.iter() {
-        try!(tape.jump(record.offset as u64 + encoding.offset as u64));
-        encodings.push(match try!(tape.peek::<UShort>()) {
-            4 => CharMappingEncoding::Format4(try!(Value::read(tape))),
-            6 => CharMappingEncoding::Format6(try!(Value::read(tape))),
-            _ => raise!("the format of a character-to-glyph mapping is not supported"),
-        });
-    }
+    use truetype::Value;
 
-    Ok(CharMapping { header: header, records: records, encodings: encodings })
+    verify_and_jump!(record, tape, "character-to-glyph mapping");
+    match try!(tape.peek::<UShort>()) {
+        0 => CharMapping::read(tape),
+        _ => raise!("the format of the character-to-glyph mapping header is not supported"),
+    }
 }
 
 fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {

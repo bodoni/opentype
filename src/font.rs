@@ -27,7 +27,7 @@ macro_rules! tag(
     });
 );
 
-macro_rules! verify_and_jump(
+macro_rules! checksum_and_jump(
     ($record:ident, $tape:ident, $table:expr, $process:expr) => ({
         if !try!($record.checksum($tape, $process)) {
             raise!(concat!("the ", $table, " is corrupted"));
@@ -35,7 +35,7 @@ macro_rules! verify_and_jump(
         try!($tape.jump($record.offset as u64));
     });
     ($record:ident, $tape:ident, $table:expr) => (
-        verify_and_jump!($record, $tape, $table, |_, word| word);
+        checksum_and_jump!($record, $tape, $table, |_, word| word);
     );
 );
 
@@ -105,7 +105,7 @@ fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
 fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
     use truetype::Value;
 
-    verify_and_jump!(record, tape, "character-to-glyph mapping");
+    checksum_and_jump!(record, tape, "character-to-glyph mapping");
     match try!(tape.peek::<UShort>()) {
         0 => CharMapping::read(tape),
         _ => raise!("the format of the character-to-glyph mapping header is not supported"),
@@ -115,7 +115,7 @@ fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Resul
 fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
     use truetype::Value;
 
-    verify_and_jump!(record, tape, "font header", |i, word| if i == 2 { 0 } else { word });
+    checksum_and_jump!(record, tape, "font header", |i, word| if i == 2 { 0 } else { word });
     let table = match try!(tape.peek::<Fixed>()) {
         Fixed(0x00010000) => try!(FontHeader::read(tape)),
         _ => raise!("the format of the font header is not supported"),
@@ -126,7 +126,7 @@ fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result
 fn read_horizontal_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
                                    -> Result<HorizontalHeader> {
 
-    verify_and_jump!(record, tape, "horizontal header");
+    checksum_and_jump!(record, tape, "horizontal header");
     Ok(match try!(tape.peek::<Fixed>()) {
         Fixed(0x00010000) => try!(HorizontalHeader::read(tape)),
         _ => raise!("the format of the horizontal header is not supported"),
@@ -137,14 +137,14 @@ fn read_horizontal_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord,
                                     header: &HorizontalHeader, profile: &MaximumProfile)
                                     -> Result<HorizontalMetrics> {
 
-    verify_and_jump!(record, tape, "horizontal metrics");
+    checksum_and_jump!(record, tape, "horizontal metrics");
     Ok(try!(HorizontalMetrics::read(tape, header, profile)))
 }
 
 fn read_maximum_profile<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
                                  -> Result<MaximumProfile> {
 
-    verify_and_jump!(record, tape, "maximum profile");
+    checksum_and_jump!(record, tape, "maximum profile");
     Ok(match try!(tape.peek::<Fixed>()) {
         Fixed(0x00005000) => MaximumProfile::Version05(try!(Value::read(tape))),
         Fixed(0x00010000) => MaximumProfile::Version10(try!(Value::read(tape))),
@@ -153,7 +153,7 @@ fn read_maximum_profile<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
 }
 
 fn read_naming_table<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<NamingTable> {
-    verify_and_jump!(record, tape, "naming table");
+    checksum_and_jump!(record, tape, "naming table");
     Ok(match try!(tape.peek::<UShort>()) {
         0 => NamingTable::Format0(try!(Value::read(tape))),
         1 => NamingTable::Format1(try!(Value::read(tape))),
@@ -162,7 +162,7 @@ fn read_naming_table<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Resul
 }
 
 fn read_postscript<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<PostScript> {
-    verify_and_jump!(record, tape, "PostScript information");
+    checksum_and_jump!(record, tape, "PostScript information");
     Ok(match try!(tape.peek::<Fixed>()) {
         Fixed(0x00010000) => PostScript::Version10(try!(Value::read(tape))),
         Fixed(0x00030000) => PostScript::Version30(try!(Value::read(tape))),
@@ -173,7 +173,7 @@ fn read_postscript<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<
 fn read_windows_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
                                  -> Result<WindowsMetrics> {
 
-    verify_and_jump!(record, tape, "OS/2 and Windows metrics");
+    checksum_and_jump!(record, tape, "OS/2 and Windows metrics");
     Ok(match try!(tape.peek::<UShort>()) {
         3 => WindowsMetrics::Version3(try!(Value::read(tape))),
         5 => WindowsMetrics::Version5(try!(Value::read(tape))),

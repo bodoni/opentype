@@ -5,8 +5,8 @@ use Result;
 use primitive::*;
 use table::*;
 use tape::{Tape, Value};
-use truetype::compound::{CharMapping, FontHeader, MaximumProfile};
-use truetype::compound::{NamingTable, OffsetTable, OffsetTableRecord};
+use truetype::compound::{CharMapping, FontHeader, MaximumProfile, NamingTable};
+use truetype::compound::{OffsetTable, OffsetTableRecord, PostScript};
 
 /// A font.
 #[derive(Default)]
@@ -148,12 +148,9 @@ fn read_naming_table<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Resul
 }
 
 fn read_postscript<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<PostScript> {
+    use truetype::Value;
     checksum_and_jump!(record, tape, "PostScript information");
-    Ok(match try!(tape.peek::<Fixed>()) {
-        Fixed(0x00010000) => PostScript::Version10(try!(Value::read(tape))),
-        Fixed(0x00030000) => PostScript::Version30(try!(Value::read(tape))),
-        _ => raise!("the format of the PostScript information is not supported"),
-    })
+    PostScript::read(tape)
 }
 
 fn read_windows_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord)

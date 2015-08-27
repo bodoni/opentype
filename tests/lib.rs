@@ -39,23 +39,6 @@ fn offset_table_header() {
 }
 
 #[test]
-fn postscript() {
-    use opentype::table::PostScript;
-
-    let mut file = open("SourceSerifPro-Regular.otf");
-    let font = Font::read(&mut file).unwrap();
-    let table = font.postscript.as_ref().unwrap();
-
-    match table {
-        &PostScript::Version30(ref table) => {
-            assert_eq!(table.version.as_f32(), 3.0);
-            assert_eq!(table.underlinePosition, -75);
-        },
-        _ => unreachable!(),
-    }
-}
-
-#[test]
 fn windows_metrics() {
     use opentype::table::WindowsMetrics;
 

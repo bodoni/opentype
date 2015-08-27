@@ -39,22 +39,6 @@ fn offset_table_header() {
 }
 
 #[test]
-fn maximum_profile() {
-    use opentype::table::MaximumProfile;
-
-    let mut file = open("SourceSerifPro-Regular.otf");
-    let font = Font::read(&mut file).unwrap();
-    let table = font.maximum_profile.as_ref().unwrap();
-
-    match table {
-        &MaximumProfile::Version05(ref table) => {
-            assert_eq!(table.numGlyphs, 547);
-        },
-        _ => unreachable!(),
-    }
-}
-
-#[test]
 fn naming_table() {
     use opentype::table::NamingTable;
 

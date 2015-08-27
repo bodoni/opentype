@@ -5,7 +5,7 @@ use Result;
 use primitive::*;
 use table::*;
 use tape::{Tape, Value};
-use truetype::compound::{FontHeader, CharMapping, OffsetTable, OffsetTableRecord};
+use truetype::compound::{CharMapping, FontHeader, MaximumProfile, OffsetTable, OffsetTableRecord};
 
 /// A font.
 #[derive(Default)]
@@ -95,7 +95,6 @@ impl Value for Font {
 
 fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
     use truetype::Value;
-
     let table = try!(OffsetTable::read(tape));
     if &tag!(table.header.version) != b"OTTO" {
         raise!("the font format is invalid");
@@ -105,14 +104,12 @@ fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
 
 fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
     use truetype::Value;
-
     checksum_and_jump!(record, tape, "character-to-glyph mapping");
     CharMapping::read(tape)
 }
 
 fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
     use truetype::Value;
-
     checksum_and_jump!(record, tape, "font header", |i, word| if i == 2 { 0 } else { word });
     FontHeader::read(tape)
 }
@@ -132,18 +129,15 @@ fn read_horizontal_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord,
                                     -> Result<HorizontalMetrics> {
 
     checksum_and_jump!(record, tape, "horizontal metrics");
-    Ok(try!(HorizontalMetrics::read(tape, header, profile)))
+    HorizontalMetrics::read(tape, header, profile)
 }
 
 fn read_maximum_profile<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
                                  -> Result<MaximumProfile> {
 
+    use truetype::Value;
     checksum_and_jump!(record, tape, "maximum profile");
-    Ok(match try!(tape.peek::<Fixed>()) {
-        Fixed(0x00005000) => MaximumProfile::Version05(try!(Value::read(tape))),
-        Fixed(0x00010000) => MaximumProfile::Version10(try!(Value::read(tape))),
-        _ => raise!("the format of the maximum profile is not supported"),
-    })
+    MaximumProfile::read(tape)
 }
 
 fn read_naming_table<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<NamingTable> {

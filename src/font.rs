@@ -115,15 +115,11 @@ fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Resul
 fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
     use truetype::Value;
 
-    const MAGIC_NUMBER: ULong = 0x5F0F3CF5;
     verify_and_jump!(record, tape, "font header", |i, word| if i == 2 { 0 } else { word });
     let table = match try!(tape.peek::<Fixed>()) {
         Fixed(0x00010000) => try!(FontHeader::read(tape)),
         _ => raise!("the format of the font header is not supported"),
     };
-    if table.magicNumber != MAGIC_NUMBER {
-        raise!("the font header is malformed");
-    }
     Ok(table)
 }
 

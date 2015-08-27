@@ -46,8 +46,6 @@ mod font;
 mod tape;
 
 pub mod primitive;
-pub mod table;
-
-pub use truetype::compound;
 
 pub use font::Font;
+pub use truetype::compound;

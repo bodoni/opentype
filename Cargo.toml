@@ -10,7 +10,3 @@ description = "The package provides a parser for OpenType fonts."
 
 [dependencies]
 truetype = { git = "https://github.com/bodoni/truetype.git" }
-
-[[test]]
-name = "opentype"
-path = "tests/lib.rs"

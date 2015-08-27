@@ -2,9 +2,7 @@ use std::io::{Read, Seek};
 use std::mem;
 
 use Result;
-use primitive::*;
-use table::*;
-use tape::{Tape, Value};
+use truetype::{Tape, Value};
 use truetype::compound::*;
 
 /// A font.
@@ -27,27 +25,9 @@ macro_rules! tag(
     });
 );
 
-macro_rules! checksum_and_jump(
-    ($record:ident, $tape:ident, $table:expr, $process:expr) => ({
-        if !try!($record.checksum($tape, $process)) {
-            raise!(concat!("the ", $table, " is corrupted"));
-        }
-        try!($tape.jump($record.offset as u64));
-    });
-    ($record:ident, $tape:ident, $table:expr) => (
-        checksum_and_jump!($record, $tape, $table, |_, word| word);
-    );
-);
-
 impl Font {
     #[inline]
-    pub fn read<T: Read + Seek>(reader: &mut T) -> Result<Font> {
-        Value::read(reader)
-    }
-}
-
-impl Value for Font {
-    fn read<T: Tape>(tape: &mut T) -> Result<Font> {
+    pub fn read<T: Read + Seek>(tape: &mut T) -> Result<Font> {
         macro_rules! sort(
             ($records:expr) => ({
                 let mut records = $records.iter().collect::<Vec<_>>();
@@ -93,8 +73,19 @@ impl Value for Font {
     }
 }
 
+macro_rules! checksum_and_jump(
+    ($record:ident, $tape:ident, $table:expr, $process:expr) => ({
+        if !try!($record.checksum($tape, $process)) {
+            raise!(concat!("the ", $table, " is corrupted"));
+        }
+        try!($tape.jump($record.offset as u64));
+    });
+    ($record:ident, $tape:ident, $table:expr) => (
+        checksum_and_jump!($record, $tape, $table, |_, word| word);
+    );
+);
+
 fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
-    use truetype::Value;
     let table = try!(OffsetTable::read(tape));
     if &tag!(table.header.version) != b"OTTO" {
         raise!("the font format is invalid");
@@ -103,13 +94,11 @@ fn read_offset_table<T: Tape>(tape: &mut T) -> Result<OffsetTable> {
 }
 
 fn read_char_mapping<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<CharMapping> {
-    use truetype::Value;
     checksum_and_jump!(record, tape, "character-to-glyph mapping");
     CharMapping::read(tape)
 }
 
 fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<FontHeader> {
-    use truetype::Value;
     checksum_and_jump!(record, tape, "font header", |i, word| if i == 2 { 0 } else { word });
     FontHeader::read(tape)
 }
@@ -117,7 +106,6 @@ fn read_font_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result
 fn read_horizontal_header<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
                                    -> Result<HorizontalHeader> {
 
-    use truetype::Value;
     checksum_and_jump!(record, tape, "horizontal header");
     HorizontalHeader::read(tape)
 }
@@ -133,19 +121,16 @@ fn read_horizontal_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord,
 fn read_maximum_profile<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
                                  -> Result<MaximumProfile> {
 
-    use truetype::Value;
     checksum_and_jump!(record, tape, "maximum profile");
     MaximumProfile::read(tape)
 }
 
 fn read_naming_table<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<NamingTable> {
-    use truetype::Value;
     checksum_and_jump!(record, tape, "naming table");
     NamingTable::read(tape)
 }
 
 fn read_postscript<T: Tape>(tape: &mut T, record: &OffsetTableRecord) -> Result<PostScript> {
-    use truetype::Value;
     checksum_and_jump!(record, tape, "PostScript information");
     PostScript::read(tape)
 }
@@ -154,11 +139,7 @@ fn read_windows_metrics<T: Tape>(tape: &mut T, record: &OffsetTableRecord)
                                  -> Result<WindowsMetrics> {
 
     checksum_and_jump!(record, tape, "OS/2 and Windows metrics");
-    Ok(match try!(tape.peek::<UShort>()) {
-        3 => WindowsMetrics::Version3(try!(Value::read(tape))),
-        5 => WindowsMetrics::Version5(try!(Value::read(tape))),
-        _ => raise!("the format of the OS/2 and Windows metrics is not supported"),
-    })
+    WindowsMetrics::read(tape)
 }
 
 fn priority(tag: &[u8; 4]) -> usize {

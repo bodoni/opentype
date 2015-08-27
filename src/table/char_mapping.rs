@@ -42,12 +42,12 @@ spec! {
         searchRange   (UShort     ),
         entrySelector (UShort     ),
         rangeShift    (UShort     ),
-        endCode       (Vec<UShort>) |band, this| { read_vector!(band, this.segments()) },
+        endCode       (Vec<UShort>) |tape, this| { read_vector!(tape, this.segments()) },
         reservedPad   (UShort     ),
-        startCode     (Vec<UShort>) |band, this| { read_vector!(band, this.segments()) },
-        idDelta       (Vec<Short> ) |band, this| { read_vector!(band, this.segments()) },
-        idRangeOffset (Vec<UShort>) |band, this| { read_vector!(band, this.segments()) },
-        glyphIdArray  (Vec<UShort>) |band, this| { read_vector!(band, try!(this.array_length())) },
+        startCode     (Vec<UShort>) |tape, this| { read_vector!(tape, this.segments()) },
+        idDelta       (Vec<Short> ) |tape, this| { read_vector!(tape, this.segments()) },
+        idRangeOffset (Vec<UShort>) |tape, this| { read_vector!(tape, this.segments()) },
+        glyphIdArray  (Vec<UShort>) |tape, this| { read_vector!(tape, try!(this.array_length())) },
     }
 }
 
@@ -58,7 +58,7 @@ spec! {
         language     (UShort     ),
         firstCode    (UShort     ),
         entryCount   (UShort     ),
-        glyphIdArray (Vec<UShort>) |band, this| { read_vector!(band, this.entryCount) },
+        glyphIdArray (Vec<UShort>) |tape, this| { read_vector!(tape, this.entryCount) },
     }
 }
 

@@ -4,7 +4,7 @@ use std::io::Read;
 use std::mem;
 
 use Result;
-use band::{Band, Value};
+use tape::{Tape, Value};
 
 pub type Byte = u8;
 pub type Char = i8;
@@ -30,9 +30,9 @@ impl Fixed {
 }
 
 macro_rules! read(
-    ($band:ident, $bytes:expr) => (unsafe {
+    ($tape:ident, $bytes:expr) => (unsafe {
         let mut buffer: [u8; $bytes] = mem::uninitialized();
-        if try!($band.read(&mut buffer)) != $bytes {
+        if try!($tape.read(&mut buffer)) != $bytes {
             return raise!("failed to read as much as needed");
         }
         mem::transmute(buffer)
@@ -42,15 +42,15 @@ macro_rules! read(
 macro_rules! implement {
     ($name:ident, 1) => (
         impl Value for $name {
-            fn read<T: Band>(band: &mut T) -> Result<Self> {
-                Ok(read!(band, 1))
+            fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+                Ok(read!(tape, 1))
             }
         }
     );
     ($name:ident, $bytes:expr) => (
         impl Value for $name {
-            fn read<T: Band>(band: &mut T) -> Result<Self> {
-                Ok($name::from_be(read!(band, $bytes)))
+            fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+                Ok($name::from_be(read!(tape, $bytes)))
             }
         }
     );
@@ -68,7 +68,7 @@ implement!(i64, 8);
 
 impl Value for Fixed {
     #[inline(always)]
-    fn read<T: Band>(band: &mut T) -> Result<Self> {
-        Ok(Fixed(try!(Value::read(band))))
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        Ok(Fixed(try!(Value::read(tape))))
     }
 }

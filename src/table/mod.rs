@@ -35,11 +35,11 @@ macro_rules! implement {
     (pub $structure:ident {
         $($field:ident ($($kind:tt)+) $(|$($argument:ident),+| $body:block)*,)+
     }) => (
-        impl ::band::Value for $structure {
-            fn read<T: ::band::Band>(band: &mut T) -> ::Result<Self> {
+        impl ::tape::Value for $structure {
+            fn read<T: ::tape::Tape>(tape: &mut T) -> ::Result<Self> {
                 let mut table = $structure::default();
                 $(
-                    table.$field = read_field!($structure, band, table, [$($kind)+]
+                    table.$field = read_field!($structure, tape, table, [$($kind)+]
                                                $(|$($argument),+| $body)*);
                 )+
                 Ok(table)
@@ -53,42 +53,42 @@ macro_rules! itemize(
 );
 
 macro_rules! read_field(
-    ($structure:ident, $band:ident, $table:ident, [$kind:ty]
-                                                  |$gang:ident, $chair:ident| $body:block) => ({
+    ($structure:ident, $tape:ident, $table:ident, [$kind:ty]
+                                                  |$pipe:ident, $chair:ident| $body:block) => ({
         #[inline(always)]
         #[allow(unused_variables)]
-        fn read<T: ::band::Band>($gang: &mut T, $chair: &$structure) -> ::Result<$kind> $body
-        try!(read($band, &$table))
+        fn read<T: ::tape::Tape>($pipe: &mut T, $chair: &$structure) -> ::Result<$kind> $body
+        try!(read($tape, &$table))
     });
-    ($structure:ident, $band:expr, $table:expr, [$kind:ty]) => ({
-        try!(::band::Value::read($band))
+    ($structure:ident, $tape:expr, $table:expr, [$kind:ty]) => ({
+        try!(::tape::Value::read($tape))
     });
 );
 
 macro_rules! read_vector(
-    ($band:ident, $count:expr, Byte) => (unsafe {
+    ($tape:ident, $count:expr, Byte) => (unsafe {
         let count = $count as usize;
         let mut values = Vec::with_capacity(count);
         values.set_len(count);
-        if try!(::std::io::Read::read($band, &mut values)) != count {
+        if try!(::std::io::Read::read($tape, &mut values)) != count {
             return raise!("failed to read as much as needed");
         }
         Ok(values)
     });
-    ($band:ident, $count:expr, Char) => (unsafe {
+    ($tape:ident, $count:expr, Char) => (unsafe {
         let count = $count as usize;
         let mut values = Vec::with_capacity(count);
         values.set_len(count);
-        if try!(::std::io::Read::read($band, &mut values)) != count {
+        if try!(::std::io::Read::read($tape, &mut values)) != count {
             return raise!("failed to read as much as needed");
         }
         Ok(::std::mem::transmute(values))
     });
-    ($band:ident, $count:expr) => ({
+    ($tape:ident, $count:expr) => ({
         let count = $count as usize;
         let mut values = Vec::with_capacity(count);
         for _ in 0..count {
-            values.push(try!(::band::Value::read($band)));
+            values.push(try!(::tape::Value::read($tape)));
         }
         Ok(values)
     });

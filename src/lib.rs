@@ -40,8 +40,8 @@ macro_rules! raise(
     ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
 );
 
-mod band;
 mod font;
+mod tape;
 
 pub mod primitive;
 pub mod table;

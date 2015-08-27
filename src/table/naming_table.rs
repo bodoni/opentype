@@ -1,7 +1,7 @@
 use std::mem;
 
 use Result;
-use band::Band;
+use tape::Tape;
 use primitive::*;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -15,8 +15,8 @@ spec! {
         format       (UShort         ),
         count        (UShort         ),
         stringOffset (UShort         ),
-        nameRecord   (Vec<NameRecord>) |band, this| { read_vector!(band, this.count) },
-        storage      (Vec<Byte>      ) |band, this| { this.read_storage(band) },
+        nameRecord   (Vec<NameRecord>) |tape, this| { read_vector!(tape, this.count) },
+        storage      (Vec<Byte>      ) |tape, this| { this.read_storage(tape) },
     }
 }
 
@@ -25,11 +25,11 @@ spec! {
         format        (UShort                ),
         count         (UShort                ),
         stringOffset  (UShort                ),
-        nameRecord    (Vec<NameRecord>       ) |band, this| { read_vector!(band, this.count) },
+        nameRecord    (Vec<NameRecord>       ) |tape, this| { read_vector!(tape, this.count) },
         langTagCount  (UShort                ),
-        langTagRecord (Vec<LanguageTagRecord>) |band, this| { read_vector!(band,
+        langTagRecord (Vec<LanguageTagRecord>) |tape, this| { read_vector!(tape,
                                                                            this.langTagCount) },
-        storage       (Vec<Byte>             ) |band, this| { this.read_storage(band) },
+        storage       (Vec<Byte>             ) |tape, this| { this.read_storage(tape) },
     }
 }
 
@@ -61,12 +61,12 @@ impl NamingTable0 {
         strings(&self.nameRecord, &self.storage)
     }
 
-    fn read_storage<T: Band>(&self, band: &mut T) -> Result<Vec<u8>> {
-        let current = try!(band.position());
+    fn read_storage<T: Tape>(&self, tape: &mut T) -> Result<Vec<u8>> {
+        let current = try!(tape.position());
         let above = 3 * mem::size_of::<UShort>() +
                     self.nameRecord.len() * mem::size_of::<NameRecord>();
-        try!(band.jump(current - above as u64 + self.stringOffset as u64));
-        read_vector!(band, storage_length(&self.nameRecord), Byte)
+        try!(tape.jump(current - above as u64 + self.stringOffset as u64));
+        read_vector!(tape, storage_length(&self.nameRecord), Byte)
     }
 }
 
@@ -76,13 +76,13 @@ impl NamingTable1 {
         strings(&self.nameRecord, &self.storage)
     }
 
-    fn read_storage<T: Band>(&self, band: &mut T) -> Result<Vec<u8>> {
-        let current = try!(band.position());
+    fn read_storage<T: Tape>(&self, tape: &mut T) -> Result<Vec<u8>> {
+        let current = try!(tape.position());
         let above = 4 * mem::size_of::<UShort>() +
                     self.nameRecord.len() * mem::size_of::<NameRecord>() +
                     self.langTagRecord.len() * mem::size_of::<LanguageTagRecord>();
-        try!(band.jump(current - above as u64 + self.stringOffset as u64));
-        read_vector!(band, storage_length(&self.nameRecord), Byte)
+        try!(tape.jump(current - above as u64 + self.stringOffset as u64));
+        read_vector!(tape, storage_length(&self.nameRecord), Byte)
     }
 }
 

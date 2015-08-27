@@ -1,7 +1,7 @@
 use std::mem;
 
 use Result;
-use band::{Band, Value};
+use tape::{Tape, Value};
 use primitive::*;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -33,18 +33,18 @@ spec! {
 
 impl OffsetTableRecord {
     #[doc(hidden)]
-    pub fn check<T, F>(&self, band: &mut T, process: F) -> Result<bool>
-        where T: Band, F: Fn(usize, ULong) -> ULong
+    pub fn check<T, F>(&self, tape: &mut T, process: F) -> Result<bool>
+        where T: Tape, F: Fn(usize, ULong) -> ULong
     {
         let length = {
             let size = mem::size_of::<ULong>();
             ((self.length as usize + size - 1) & !(size - 1)) / size
         };
-        band.stay(|band| {
-            try!(band.jump(self.offset as u64));
+        tape.stay(|tape| {
+            try!(tape.jump(self.offset as u64));
             let mut checksum: u64 = 0;
             for i in 0..length {
-                checksum += process(i, try!(Value::read(band))) as u64;
+                checksum += process(i, try!(Value::read(tape))) as u64;
             }
             Ok(self.checkSum == checksum as u32)
         })

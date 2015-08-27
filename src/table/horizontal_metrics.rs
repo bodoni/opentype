@@ -1,5 +1,5 @@
 use Result;
-use band::{Band, Value};
+use tape::{Tape, Value};
 use primitive::*;
 use table::HorizontalHeader;
 use table::MaximumProfile;
@@ -21,7 +21,7 @@ spec! {
 
 impl HorizontalMetrics {
     #[doc(hidden)]
-    pub fn read<T: Band>(band: &mut T, header: &HorizontalHeader, profile: &MaximumProfile)
+    pub fn read<T: Tape>(tape: &mut T, header: &HorizontalHeader, profile: &MaximumProfile)
                          -> Result<Self> {
 
         let metrics = header.numberOfHMetrics as usize;
@@ -34,10 +34,10 @@ impl HorizontalMetrics {
             leftSideBearing: Vec::with_capacity(bearings),
         };
         for _ in 0..metrics {
-            table.hMetrics.push(try!(Value::read(band)));
+            table.hMetrics.push(try!(Value::read(tape)));
         }
         for _ in 0..bearings {
-            table.leftSideBearing.push(try!(Value::read(band)));
+            table.leftSideBearing.push(try!(Value::read(tape)));
         }
 
         Ok(table)

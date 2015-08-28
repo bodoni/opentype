@@ -79,7 +79,7 @@ impl Font {
                         Some(ref table) => table,
                         _ => continue,
                     };
-                    set!(horizontal_metrics,HorizontalMetrics::read(tape, header, profile));
+                    set!(horizontal_metrics, HorizontalMetrics::read(tape, header, profile));
                 },
                 b"maxp" => set!(maximum_profile),
                 b"name" => set!(naming_table),

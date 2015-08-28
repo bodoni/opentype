@@ -2,8 +2,9 @@ use std::io::{Read, Seek};
 use std::mem;
 
 use Result;
-use truetype::{Tape, Value};
 use truetype::compound::*;
+use truetype::primitive::Tag;
+use truetype::{Tape, Value};
 
 /// A font.
 #[derive(Default)]

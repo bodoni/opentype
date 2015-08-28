@@ -38,9 +38,7 @@ impl Font {
         macro_rules! sort(
             ($records:expr) => ({
                 let mut records = $records.iter().collect::<Vec<_>>();
-                records.sort_by(|one, two| {
-                    priority(Tag(one.tag)).cmp(&priority(Tag(two.tag)))
-                });
+                records.sort_by(|one, two| priority(Tag(one.tag)).cmp(&priority(Tag(two.tag))));
                 records
             });
         );

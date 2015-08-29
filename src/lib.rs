@@ -3,24 +3,22 @@
 //! ## Example
 //!
 //! ```
-//! use opentype::Font;
+//! use opentype::File;
 //! use opentype::compound::NamingTable;
-//! use std::fs::File;
 //!
 //! let path = "SourceSerifPro-Regular.otf";
 //! # let path = "tests/fixtures/SourceSerifPro-Regular.otf";
-//! let mut file = File::open(path).unwrap();
-//! let font = Font::read(&mut file).unwrap();
+//! let file = File::read(&mut std::fs::File::open(path).unwrap()).unwrap();
 //!
-//! match font.font_header {
+//! match file.font_header {
 //!     Some(ref table) => assert_eq!(table.unitsPerEm, 1000),
 //!     _ => unreachable!(),
 //! }
-//! match font.horizontal_header {
+//! match file.horizontal_header {
 //!     Some(ref table) => assert_eq!(table.Ascender, 918),
 //!     _ => unreachable!(),
 //! }
-//! match font.naming_table {
+//! match file.naming_table {
 //!     Some(NamingTable::Format0(ref table)) => {
 //!         let strings = table.strings().unwrap();
 //!         assert_eq!(&strings[1], "Source Serif Pro");
@@ -43,10 +41,10 @@ macro_rules! raise(
     ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
 );
 
-mod font;
+mod file;
 mod tape;
 
-pub use font::Font;
+pub use file::File;
 pub use truetype::compound;
 pub use truetype::primitive;
 

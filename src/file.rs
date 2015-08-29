@@ -9,9 +9,9 @@ use truetype::compound::{OffsetTable, MaximumProfile, NamingTable, PostScript, W
 use truetype::primitive::Tag;
 use truetype;
 
-/// A font.
+/// A font file.
 #[derive(Default)]
-pub struct Font {
+pub struct File {
     pub offset_table: OffsetTable,
     pub char_mapping: Option<CharMapping>,
     pub font_header: Option<FontHeader>,
@@ -36,9 +36,9 @@ macro_rules! checksum_and_jump(
     );
 );
 
-impl Font {
+impl File {
     #[inline]
-    pub fn read<T: Read + Seek>(tape: &mut T) -> Result<Font> {
+    pub fn read<T: Read + Seek>(tape: &mut T) -> Result<File> {
         macro_rules! sort(
             ($records:expr) => ({
                 let mut records = $records.iter().collect::<Vec<_>>();
@@ -47,19 +47,19 @@ impl Font {
             });
         );
 
-        let mut font = Font {
+        let mut file = File {
             offset_table: try!(truetype::Value::read(tape)),
-            .. Font::default()
+            .. File::default()
         };
-        if Tag::from(font.offset_table.header.version) != Tag::from(b"OTTO") {
+        if Tag::from(file.offset_table.header.version) != Tag::from(b"OTTO") {
             raise!("the font format is invalid");
         }
 
-        for record in sort!(font.offset_table.records) {
+        for record in sort!(file.offset_table.records) {
             macro_rules! set(
                 ($field:ident, $value:expr) => ({
                     checksum_and_jump!(record, tape);
-                    font.$field = Some(try!($value));
+                    file.$field = Some(try!($value));
                 });
                 ($field:ident) => (set!($field, truetype::Value::read(tape)));
             );
@@ -67,15 +67,15 @@ impl Font {
                 b"cmap" => set!(char_mapping),
                 b"head" => {
                     checksum_and_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
-                    font.font_header = Some(try!(truetype::Value::read(tape)));
+                    file.font_header = Some(try!(truetype::Value::read(tape)));
                 },
                 b"hhea" => set!(horizontal_header),
                 b"hmtx" => {
-                    let header = match font.horizontal_header {
+                    let header = match file.horizontal_header {
                         Some(ref table) => table,
                         _ => continue,
                     };
-                    let profile = match font.maximum_profile {
+                    let profile = match file.maximum_profile {
                         Some(ref table) => table,
                         _ => continue,
                     };
@@ -90,7 +90,7 @@ impl Font {
             }
         }
 
-        Ok(font)
+        Ok(file)
     }
 }
 

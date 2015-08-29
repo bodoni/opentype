@@ -5,7 +5,7 @@ use Result;
 use postscript::compact::FontSet;
 use tape::Tape;
 use truetype::compound::{CharMapping, FontHeader, HorizontalHeader, HorizontalMetrics};
-use truetype::compound::{OffsetTable, MaximumProfile, NamingTable, PostScript, WindowsMetrics};
+use truetype::compound::{OffsetTable, MaximumProfile, NamingTable, PostScriptInfo, WindowsMetrics};
 use truetype::primitive::Tag;
 use truetype;
 
@@ -19,7 +19,7 @@ pub struct File {
     pub horizontal_metrics: Option<HorizontalMetrics>,
     pub maximum_profile: Option<MaximumProfile>,
     pub naming_table: Option<NamingTable>,
-    pub postscript: Option<PostScript>,
+    pub postscript_info: Option<PostScriptInfo>,
     pub windows_metrics: Option<WindowsMetrics>,
     pub postscript_fontset: Option<FontSet>,
 }
@@ -83,7 +83,7 @@ impl File {
                 },
                 b"maxp" => set!(maximum_profile),
                 b"name" => set!(naming_table),
-                b"post" => set!(postscript),
+                b"post" => set!(postscript_info),
                 b"OS/2" => set!(windows_metrics),
                 b"CFF " => set!(postscript_fontset, FontSet::read(tape)),
                 _ => {},

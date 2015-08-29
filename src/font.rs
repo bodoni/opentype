@@ -2,9 +2,12 @@ use std::io::{Read, Seek};
 use std::mem;
 
 use Result;
-use truetype::compound::*;
+use postscript::compact::FontSet;
+use tape::Tape;
+use truetype::compound::{CharMapping, FontHeader, HorizontalHeader, HorizontalMetrics};
+use truetype::compound::{OffsetTable, MaximumProfile, NamingTable, PostScript, WindowsMetrics};
 use truetype::primitive::Tag;
-use truetype::{Tape, Value};
+use truetype;
 
 /// A font.
 #[derive(Default)]
@@ -18,6 +21,7 @@ pub struct Font {
     pub naming_table: Option<NamingTable>,
     pub postscript: Option<PostScript>,
     pub windows_metrics: Option<WindowsMetrics>,
+    pub postscript_fontset: Option<FontSet>,
 }
 
 macro_rules! checksum_and_jump(
@@ -43,7 +47,10 @@ impl Font {
             });
         );
 
-        let mut font = Font { offset_table: try!(Value::read(tape)), .. Font::default() };
+        let mut font = Font {
+            offset_table: try!(truetype::Value::read(tape)),
+            .. Font::default()
+        };
         if Tag::from(font.offset_table.header.version) != Tag::from(b"OTTO") {
             raise!("the font format is invalid");
         }
@@ -54,13 +61,13 @@ impl Font {
                     checksum_and_jump!(record, tape);
                     font.$field = Some(try!($value));
                 });
-                ($field:ident) => (set!($field, Value::read(tape)));
+                ($field:ident) => (set!($field, truetype::Value::read(tape)));
             );
             match &Tag(record.tag).into() {
                 b"cmap" => set!(char_mapping),
                 b"head" => {
                     checksum_and_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
-                    font.font_header = Some(try!(Value::read(tape)));
+                    font.font_header = Some(try!(truetype::Value::read(tape)));
                 },
                 b"hhea" => set!(horizontal_header),
                 b"hmtx" => {
@@ -78,6 +85,7 @@ impl Font {
                 b"name" => set!(naming_table),
                 b"post" => set!(postscript),
                 b"OS/2" => set!(windows_metrics),
+                b"CFF " => set!(postscript_fontset, FontSet::read(tape)),
                 _ => {},
             }
         }

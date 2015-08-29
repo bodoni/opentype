@@ -30,6 +30,7 @@
 //! }
 //! ```
 
+extern crate postscript;
 extern crate truetype;
 
 /// An error.
@@ -43,7 +44,10 @@ macro_rules! raise(
 );
 
 mod font;
+mod tape;
 
 pub use font::Font;
 pub use truetype::compound;
 pub use truetype::primitive;
+
+pub use tape::Tape;

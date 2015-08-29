@@ -3,9 +3,13 @@
 //! ## Example
 //!
 //! ```
-//! use opentype::File;
-//! use opentype::compound::NamingTable;
+//! extern crate opentype;
+//! extern crate truetype;
 //!
+//! use opentype::File;
+//! use truetype::compound::NamingTable;
+//!
+//! # fn main() {
 //! let path = "SourceSerifPro-Regular.otf";
 //! # let path = "tests/fixtures/SourceSerifPro-Regular.otf";
 //! let file = File::read(&mut std::fs::File::open(path).unwrap()).unwrap();
@@ -26,6 +30,7 @@
 //!     },
 //!     _ => unreachable!(),
 //! }
+//! # }
 //! ```
 
 extern crate postscript;
@@ -45,7 +50,3 @@ mod file;
 mod tape;
 
 pub use file::File;
-pub use truetype::compound;
-pub use truetype::primitive;
-
-pub use tape::Tape;

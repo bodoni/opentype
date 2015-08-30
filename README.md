@@ -14,8 +14,7 @@ use opentype::File;
 use truetype::compound::NamingTable;
 
 let path = "SourceSerifPro-Regular.otf";
-let mut file = File::open(path).unwrap();
-let font = Font::read(&mut file).unwrap();
+let font = Font::open(path).unwrap();
 
 match font.font_header {
     Some(ref table) => assert_eq!(table.unitsPerEm, 1000),

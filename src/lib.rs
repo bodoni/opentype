@@ -12,7 +12,7 @@
 //! # fn main() {
 //! let path = "SourceSerifPro-Regular.otf";
 //! # let path = "tests/fixtures/SourceSerifPro-Regular.otf";
-//! let file = File::read(&mut std::fs::File::open(path).unwrap()).unwrap();
+//! let file = File::open(path).unwrap();
 //!
 //! match file.font_header {
 //!     Some(ref table) => assert_eq!(table.unitsPerEm, 1000),

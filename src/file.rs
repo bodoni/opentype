@@ -1,5 +1,6 @@
 use std::io::{Read, Seek};
-use std::mem;
+use std::path::Path;
+use std::{fs, mem};
 
 use Result;
 use postscript::compact::FontSet;
@@ -38,6 +39,11 @@ macro_rules! checksum_and_jump(
 
 impl File {
     #[inline]
+    pub fn open<T: AsRef<Path>>(path: T) -> Result<File> {
+        let mut file = try!(fs::File::open(path));
+        File::read(&mut file)
+    }
+
     pub fn read<T: Read + Seek>(tape: &mut T) -> Result<File> {
         macro_rules! sort(
             ($records:expr) => ({

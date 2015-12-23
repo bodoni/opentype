@@ -40,7 +40,7 @@ match font.naming_table {
 2. Implement your idea.
 3. Open a pull request.
 
-[version-img]: https://bodoni.github.io/images/crates.svg
+[version-img]: https://img.shields.io/crates/v/opentype.svg
 [version-url]: https://crates.io/crates/opentype
 [status-img]: https://travis-ci.org/bodoni/opentype.svg?branch=master
 [status-url]: https://travis-ci.org/bodoni/opentype

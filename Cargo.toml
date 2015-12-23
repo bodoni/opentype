@@ -9,5 +9,5 @@ documentation = "https://bodoni.github.io/opentype"
 description = "The package provides a parser for OpenType fonts."
 
 [dependencies]
-postscript = "*"
-truetype = "*"
+postscript = "0.2"
+truetype = "0.3"

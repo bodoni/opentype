@@ -10,4 +10,4 @@ description = "The package provides a parser for OpenType fonts."
 
 [dependencies]
 postscript = "0.3"
-truetype = "0.4"
+truetype = "0.5"

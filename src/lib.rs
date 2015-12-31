@@ -14,7 +14,7 @@
 //! let file = File::open(path).unwrap();
 //!
 //! assert_eq!(file.font_header.as_ref().unwrap().unitsPerEm, 1000);
-//! assert_eq!(file.horizontal_header.as_ref().unwrap().Ascender, 918);
+//! assert_eq!(file.horizontal_header.as_ref().unwrap().ascender, 918);
 //! let strings = match file.naming_table {
 //!     Some(NamingTable::Format0(ref table)) => table.strings().unwrap(),
 //!     _ => unreachable!(),

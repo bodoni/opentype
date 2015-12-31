@@ -13,22 +13,14 @@
 //! # let path = "tests/fixtures/SourceSerifPro-Regular.otf";
 //! let file = File::open(path).unwrap();
 //!
-//! match file.font_header {
-//!     Some(ref table) => assert_eq!(table.unitsPerEm, 1000),
+//! assert_eq!(file.font_header.as_ref().unwrap().unitsPerEm, 1000);
+//! assert_eq!(file.horizontal_header.as_ref().unwrap().Ascender, 918);
+//! let strings = match file.naming_table {
+//!     Some(NamingTable::Format0(ref table)) => table.strings().unwrap(),
 //!     _ => unreachable!(),
-//! }
-//! match file.horizontal_header {
-//!     Some(ref table) => assert_eq!(table.Ascender, 918),
-//!     _ => unreachable!(),
-//! }
-//! match file.naming_table {
-//!     Some(NamingTable::Format0(ref table)) => {
-//!         let strings = table.strings().unwrap();
-//!         assert_eq!(&strings[1], "Source Serif Pro");
-//!         assert_eq!(&strings[9], "Frank Grießhammer");
-//!     },
-//!     _ => unreachable!(),
-//! }
+//! };
+//! assert_eq!(&strings[1], "Source Serif Pro");
+//! assert_eq!(&strings[9], "Frank Grießhammer");
 //! # }
 //! ```
 

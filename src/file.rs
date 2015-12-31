@@ -5,10 +5,9 @@ use std::{fs, mem};
 use Result;
 use postscript::compact::FontSet;
 use tape::Tape;
-use truetype::compound::{CharMapping, FontHeader, HorizontalHeader, HorizontalMetrics};
-use truetype::compound::{OffsetTable, MaximumProfile, NamingTable, PostScriptInfo, WindowsMetrics};
-use truetype::primitive::Tag;
-use truetype;
+use truetype::{CharMapping, FontHeader, HorizontalHeader, HorizontalMetrics};
+use truetype::{OffsetTable, MaximumProfile, NamingTable, PostScriptInfo, WindowsMetrics};
+use truetype::{self, Tag};
 
 /// A font file.
 #[derive(Default)]

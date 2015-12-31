@@ -7,7 +7,7 @@
 //! extern crate truetype;
 //!
 //! use opentype::File;
-//! use truetype::compound::NamingTable;
+//! use truetype::NamingTable;
 //!
 //! # fn main() {
 //! let path = "SourceSerifPro-Regular.otf";

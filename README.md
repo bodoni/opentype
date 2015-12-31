@@ -11,7 +11,7 @@ extern crate opentype;
 extern crate truetype;
 
 use opentype::File;
-use truetype::compound::NamingTable;
+use truetype::NamingTable;
 
 let path = "SourceSerifPro-Regular.otf";
 let font = Font::open(path).unwrap();

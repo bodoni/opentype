@@ -37,12 +37,14 @@ macro_rules! checksum_and_jump(
 );
 
 impl File {
+    /// Open a file.
     #[inline]
     pub fn open<T: AsRef<Path>>(path: T) -> Result<File> {
         let mut file = try!(fs::File::open(path));
         File::read(&mut file)
     }
 
+    /// Read a file.
     pub fn read<T: Read + Seek>(tape: &mut T) -> Result<File> {
         macro_rules! sort(
             ($records:expr) => ({

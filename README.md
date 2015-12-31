@@ -8,10 +8,9 @@ The package provides a parser for OpenType fonts.
 
 ```rust
 extern crate opentype;
-extern crate truetype;
 
 use opentype::File;
-use truetype::NamingTable;
+use opentype::truetype::NamingTable;
 
 let path = "SourceSerifPro-Regular.otf";
 let font = Font::open(path).unwrap();

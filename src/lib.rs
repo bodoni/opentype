@@ -4,9 +4,10 @@
 //!
 //! ```
 //! extern crate opentype;
+//! extern crate truetype;
 //!
 //! use opentype::File;
-//! use opentype::truetype::NamingTable;
+//! use truetype::NamingTable;
 //!
 //! # fn main() {
 //! let path = "SourceSerifPro-Regular.otf";
@@ -24,11 +25,8 @@
 //! # }
 //! ```
 
-extern crate postscript as postscript_crate;
-extern crate truetype as truetype_crate;
-
-pub use postscript_crate as postscript;
-pub use truetype_crate as truetype;
+extern crate postscript;
+extern crate truetype;
 
 /// An error.
 pub type Error = std::io::Error;

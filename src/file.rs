@@ -4,10 +4,9 @@ use std::{fs, mem};
 
 use Result;
 use postscript::compact::FontSet;
-use tape::Tape;
 use truetype::{CharMapping, FontHeader, HorizontalHeader, HorizontalMetrics};
 use truetype::{OffsetTable, MaximumProfile, NamingTable, PostScriptInfo, WindowsMetrics};
-use truetype::{self, Tag};
+use truetype::{self, Fixed, Tag};
 
 /// A font file.
 #[derive(Default)]
@@ -29,7 +28,7 @@ macro_rules! checksum_and_jump(
         if !try!($record.checksum($tape, $process)) {
             raise!("found a corrupted font table");
         }
-        try!($tape.jump($record.offset as u64));
+        try!(truetype::Tape::jump($tape, $record.offset as u64));
     });
     ($record:ident, $tape:ident) => (
         checksum_and_jump!($record, $tape, |_, word| word);
@@ -54,14 +53,23 @@ impl File {
             });
         );
 
+        match try!(truetype::Tape::peek::<Fixed>(tape)) {
+            Fixed(0x00010000) => {},
+            version => {
+                let tag = Tag::from(version);
+                if tag == Tag::from(b"OTTO") {
+                } else if tag == Tag::from(b"ttcf") {
+                    raise!("TrueType collections are not supported yet");
+                } else {
+                    raise!("the font format is invalid");
+                }
+            },
+        }
+
         let mut file = File {
             offset_table: try!(truetype::Value::read(tape)),
             .. File::default()
         };
-        if Tag::from(file.offset_table.header.version) != Tag::from(b"OTTO") {
-            raise!("the font format is invalid");
-        }
-
         for record in sort!(file.offset_table.records) {
             macro_rules! set(
                 ($field:ident, $value:expr) => ({

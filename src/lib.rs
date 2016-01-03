@@ -39,6 +39,5 @@ macro_rules! raise(
 );
 
 mod file;
-mod tape;
 
 pub use file::File;

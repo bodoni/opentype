@@ -7,7 +7,7 @@ use truetype::{self, Fixed, Tag};
 use Result;
 use font::Font;
 
-/// A font file.
+/// A file.
 pub struct File {
     /// Fonts.
     pub fonts: Vec<Font>,

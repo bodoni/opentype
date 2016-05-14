@@ -14,7 +14,7 @@ use opentype::File;
 use truetype::NamingTable;
 
 let path = "SourceSerifPro-Regular.otf";
-let font = Font::open(path).unwrap();
+let file = File::open(path).unwrap();
 
 assert_eq!(file.font_header.as_ref().unwrap().units_per_em, 1000);
 assert_eq!(file.horizontal_header.as_ref().unwrap().ascender, 918);

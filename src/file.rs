@@ -2,25 +2,16 @@ use std::io::{Read, Seek};
 use std::path::Path;
 use std::{fs, mem};
 
-use Result;
 use postscript::compact::FontSet;
-use truetype::{CharMapping, FontHeader, HorizontalHeader, HorizontalMetrics};
-use truetype::{OffsetTable, MaximumProfile, NamingTable, PostScriptInfo, WindowsMetrics};
-use truetype::{self, Fixed, Tag};
+use truetype::{self, Fixed, HorizontalMetrics, Tag};
+
+use Result;
+use font::Font;
 
 /// A font file.
-#[derive(Default)]
 pub struct File {
-    pub offset_table: OffsetTable,
-    pub char_mapping: Option<CharMapping>,
-    pub font_header: Option<FontHeader>,
-    pub horizontal_header: Option<HorizontalHeader>,
-    pub horizontal_metrics: Option<HorizontalMetrics>,
-    pub maximum_profile: Option<MaximumProfile>,
-    pub naming_table: Option<NamingTable>,
-    pub postscript_info: Option<PostScriptInfo>,
-    pub windows_metrics: Option<WindowsMetrics>,
-    pub postscript_fontset: Option<FontSet>,
+    /// Fonts.
+    pub fonts: Vec<Font>,
 }
 
 macro_rules! checksum_and_jump(
@@ -66,15 +57,15 @@ impl File {
             },
         }
 
-        let mut file = File {
+        let mut font = Font {
             offset_table: try!(truetype::Value::read(tape)),
-            .. File::default()
+            .. Font::default()
         };
-        for record in sort!(file.offset_table.records) {
+        for record in sort!(font.offset_table.records) {
             macro_rules! set(
                 ($field:ident, $value:expr) => ({
                     checksum_and_jump!(record, tape);
-                    file.$field = Some(try!($value));
+                    font.$field = Some(try!($value));
                 });
                 ($field:ident) => (set!($field, truetype::Value::read(tape)));
             );
@@ -82,15 +73,15 @@ impl File {
                 b"cmap" => set!(char_mapping),
                 b"head" => {
                     checksum_and_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
-                    file.font_header = Some(try!(truetype::Value::read(tape)));
+                    font.font_header = Some(try!(truetype::Value::read(tape)));
                 },
                 b"hhea" => set!(horizontal_header),
                 b"hmtx" => {
-                    let header = match file.horizontal_header {
+                    let header = match font.horizontal_header {
                         Some(ref table) => table,
                         _ => continue,
                     };
-                    let profile = match file.maximum_profile {
+                    let profile = match font.maximum_profile {
                         Some(ref table) => table,
                         _ => continue,
                     };
@@ -105,7 +96,7 @@ impl File {
             }
         }
 
-        Ok(file)
+        Ok(File { fonts: vec![font] })
     }
 }
 

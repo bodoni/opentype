@@ -15,10 +15,11 @@ use truetype::NamingTable;
 
 let path = "SourceSerifPro-Regular.otf";
 let file = File::open(path).unwrap();
+let font = &file.fonts[0];
 
-assert_eq!(file.font_header.as_ref().unwrap().units_per_em, 1000);
-assert_eq!(file.horizontal_header.as_ref().unwrap().ascender, 918);
-let strings = match file.naming_table {
+assert_eq!(font.font_header.as_ref().unwrap().units_per_em, 1000);
+assert_eq!(font.horizontal_header.as_ref().unwrap().ascender, 918);
+let strings = match font.naming_table {
     Some(NamingTable::Format0(ref table)) => table.strings().unwrap(),
     _ => unreachable!(),
 };

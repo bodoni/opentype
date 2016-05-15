@@ -1,6 +1,6 @@
 [package]
 name = "opentype"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/bodoni/opentype"
@@ -9,5 +9,5 @@ documentation = "https://bodoni.github.io/opentype"
 description = "The package provides a parser for OpenType fonts."
 
 [dependencies]
-postscript = "0.3"
+postscript = "0.4"
 truetype = "0.6"

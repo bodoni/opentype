@@ -27,7 +27,7 @@ assert_eq!(&strings[1], "Source Serif Pro");
 assert_eq!(&strings[9], "Frank Grießhammer");
 ```
 
-## Contributing
+## Contribution
 
 1. Fork the project.
 2. Implement your idea.

@@ -9,7 +9,7 @@ use font::Font;
 
 /// A file.
 pub struct File {
-    /// Fonts.
+    /// The fonts.
     pub fonts: Vec<Font>,
 }
 

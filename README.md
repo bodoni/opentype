@@ -29,12 +29,12 @@ assert_eq!(&strings[9], "Frank Grießhammer");
 
 ## Contribution
 
-1. Fork the project.
-2. Implement your idea.
-3. Open a pull request.
+Your contribution is highly appreciated. Do not hesitate to open an issue or a
+pull request. Note that any contribution submitted for inclusion in the project
+will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
-[version-img]: https://img.shields.io/crates/v/opentype.svg
-[version-url]: https://crates.io/crates/opentype
+[doc]: https://bodoni.github.io/opentype
 [status-img]: https://travis-ci.org/bodoni/opentype.svg?branch=master
 [status-url]: https://travis-ci.org/bodoni/opentype
-[doc]: https://bodoni.github.io/opentype
+[version-img]: https://img.shields.io/crates/v/opentype.svg
+[version-url]: https://crates.io/crates/opentype

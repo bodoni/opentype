@@ -1,6 +1,7 @@
-use std::io::{Read, Seek};
-use std::path::Path;
 use std::fs;
+use std::io::{Read, Seek};
+use std::ops::Deref;
+use std::path::Path;
 
 use truetype::{self, Fixed, Tag};
 
@@ -36,5 +37,14 @@ impl File {
             },
         }
         Ok(File { fonts: vec![try!(Font::read(tape))] })
+    }
+}
+
+impl Deref for File {
+    type Target = [Font];
+
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.fonts
     }
 }

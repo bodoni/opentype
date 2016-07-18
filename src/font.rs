@@ -1,26 +1,36 @@
 use std::io::{Read, Seek};
 use std::mem;
 
+use postscript;
 use postscript::compact::FontSet;
-use truetype::{CharMapping, FontHeader, HorizontalHeader, HorizontalMetrics};
-use truetype::{OffsetTable, MaximumProfile, NamingTable, PostScriptInfo, WindowsMetrics};
-use truetype::{self, Fixed, Tag};
+use truetype::{self, Tag, q32};
+use truetype::{
+    FontHeader,
+    HorizontalHeader,
+    HorizontalMetrics,
+    CharMapping,
+    MaximumProfile,
+    NamingTable,
+    OffsetTable,
+    PostScript,
+    WindowsMetrics,
+};
 
 use Result;
 
 /// A font.
-#[derive(Default)]
 pub struct Font {
     pub offset_table: OffsetTable,
+
     pub char_mapping: Option<CharMapping>,
+    pub compact_font_set: Option<FontSet>,
     pub font_header: Option<FontHeader>,
     pub horizontal_header: Option<HorizontalHeader>,
     pub horizontal_metrics: Option<HorizontalMetrics>,
     pub maximum_profile: Option<MaximumProfile>,
     pub naming_table: Option<NamingTable>,
-    pub postscript_info: Option<PostScriptInfo>,
+    pub postscript: Option<PostScript>,
     pub windows_metrics: Option<WindowsMetrics>,
-    pub postscript_fontset: Option<FontSet>,
 }
 
 macro_rules! checksum_and_jump(
@@ -46,8 +56,8 @@ impl Font {
             });
         );
 
-        match try!(truetype::Tape::peek::<Fixed>(tape)) {
-            Fixed(0x00010000) => {},
+        match try!(truetype::Tape::peek::<q32>(tape)) {
+            q32(0x00010000) => {},
             version => {
                 let tag = Tag::from(version);
                 if tag == Tag::from(b"OTTO") {
@@ -61,7 +71,15 @@ impl Font {
 
         let mut font = Font {
             offset_table: try!(truetype::Value::read(tape)),
-            .. Font::default()
+            char_mapping: None,
+            compact_font_set: None,
+            font_header: None,
+            horizontal_header: None,
+            horizontal_metrics: None,
+            maximum_profile: None,
+            naming_table: None,
+            postscript: None,
+            windows_metrics: None,
         };
         for record in sort!(font.offset_table.records) {
             macro_rules! set(
@@ -72,6 +90,8 @@ impl Font {
                 ($field:ident) => (set!($field, truetype::Value::read(tape)));
             );
             match &Tag(record.tag).into() {
+                b"CFF " => set!(compact_font_set, postscript::Value::read(tape)),
+                b"OS/2" => set!(windows_metrics),
                 b"cmap" => set!(char_mapping),
                 b"head" => {
                     checksum_and_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
@@ -87,13 +107,11 @@ impl Font {
                         Some(ref table) => table,
                         _ => continue,
                     };
-                    set!(horizontal_metrics, HorizontalMetrics::read(tape, header, profile));
+                    set!(horizontal_metrics, truetype::Walue::read(tape, (header, profile)));
                 },
                 b"maxp" => set!(maximum_profile),
                 b"name" => set!(naming_table),
-                b"post" => set!(postscript_info),
-                b"OS/2" => set!(windows_metrics),
-                b"CFF " => set!(postscript_fontset, FontSet::read(tape)),
+                b"post" => set!(postscript),
                 _ => {},
             }
         }

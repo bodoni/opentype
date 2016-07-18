@@ -3,7 +3,7 @@ use std::io::{Read, Seek};
 use std::ops::Deref;
 use std::path::Path;
 
-use truetype::{self, Fixed, Tag};
+use truetype::{self, Tag, q32};
 
 use Result;
 use font::Font;
@@ -24,8 +24,8 @@ impl File {
 
     /// Read a file.
     pub fn read<T: Read + Seek>(tape: &mut T) -> Result<File> {
-        match try!(truetype::Tape::peek::<Fixed>(tape)) {
-            Fixed(0x00010000) => {},
+        match try!(truetype::Tape::peek::<q32>(tape)) {
+            q32(0x00010000) => {},
             version => {
                 let tag = Tag::from(version);
                 if tag == Tag::from(b"OTTO") {

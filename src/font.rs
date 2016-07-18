@@ -5,10 +5,12 @@ use postscript;
 use postscript::compact::FontSet;
 use truetype::{self, Tag, q32};
 use truetype::{
+    CharMapping,
     FontHeader,
+    GlyphData,
+    GlyphLocation,
     HorizontalHeader,
     HorizontalMetrics,
-    CharMapping,
     MaximumProfile,
     NamingTable,
     OffsetTable,
@@ -25,6 +27,8 @@ pub struct Font {
     pub char_mapping: Option<CharMapping>,
     pub compact_font_set: Option<FontSet>,
     pub font_header: Option<FontHeader>,
+    pub glyph_data: Option<GlyphData>,
+    pub glyph_location: Option<GlyphLocation>,
     pub horizontal_header: Option<HorizontalHeader>,
     pub horizontal_metrics: Option<HorizontalMetrics>,
     pub maximum_profile: Option<MaximumProfile>,
@@ -71,9 +75,12 @@ impl Font {
 
         let mut font = Font {
             offset_table: try!(truetype::Value::read(tape)),
+
             char_mapping: None,
             compact_font_set: None,
             font_header: None,
+            glyph_data: None,
+            glyph_location: None,
             horizontal_header: None,
             horizontal_metrics: None,
             maximum_profile: None,
@@ -89,25 +96,36 @@ impl Font {
                 });
                 ($field:ident) => (set!($field, truetype::Value::read(tape)));
             );
+            macro_rules! get(
+                ($field:ident) => ({
+                    match font.$field {
+                        Some(ref table) => table,
+                        _ => continue,
+                    }
+                });
+            );
             match &Tag(record.tag).into() {
                 b"CFF " => set!(compact_font_set, postscript::Value::read(tape)),
                 b"OS/2" => set!(windows_metrics),
                 b"cmap" => set!(char_mapping),
+                b"glyf" => {
+                    let location = get!(glyph_location);
+                    set!(glyph_data, truetype::Walue::read(tape, location));
+                },
                 b"head" => {
                     checksum_and_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
                     font.font_header = Some(try!(truetype::Value::read(tape)));
                 },
                 b"hhea" => set!(horizontal_header),
                 b"hmtx" => {
-                    let header = match font.horizontal_header {
-                        Some(ref table) => table,
-                        _ => continue,
-                    };
-                    let profile = match font.maximum_profile {
-                        Some(ref table) => table,
-                        _ => continue,
-                    };
+                    let header = get!(horizontal_header);
+                    let profile = get!(maximum_profile);
                     set!(horizontal_metrics, truetype::Walue::read(tape, (header, profile)));
+                },
+                b"loca" => {
+                    let header = get!(font_header);
+                    let profile = get!(maximum_profile);
+                    set!(glyph_location, truetype::Walue::read(tape, (header, profile)));
                 },
                 b"maxp" => set!(maximum_profile),
                 b"name" => set!(naming_table),
@@ -129,9 +147,31 @@ fn priority(tag: Tag) -> usize {
         static ONCE: Once = ONCE_INIT;
         ONCE.call_once(|| {
             let mut map: HashMap<Tag, usize> = HashMap::new();
+            map.insert(Tag::from(b"glyf"), 43);
             map.insert(Tag::from(b"hmtx"), 42);
+            map.insert(Tag::from(b"loca"), 41);
             PRIORITY = mem::transmute(Box::new(map));
         });
         *(&*PRIORITY).get(&tag).unwrap_or(&0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use File;
+
+    const CFF: &'static str = "tests/fixtures/SourceSerifPro-Regular.otf";
+    const TFF: &'static str = "tests/fixtures/OpenSans-Italic.ttf";
+
+    #[test]
+    fn cff() {
+        let file = File::open(CFF).unwrap();
+        assert!(file[0].compact_font_set.is_some());
+    }
+
+    #[test]
+    fn tff() {
+        let file = File::open(TFF).unwrap();
+        assert!(file[0].glyph_data.is_some());
     }
 }

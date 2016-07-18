@@ -10,4 +10,4 @@ repository = "https://github.com/bodoni/opentype"
 
 [dependencies]
 postscript = "0.6"
-truetype = "0.8"
+truetype = "0.9"

@@ -161,7 +161,7 @@ mod tests {
     use File;
 
     const CFF: &'static str = "tests/fixtures/SourceSerifPro-Regular.otf";
-    const TFF: &'static str = "tests/fixtures/OpenSans-Italic.ttf";
+    const TTF: &'static str = "tests/fixtures/OpenSans-Italic.ttf";
 
     #[test]
     fn cff() {
@@ -170,8 +170,8 @@ mod tests {
     }
 
     #[test]
-    fn tff() {
-        let file = File::open(TFF).unwrap();
+    fn ttf() {
+        let file = File::open(TTF).unwrap();
         assert!(file[0].glyph_data.is_some());
     }
 }

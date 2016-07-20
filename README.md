@@ -1,6 +1,8 @@
 # OpenType [![Version][version-img]][version-url] [![Status][status-img]][status-url]
 
-The package provides a parser for OpenType fonts.
+The package provides a parser for OpenType fonts. You might be interested to
+have a look at a higher-level package called [`font`][font], which internally
+relies on this package.
 
 ## [Documentation][doc]
 
@@ -32,6 +34,8 @@ assert_eq!(&strings[9], "Frank Grießhammer");
 Your contribution is highly appreciated. Do not hesitate to open an issue or a
 pull request. Note that any contribution submitted for inclusion in the project
 will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
+
+[font]: https://github.com/bodoni/font
 
 [doc]: https://bodoni.github.io/opentype
 [status-img]: https://travis-ci.org/bodoni/opentype.svg?branch=master

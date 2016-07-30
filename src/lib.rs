@@ -29,7 +29,7 @@
 extern crate postscript;
 extern crate truetype;
 
-pub use truetype::{Tape, Value, q32};
+pub use truetype::{Tape, Value, Walue, q32};
 
 #[macro_use]
 mod macros;

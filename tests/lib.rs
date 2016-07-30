@@ -11,6 +11,10 @@ fn glyph_positioning() {
 
     let table = ok!(GlyphPositioning::read(&mut setup(60412)));
     assert_eq!(table.header.version, q32(0x00010000));
+    let tags = table.scripts.records.iter()
+                                    .map(|record| record.tag.into())
+                                    .collect::<Vec<[u8; 4]>>();
+    assert_eq!(tags, &[*b"DFLT", *b"latn"]);
 }
 
 fn setup(seek: u64) -> File {

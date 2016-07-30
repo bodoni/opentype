@@ -29,18 +29,22 @@
 extern crate postscript;
 extern crate truetype;
 
+pub use truetype::{Tape, Value, q32};
+
+#[macro_use]
+mod macros;
+
+mod file;
+mod font;
+
+pub mod glyph_positioning;
+
+pub use file::File;
+pub use font::Font;
+pub use glyph_positioning::GlyphPositioning;
+
 /// An error.
 pub type Error = std::io::Error;
 
 /// A result.
 pub type Result<T> = std::io::Result<T>;
-
-macro_rules! raise(
-    ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
-);
-
-mod file;
-mod font;
-
-pub use file::File;
-pub use font::Font;

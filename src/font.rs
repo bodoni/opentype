@@ -8,7 +8,7 @@ use truetype::{
     CharMapping,
     FontHeader,
     GlyphData,
-    GlyphLocation,
+    GlyphMapping,
     HorizontalHeader,
     HorizontalMetrics,
     MaximumProfile,
@@ -22,18 +22,30 @@ use Result;
 
 /// A font.
 pub struct Font {
+    /// The offset table.
     pub offset_table: OffsetTable,
 
+    /// The char-to-glyph mapping (`cmap`).
     pub char_mapping: Option<CharMapping>,
+    /// The compact font set (`CFF `).
     pub compact_font_set: Option<FontSet>,
+    /// The font header (`head`).
     pub font_header: Option<FontHeader>,
+    /// The glyph data (`glyf`).
     pub glyph_data: Option<GlyphData>,
-    pub glyph_location: Option<GlyphLocation>,
+    /// The glyph-to-location mapping (`loca`).
+    pub glyph_mapping: Option<GlyphMapping>,
+    /// The horizontal header (`hhea`).
     pub horizontal_header: Option<HorizontalHeader>,
+    /// The horizontal metrics (`hmtx`).
     pub horizontal_metrics: Option<HorizontalMetrics>,
+    /// The maximum profile (`maxp`).
     pub maximum_profile: Option<MaximumProfile>,
+    /// The naming table (`name`).
     pub naming_table: Option<NamingTable>,
+    /// The PostScript information (`post`).
     pub postscript: Option<PostScript>,
+    /// The OS/2 and Windows information (`OS/2`).
     pub windows_metrics: Option<WindowsMetrics>,
 }
 
@@ -80,7 +92,7 @@ impl Font {
             compact_font_set: None,
             font_header: None,
             glyph_data: None,
-            glyph_location: None,
+            glyph_mapping: None,
             horizontal_header: None,
             horizontal_metrics: None,
             maximum_profile: None,
@@ -109,8 +121,8 @@ impl Font {
                 b"OS/2" => set!(windows_metrics),
                 b"cmap" => set!(char_mapping),
                 b"glyf" => {
-                    let location = get!(glyph_location);
-                    set!(glyph_data, truetype::Walue::read(tape, location));
+                    let mapping = get!(glyph_mapping);
+                    set!(glyph_data, truetype::Walue::read(tape, mapping));
                 },
                 b"head" => {
                     checksum_and_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
@@ -125,7 +137,7 @@ impl Font {
                 b"loca" => {
                     let header = get!(font_header);
                     let profile = get!(maximum_profile);
-                    set!(glyph_location, truetype::Walue::read(tape, (header, profile)));
+                    set!(glyph_mapping, truetype::Walue::read(tape, (header, profile)));
                 },
                 b"maxp" => set!(maximum_profile),
                 b"name" => set!(naming_table),

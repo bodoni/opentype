@@ -2,9 +2,11 @@
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/gpos.htm
 
-use truetype::Tag;
+use {Result, Tape, Value, q32};
 
-use {Result, Tape, Value, Walue, q32};
+pub mod script;
+
+use self::script::Scripts;
 
 /// A glyph-positioning table.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -34,17 +36,6 @@ table! {
 }
 
 table! {
-    #[doc = "A script list."]
-    pub Scripts {
-        count (u16), // ScriptCount
-
-        records (Vec<Script>) |tape, this| { // ScriptRecord
-            Walue::read(tape, this.count as usize)
-        },
-    }
-}
-
-table! {
     #[doc = "A feature list."]
     pub Features {
         count (u16),
@@ -55,15 +46,6 @@ table! {
     #[doc = "A lookup list."]
     pub Lookups {
         count (u16),
-    }
-}
-
-table! {
-    #[doc = "A record of a script list."]
-    #[derive(Copy)]
-    pub Script {
-        tag    (Tag), // ScriptTag
-        offset (u16), // Script
     }
 }
 

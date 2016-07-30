@@ -19,6 +19,7 @@ fn glyph_positioning_scripts() {
                                                                    .collect::<Vec<[u8; 4]>>())
                                         .collect::<Vec<Vec<_>>>();
     assert_eq!(tags, &[vec![], vec![*b"AZE ", *b"CRT ", *b"TRK "]]);
+    assert!(scripts.records[0].default_language.is_some());
 }
 
 fn setup(seek: u64) -> File {

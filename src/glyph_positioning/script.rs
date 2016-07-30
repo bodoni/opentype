@@ -30,6 +30,7 @@ table! {
         default_language_offset (u16                ), // DefaultLangSys
         language_count          (u16                ), // LangSysCount
         language_headers        (Vec<LanguageHeader>), // LangSysRecord
+        default_language        (Option<Language>   ),
         language_records        (Vec<Language>      ),
     }
 }
@@ -81,6 +82,12 @@ impl Value for Script {
         let default_language_offset = read_value!(tape, u16);
         let language_count = read_value!(tape, u16);
         let language_headers = read_walue!(tape, language_count as usize, Vec<LanguageHeader>);
+        let default_language = if default_language_offset != 0 {
+            try!(tape.jump(position + default_language_offset as u64));
+            Some(read_value!(tape))
+        } else {
+            None
+        };
         let mut language_records: Vec<Language> = Vec::with_capacity(language_count as usize);
         for i in 0..(language_count as usize) {
             try!(tape.jump(position + language_headers[i].offset as u64));
@@ -90,6 +97,7 @@ impl Value for Script {
             default_language_offset: default_language_offset,
             language_count: language_count,
             language_headers: language_headers,
+            default_language: default_language,
             language_records: language_records,
         })
     }

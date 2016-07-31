@@ -41,6 +41,7 @@ mod file;
 mod font;
 
 pub mod glyph_positioning;
+pub mod layout;
 
 pub use file::File;
 pub use font::Font;

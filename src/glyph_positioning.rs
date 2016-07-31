@@ -4,13 +4,7 @@
 
 use {Result, Tape, Value, q32};
 
-pub mod feature;
-pub mod lookup;
-pub mod script;
-
-use self::feature::Features;
-use self::lookup::Lookups;
-use self::script::Scripts;
+use layout::{Features, Lookups, Scripts};
 
 /// A glyph-positioning table.
 #[derive(Clone, Debug, Eq, PartialEq)]

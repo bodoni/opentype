@@ -52,6 +52,9 @@ impl Value for Feature {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
         let parameter_offset = try!(tape.take());
+        if parameter_offset != 0 {
+            // raise!("found a malformed feature");
+        }
         let lookup_count = try!(tape.take());
         let lookup_indices = try!(tape.take_given(lookup_count as usize));
         let parameters = if parameter_offset != 0 {

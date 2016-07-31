@@ -5,9 +5,11 @@
 use {Result, Tape, Value, q32};
 
 pub mod feature;
+pub mod lookup;
 pub mod script;
 
 use self::feature::Features;
+use self::lookup::Lookups;
 use self::script::Scripts;
 
 /// A glyph-positioning table.
@@ -34,13 +36,6 @@ table! {
         script_offset  (u16), // ScriptList
         feature_offset (u16), // FeatureList
         lookup_offset  (u16), // LookupList
-    }
-}
-
-table! {
-    #[doc = "A lookup list."]
-    pub Lookups {
-        count (u16),
     }
 }
 

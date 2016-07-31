@@ -67,21 +67,17 @@ impl Font {
         macro_rules! sort(
             ($records:expr) => ({
                 let mut records = $records.iter().collect::<Vec<_>>();
-                records.sort_by(|one, two| priority(Tag(one.tag)).cmp(&priority(Tag(two.tag))));
+                records.sort_by(|one, another| priority(one.tag).cmp(&priority(another.tag)));
                 records
             });
         );
 
         match try!(truetype::Tape::peek::<q32>(tape)) {
             q32(0x00010000) => {},
-            version => {
-                let tag = Tag::from(version);
-                if tag == Tag::from(b"OTTO") {
-                } else if tag == Tag::from(b"ttcf") {
-                    raise!("TrueType collections are not supported yet");
-                } else {
-                    raise!("the font format is invalid");
-                }
+            version => match &*Tag::from(version) {
+                b"OTTO" => {},
+                b"ttcf" => raise!("TrueType collections are not supported yet"),
+                _ => raise!("the font format is invalid"),
             },
         }
 
@@ -116,7 +112,7 @@ impl Font {
                     }
                 });
             );
-            match &Tag(record.tag).into() {
+            match &*record.tag {
                 b"CFF " => set!(compact_font_set, postscript::Value::read(tape)),
                 b"OS/2" => set!(windows_metrics),
                 b"cmap" => set!(char_mapping),
@@ -159,9 +155,9 @@ fn priority(tag: Tag) -> usize {
         static ONCE: Once = ONCE_INIT;
         ONCE.call_once(|| {
             let mut map: HashMap<Tag, usize> = HashMap::new();
-            map.insert(Tag::from(b"glyf"), 43);
-            map.insert(Tag::from(b"hmtx"), 42);
-            map.insert(Tag::from(b"loca"), 41);
+            map.insert(Tag(*b"glyf"), 43);
+            map.insert(Tag(*b"hmtx"), 42);
+            map.insert(Tag(*b"loca"), 41);
             PRIORITY = mem::transmute(Box::new(map));
         });
         *(&*PRIORITY).get(&tag).unwrap_or(&0)

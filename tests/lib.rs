@@ -16,6 +16,15 @@ fn glyph_positioning_features() {
 }
 
 #[test]
+fn glyph_positioning_lookups() {
+    use opentype::GlyphPositioning;
+
+    let GlyphPositioning { lookups, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
+    assert_eq!(lookups.records.len(), 1);
+    assert_eq!(lookups.records[0].kind, 2);
+}
+
+#[test]
 fn glyph_positioning_scripts() {
     use opentype::GlyphPositioning;
 

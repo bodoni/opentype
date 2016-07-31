@@ -4,6 +4,16 @@ macro_rules! raise(
     ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
 );
 
+macro_rules! read_bytes(
+    ($tape:ident, $count:expr) => ({
+        let count = $count as usize;
+        let mut buffer = Vec::with_capacity(count);
+        unsafe { buffer.set_len(count) };
+        try!(::std::io::Read::read_exact($tape, &mut buffer));
+        buffer
+    });
+);
+
 macro_rules! read_field(
     ($structure:ident, $tape:ident, $table:ident,
      [$kind:ty] |$band:ident, $chair:ident| $body:block) => ({

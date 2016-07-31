@@ -15,7 +15,7 @@ table! {
 }
 
 table! {
-    #[doc = "A record of a script list."]
+    #[doc = "The header of a script-list record."]
     #[derive(Copy)]
     pub Header {
         tag    (Tag), // ScriptTag

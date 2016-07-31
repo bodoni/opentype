@@ -6,18 +6,27 @@ use std::fs::File;
 macro_rules! ok(($result:expr) => ($result.unwrap()));
 
 #[test]
+fn glyph_positioning_features() {
+    use opentype::GlyphPositioning;
+
+    let GlyphPositioning { features, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
+    let tags = features.headers.iter().map(|header| header.tag.into()).collect::<Vec<[u8; 4]>>();
+    assert_eq!(tags, &[*b"kern", *b"kern", *b"kern", *b"kern", *b"kern",
+                       *b"size", *b"size", *b"size", *b"size", *b"size"]);
+}
+
+#[test]
 fn glyph_positioning_scripts() {
     use opentype::GlyphPositioning;
 
-    let table = ok!(GlyphPositioning::read(&mut setup(60412)));
-    let scripts = &table.scripts;
+    let GlyphPositioning { scripts, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
     let tags = scripts.headers.iter().map(|header| header.tag.into()).collect::<Vec<[u8; 4]>>();
     assert_eq!(tags, &[*b"DFLT", *b"latn"]);
     let tags = scripts.records.iter()
                               .map(|record| record.language_headers.iter()
                                                                    .map(|header| header.tag.into())
                                                                    .collect::<Vec<[u8; 4]>>())
-                                        .collect::<Vec<Vec<_>>>();
+                              .collect::<Vec<Vec<_>>>();
     assert_eq!(tags, &[vec![], vec![*b"AZE ", *b"CRT ", *b"TRK "]]);
     assert!(scripts.records[0].default_language.is_some());
 }

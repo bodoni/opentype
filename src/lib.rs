@@ -28,7 +28,7 @@
 
 extern crate postscript;
 
-#[macro_use(table)]
+#[macro_use(flags, table)]
 extern crate truetype;
 
 pub use truetype::{Tag, Tape, Value, Walue, q32};

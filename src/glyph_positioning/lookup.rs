@@ -15,8 +15,16 @@ table! {
 table! {
     #[doc = "A lookup."]
     pub Lookup {
-        kind        (u16), // LookupType
-        flags       (u16), // LookupFlag
+        kind (u16), // LookupType
+
+        flags (Flags) |tape, this| { // LookupFlag
+            let value = try!(tape.take::<Flags>());
+            if value.is_invalid() {
+                raise!("found a malformed lookup");
+            }
+            Ok(value)
+        },
+
         table_count (u16), // SubTableCount
 
         table_offsets (Vec<u16>) |tape, this| { // SubTable
@@ -24,6 +32,18 @@ table! {
         },
 
         mark_filtering_set (u16), // MarkFilteringSet
+    }
+}
+
+flags! {
+    #[doc = "Flags of a lookup."]
+    pub Flags(u16) {
+        0b0000_0000_0000_0001 => is_right_to_left,
+        0b0000_0000_0000_0010 => should_ignore_base_glyphs,
+        0b0000_0000_0000_0100 => should_ignore_ligature,
+        0b0000_0000_0000_1000 => should_ignore_marks,
+        0b0000_0000_0001_0000 => has_mark_filtering,
+        0b0000_0000_1110_0000 => is_invalid,
     }
 }
 

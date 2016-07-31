@@ -32,9 +32,9 @@ macro_rules! read_value(
 
 macro_rules! read_walue(
     ($tape:expr, $parameter:expr) => (try!(::Walue::read($tape, $parameter)));
-    ($tape:expr, $parameter:expr, $kind:ty) => ({
+    ($tape:expr, $parameter:expr, $kind:ty) => (
         try!(<$kind as ::Walue<_>>::read($tape, $parameter))
-    });
+    );
 );
 
 macro_rules! table {

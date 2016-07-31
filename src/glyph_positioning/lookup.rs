@@ -18,12 +18,26 @@ table! {
     @define
     #[doc = "A lookup."]
     pub Lookup {
-        kind               (u16        ), // LookupType
+        kind               (Kind       ), // LookupType
         flags              (Flags      ), // LookupFlag
         table_count        (u16        ), // SubTableCount
         table_offsets      (Vec<u16>   ), // SubTable
         mark_filtering_set (Option<u16>), // MarkFilteringSet
     }
+}
+
+/// The type of a lookup.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Kind {
+    SingleAdjustment = 1,
+    PairAdjustment = 2,
+    CursiveAttachment = 3,
+    MarkToBaseAttachment = 4,
+    MarkToLigatureAttachment = 5,
+    MarkToMarkAttachment = 6,
+    ContextPositioning = 7,
+    ChainedContextPositioning = 8,
+    ExtensionPositioning = 9,
 }
 
 /// A coverage table.
@@ -97,7 +111,7 @@ impl Value for Lookups {
 
 impl Value for Lookup {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let kind = try!(tape.take::<u16>());
+        let kind = try!(tape.take());
         let flags = try!(tape.take::<Flags>());
         if flags.is_invalid() {
             raise!("found a malformed lookup");
@@ -116,6 +130,16 @@ impl Value for Lookup {
             table_offsets: table_offsets,
             mark_filtering_set: mark_filtering_set,
         })
+    }
+}
+
+impl Value for Kind {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        let kind = try!(tape.take::<u16>());
+        if kind < 1 || kind > 9 {
+            raise!("found an unknown lookup type");
+        }
+        Ok(unsafe { ::std::mem::transmute(kind as u8) })
     }
 }
 

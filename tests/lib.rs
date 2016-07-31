@@ -20,10 +20,11 @@ fn glyph_positioning_features() {
 #[test]
 fn glyph_positioning_lookups() {
     use opentype::GlyphPositioning;
+    use opentype::glyph_positioning::lookup::Kind;
 
     let GlyphPositioning { lookups, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
     assert_eq!(lookups.records.len(), 1);
-    assert_eq!(lookups.records[0].kind, 2);
+    assert_eq!(lookups.records[0].kind, Kind::PairAdjustment);
     assert!(lookups.records[0].mark_filtering_set.is_none());
 }
 

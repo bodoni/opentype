@@ -13,6 +13,8 @@ fn glyph_positioning_features() {
     let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, &[Tag(*b"kern"), Tag(*b"kern"), Tag(*b"kern"), Tag(*b"kern"), Tag(*b"kern"),
                        Tag(*b"size"), Tag(*b"size"), Tag(*b"size"), Tag(*b"size"), Tag(*b"size")]);
+    let lookups = features.records.iter().map(|record| record.lookup_count).collect::<Vec<_>>();
+    assert_eq!(lookups, &[1, 1, 1, 1, 1, 0, 0, 0, 0, 0]);
 }
 
 #[test]
@@ -22,6 +24,7 @@ fn glyph_positioning_lookups() {
     let GlyphPositioning { lookups, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
     assert_eq!(lookups.records.len(), 1);
     assert_eq!(lookups.records[0].kind, 2);
+    assert!(lookups.records[0].mark_filtering_set.is_none());
 }
 
 #[test]

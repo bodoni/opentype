@@ -18,11 +18,11 @@ table! {
     @define
     #[doc = "A lookup."]
     pub Lookup {
-        kind               (u16     ), // LookupType
-        flags              (Flags   ), // LookupFlag
-        table_count        (u16     ), // SubTableCount
-        table_offsets      (Vec<u16>), // SubTable
-        mark_filtering_set (u16     ), // MarkFilteringSet
+        kind               (u16        ), // LookupType
+        flags              (Flags      ), // LookupFlag
+        table_count        (u16        ), // SubTableCount
+        table_offsets      (Vec<u16>   ), // SubTable
+        mark_filtering_set (Option<u16>), // MarkFilteringSet
     }
 }
 
@@ -104,7 +104,11 @@ impl Value for Lookup {
         }
         let table_count = try!(tape.take::<u16>());
         let table_offsets: Vec<u16> = try!(tape.take_given(table_count as usize));
-        let mark_filtering_set = try!(tape.take());
+        let mark_filtering_set = if flags.has_mark_filtering() {
+            Some(try!(tape.take()))
+        } else {
+            None
+        };
         Ok(Lookup {
             kind: kind,
             flags: flags,

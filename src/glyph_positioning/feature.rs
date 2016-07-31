@@ -37,12 +37,12 @@ table! {
 impl Value for Features {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
-        let count = read_value!(tape, u16);
-        let headers = read_walue!(tape, count as usize, Vec<Header>);
+        let count = try!(tape.take::<u16>());
+        let headers: Vec<Header> = try!(tape.take_given(count as usize));
         let mut records: Vec<Feature> = Vec::with_capacity(count as usize);
         for i in 0..(count as usize) {
             try!(tape.jump(position + headers[i].offset as u64));
-            records.push(read_value!(tape));
+            records.push(try!(tape.take()));
         }
         Ok(Features { count: count, headers: headers, records: records })
     }
@@ -51,12 +51,12 @@ impl Value for Features {
 impl Value for Feature {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
-        let parameter_offset = read_value!(tape);
-        let lookup_count = read_value!(tape);
-        let lookup_indices = read_walue!(tape, lookup_count as usize);
+        let parameter_offset = try!(tape.take());
+        let lookup_count = try!(tape.take());
+        let lookup_indices = try!(tape.take_given(lookup_count as usize));
         let parameters = if parameter_offset != 0 {
             try!(tape.jump(position + parameter_offset as u64));
-            Some(read_bytes!(tape, 0))
+            Some(try!(tape.take_bytes(0)))
         } else {
             None
         };

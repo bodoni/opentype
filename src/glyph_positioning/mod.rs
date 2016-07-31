@@ -26,7 +26,7 @@ table! {
     #[derive(Copy)]
     pub Header {
         version (q32) |tape, this| { // Version
-            let value = read_value!(tape);
+            let value = try!(tape.take());
             if value != q32(0x00010000) {
                 raise!("the version of the glyph-positioning table is not supported");
             }
@@ -42,13 +42,13 @@ table! {
 impl Value for GlyphPositioning {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
-        let header = read_value!(tape, Header);
+        let header = try!(tape.take::<Header>());
         try!(tape.jump(position + header.script_offset as u64));
-        let scripts = read_value!(tape);
+        let scripts = try!(tape.take());
         try!(tape.jump(position + header.feature_offset as u64));
-        let features = read_value!(tape);
+        let features = try!(tape.take());
         try!(tape.jump(position + header.lookup_offset as u64));
-        let lookups = read_value!(tape);
+        let lookups = try!(tape.take());
         Ok(GlyphPositioning {
             header: header,
             scripts: scripts,

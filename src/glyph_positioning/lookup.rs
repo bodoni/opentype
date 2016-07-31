@@ -30,12 +30,12 @@ table! {
 impl Value for Lookups {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
-        let count = read_value!(tape, u16);
-        let offsets = read_walue!(tape, count as usize, Vec<u16>);
+        let count = try!(tape.take::<u16>());
+        let offsets: Vec<u16> = try!(tape.take_given(count as usize));
         let mut records: Vec<Lookup> = Vec::with_capacity(count as usize);
         for i in 0..(count as usize) {
             try!(tape.jump(position + offsets[i] as u64));
-            records.push(read_value!(tape));
+            records.push(try!(tape.take()));
         }
         Ok(Lookups { count: count, offsets: offsets, records: records })
     }

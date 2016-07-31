@@ -9,5 +9,5 @@ homepage = "https://github.com/bodoni/opentype"
 repository = "https://github.com/bodoni/opentype"
 
 [dependencies]
-postscript = "0.7"
-truetype = "0.13"
+postscript = "0.7.3"
+truetype = "0.13.1"

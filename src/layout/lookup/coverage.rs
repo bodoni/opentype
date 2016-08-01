@@ -1,18 +1,19 @@
 use truetype::GlyphID;
 
 use {Result, Tape, Value};
+use super::Range;
 
 /// A coverage table.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Coverage {
-    /// A coverage table of format 1.
+    /// Format 1.
     Format1(Coverage1),
-    /// A coverage table of format 2.
+    /// Format 2.
     Format2(Coverage2),
 }
 
 table! {
-    #[doc = "A coverage table of format 1."]
+    #[doc = "A coverage table in format 1."]
     pub Coverage1 {
         format (u16), // CoverageFormat
         count  (u16), // GlyphCount
@@ -24,7 +25,7 @@ table! {
 }
 
 table! {
-    #[doc = "A coverage table of format 2."]
+    #[doc = "A coverage table in format 2."]
     pub Coverage2 {
         format (u16), // CoverageFormat
         count  (u16), // RangeCount
@@ -35,22 +36,12 @@ table! {
     }
 }
 
-table! {
-    #[doc = "A glyph range."]
-    #[derive(Copy)]
-    pub Range {
-        start (GlyphID), // Start
-        end   (GlyphID), // End
-        index (u16    ), // StartCoverageIndex
-    }
-}
-
 impl Value for Coverage {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match try!(tape.peek::<u16>()) {
             1 => Coverage::Format1(try!(tape.take())),
             2 => Coverage::Format2(try!(tape.take())),
-            _ => raise!("found a coverage table of an unsupported format"),
+            _ => raise!("found a coverage table in an unsupported format"),
         })
     }
 }

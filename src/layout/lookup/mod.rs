@@ -1,10 +1,14 @@
 //! The lookups.
 
+use truetype::GlyphID;
+
 use {Result, Tape, Value};
 
+mod class;
 mod coverage;
 
-pub use self::coverage::{Coverage, Coverage1, Coverage2, Range};
+pub use self::class::{Class, Class1, Class2};
+pub use self::coverage::{Coverage, Coverage1, Coverage2};
 
 table! {
     @define
@@ -52,6 +56,16 @@ flags! {
         0b0000_0000_0000_1000 => should_ignore_marks,
         0b0000_0000_0001_0000 => has_mark_filtering,
         0b0000_0000_1110_0000 => is_invalid,
+    }
+}
+
+table! {
+    #[doc = "A glyph range."]
+    #[derive(Copy)]
+    pub Range {
+        start (GlyphID), // Start
+        end   (GlyphID), // End
+        index (u16    ), // Class or StartCoverageIndex
     }
 }
 

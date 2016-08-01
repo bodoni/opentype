@@ -2,7 +2,7 @@
 
 #![allow(unused_mut, unused_variables)]
 
-use {Result, Tape, Walue};
+use {Result, Tape, Value, Walue};
 
 use super::Kind;
 
@@ -68,9 +68,24 @@ table! {
     }
 }
 
+/// A position adjustment of a single glyph.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum SingleAdjustment {
+    /// Format 1.
+    Format1(SingleAdjustment1),
+    /// Format 2.
+    Format2(SingleAdjustment2),
+}
+
 table! {
-    #[doc = "A position adjustment of a single glyph."]
-    pub SingleAdjustment {
+    #[doc = "A position adjustment of a single glyph in format 1."]
+    pub SingleAdjustment1 {
+    }
+}
+
+table! {
+    #[doc = "A position adjustment of a single glyph in format 2."]
+    pub SingleAdjustment2 {
     }
 }
 
@@ -104,6 +119,16 @@ impl Walue<Kind> for Table {
             Kind::SingleAdjustment => {
                 Table::SingleAdjustment(try!(tape.take()))
             },
+        })
+    }
+}
+
+impl Value for SingleAdjustment {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        Ok(match try!(tape.peek::<u16>()) {
+            1 => SingleAdjustment::Format1(try!(tape.take())),
+            2 => SingleAdjustment::Format2(try!(tape.take())),
+            _ => raise!("found an unknow format of the single-adjustment subtable"),
         })
     }
 }

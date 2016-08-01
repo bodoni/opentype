@@ -16,14 +16,14 @@ table! {
     pub Lookups {
         count   (u16        ), // LookupCount
         offsets (Vec<u16>   ), // Lookup
-        records (Vec<Lookup>),
+        records (Vec<Record>),
     }
 }
 
 table! {
     @define
-    #[doc = "A lookup."]
-    pub Lookup {
+    #[doc = "A lookup record."]
+    pub Record {
         kind               (Kind       ), // LookupType
         flags              (Flags      ), // LookupFlag
         table_count        (u16        ), // SubTableCount
@@ -48,7 +48,7 @@ pub enum Kind {
 
 
 flags! {
-    #[doc = "Flags of a lookup."]
+    #[doc = "Flags of a lookup record."]
     pub Flags(u16) {
         0b0000_0000_0000_0001 => is_right_to_left,
         0b0000_0000_0000_0010 => should_ignore_base_glyphs,
@@ -74,7 +74,7 @@ impl Value for Lookups {
         let position = try!(tape.position());
         let count = try!(tape.take::<u16>());
         let offsets: Vec<u16> = try!(tape.take_given(count as usize));
-        let mut records: Vec<Lookup> = Vec::with_capacity(count as usize);
+        let mut records: Vec<Record> = Vec::with_capacity(count as usize);
         for i in 0..(count as usize) {
             try!(tape.jump(position + offsets[i] as u64));
             records.push(try!(tape.take()));
@@ -83,12 +83,12 @@ impl Value for Lookups {
     }
 }
 
-impl Value for Lookup {
+impl Value for Record {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let kind = try!(tape.take());
         let flags = try!(tape.take::<Flags>());
         if flags.is_invalid() {
-            raise!("found a malformed lookup");
+            raise!("found a malformed lookup record");
         }
         let table_count = try!(tape.take::<u16>());
         let table_offsets: Vec<u16> = try!(tape.take_given(table_count as usize));
@@ -97,7 +97,7 @@ impl Value for Lookup {
         } else {
             None
         };
-        Ok(Lookup {
+        Ok(Record {
             kind: kind,
             flags: flags,
             table_count: table_count,

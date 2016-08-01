@@ -10,12 +10,12 @@ table! {
     pub Scripts {
         count   (u16        ), // ScriptCount
         headers (Vec<Header>), // ScriptRecord
-        records (Vec<Script>),
+        records (Vec<Record>),
     }
 }
 
 table! {
-    #[doc = "The header of a script-list record."]
+    #[doc = "A script header."]
     #[derive(Copy)]
     pub Header {
         tag    (Tag), // ScriptTag
@@ -25,8 +25,8 @@ table! {
 
 table! {
     @define
-    #[doc = "A script."]
-    pub Script {
+    #[doc = "A script record."]
+    pub Record {
         default_language_offset (u16                ), // DefaultLangSys
         language_count          (u16                ), // LangSysCount
         language_headers        (Vec<LanguageHeader>), // LangSysRecord
@@ -36,7 +36,7 @@ table! {
 }
 
 table! {
-    #[doc = "The header of a language system."]
+    #[doc = "A language-system header."]
     pub LanguageHeader {
         tag    (Tag), // LangSysTag
         offset (u16), // LangSys
@@ -67,7 +67,7 @@ impl Value for Scripts {
         let position = try!(tape.position());
         let count = try!(tape.take::<u16>());
         let headers: Vec<Header> = try!(tape.take_given(count as usize));
-        let mut records: Vec<Script> = Vec::with_capacity(count as usize);
+        let mut records: Vec<Record> = Vec::with_capacity(count as usize);
         for i in 0..(count as usize) {
             try!(tape.jump(position + headers[i].offset as u64));
             records.push(try!(tape.take()));
@@ -76,7 +76,7 @@ impl Value for Scripts {
     }
 }
 
-impl Value for Script {
+impl Value for Record {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
         let default_language_offset = try!(tape.take::<u16>());
@@ -93,7 +93,7 @@ impl Value for Script {
             try!(tape.jump(position + language_headers[i].offset as u64));
             language_records.push(try!(tape.take()));
         }
-        Ok(Script {
+        Ok(Record {
             default_language_offset: default_language_offset,
             language_count: language_count,
             language_headers: language_headers,

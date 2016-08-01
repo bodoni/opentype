@@ -8,14 +8,14 @@ table! {
     @define
     #[doc = "A feature list."]
     pub Features {
-        count   (u16         ), // FeatureCount
-        headers (Vec<Header> ), // FeatureRecord
-        records (Vec<Feature>),
+        count   (u16        ), // FeatureCount
+        headers (Vec<Header>), // FeatureRecord
+        records (Vec<Record>),
     }
 }
 
 table! {
-    #[doc = "The header of a feature-list record."]
+    #[doc = "A feature header."]
     #[derive(Copy)]
     pub Header {
         tag    (Tag), // FeatureTag
@@ -25,8 +25,8 @@ table! {
 
 table! {
     @define
-    #[doc = "A feature."]
-    pub Feature {
+    #[doc = "A feature record."]
+    pub Record {
         parameter_offset (u16            ), // FeatureParams
         lookup_count     (u16            ), // LookupCount
         lookup_indices   (Vec<u16>       ), // LookupListIndex
@@ -39,7 +39,7 @@ impl Value for Features {
         let position = try!(tape.position());
         let count = try!(tape.take::<u16>());
         let headers: Vec<Header> = try!(tape.take_given(count as usize));
-        let mut records: Vec<Feature> = Vec::with_capacity(count as usize);
+        let mut records: Vec<Record> = Vec::with_capacity(count as usize);
         for i in 0..(count as usize) {
             try!(tape.jump(position + headers[i].offset as u64));
             records.push(try!(tape.take()));
@@ -48,7 +48,7 @@ impl Value for Features {
     }
 }
 
-impl Value for Feature {
+impl Value for Record {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
         let parameter_offset = try!(tape.take());
@@ -63,7 +63,7 @@ impl Value for Feature {
         } else {
             None
         };
-        Ok(Feature {
+        Ok(Record {
             parameter_offset: parameter_offset,
             lookup_count: lookup_count,
             lookup_indices: lookup_indices,

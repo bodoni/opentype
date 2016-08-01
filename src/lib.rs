@@ -40,12 +40,16 @@ macro_rules! raise(
 mod file;
 mod font;
 
+pub mod glyph_definition;
 pub mod glyph_positioning;
+pub mod glyph_substitution;
 pub mod layout;
 
 pub use file::File;
 pub use font::Font;
+pub use glyph_definition::GlyphDefinition;
 pub use glyph_positioning::GlyphPositioning;
+pub use glyph_substitution::GlyphSubstitution;
 
 /// An error.
 pub type Error = std::io::Error;

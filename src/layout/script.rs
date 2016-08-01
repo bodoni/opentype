@@ -1,4 +1,4 @@
-//! The scripts.
+//! The script list.
 
 use truetype::Tag;
 

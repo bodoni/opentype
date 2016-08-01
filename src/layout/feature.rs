@@ -1,4 +1,4 @@
-//! The features.
+//! The feature list.
 
 use truetype::Tag;
 

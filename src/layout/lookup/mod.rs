@@ -1,4 +1,4 @@
-//! The lookups.
+//! The lookup list.
 
 use truetype::GlyphID;
 

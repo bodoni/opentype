@@ -27,13 +27,11 @@
 //! ```
 
 extern crate postscript;
+
+#[macro_use(flags, table)]
 extern crate truetype;
 
-/// An error.
-pub type Error = std::io::Error;
-
-/// A result.
-pub type Result<T> = std::io::Result<T>;
+pub use truetype::{Tag, Tape, Value, Walue, q32};
 
 macro_rules! raise(
     ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
@@ -42,5 +40,15 @@ macro_rules! raise(
 mod file;
 mod font;
 
+pub mod glyph_positioning;
+pub mod layout;
+
 pub use file::File;
 pub use font::Font;
+pub use glyph_positioning::GlyphPositioning;
+
+/// An error.
+pub type Error = std::io::Error;
+
+/// A result.
+pub type Result<T> = std::io::Result<T>;

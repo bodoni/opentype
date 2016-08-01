@@ -32,7 +32,7 @@ table! {
     }
 }
 
-/// The type of a lookup.
+/// A lookup type.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Kind {
     SingleAdjustment = 1,
@@ -48,7 +48,7 @@ pub enum Kind {
 
 
 flags! {
-    #[doc = "Flags of a lookup record."]
+    #[doc = "Lookup flags."]
     pub Flags(u16) {
         0b0000_0000_0000_0001 => is_right_to_left,
         0b0000_0000_0000_0010 => should_ignore_base_glyphs,

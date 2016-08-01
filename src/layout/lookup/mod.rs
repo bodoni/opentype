@@ -7,8 +7,11 @@ use {Result, Tape, Value};
 mod class;
 mod coverage;
 
+pub mod table;
+
 pub use self::class::{Class, Class1, Class2};
 pub use self::coverage::{Coverage, Coverage1, Coverage2};
+pub use self::table::Table;
 
 table! {
     @define
@@ -29,6 +32,7 @@ table! {
         table_count        (u16        ), // SubTableCount
         table_offsets      (Vec<u16>   ), // SubTable
         mark_filtering_set (Option<u16>), // MarkFilteringSet
+        table_records      (Vec<Table> ),
     }
 }
 
@@ -45,7 +49,6 @@ pub enum Kind {
     ChainedContextPositioning = 8,
     ExtensionPositioning = 9,
 }
-
 
 flags! {
     #[doc = "Lookup flags."]
@@ -85,7 +88,8 @@ impl Value for Lookups {
 
 impl Value for Record {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let kind = try!(tape.take());
+        let position = try!(tape.position());
+        let kind = try!(tape.take::<Kind>());
         let flags = try!(tape.take::<Flags>());
         if flags.is_invalid() {
             raise!("found a malformed lookup record");
@@ -97,12 +101,18 @@ impl Value for Record {
         } else {
             None
         };
+        let mut table_records = Vec::with_capacity(table_count as usize);
+        for i in 0..(table_count as usize) {
+            try!(tape.jump(position + table_offsets[i] as u64));
+            table_records.push(try!(tape.take_given(kind)));
+        }
         Ok(Record {
             kind: kind,
             flags: flags,
             table_count: table_count,
             table_offsets: table_offsets,
             mark_filtering_set: mark_filtering_set,
+            table_records: table_records,
         })
     }
 }

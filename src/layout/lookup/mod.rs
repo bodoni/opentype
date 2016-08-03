@@ -38,7 +38,7 @@ table! {
 
 /// A lookup type.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Kind {
+pub enum Kind { // LookupType
     SingleAdjustment = 1,
     PairAdjustment = 2,
     CursiveAttachment = 3,
@@ -65,10 +65,10 @@ flags! {
 table! {
     #[doc = "A glyph range."]
     #[derive(Copy)]
-    pub Range {
+    pub Range { // RangeRecord or ClassRangeRecord
         start (GlyphID), // Start
         end   (GlyphID), // End
-        index (u16    ), // Class or StartCoverageIndex
+        index (u16    ), // StartCoverageIndex or Class
     }
 }
 

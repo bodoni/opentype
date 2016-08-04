@@ -5,12 +5,8 @@
 use {Result, Tape, Value, q32};
 use layout::{Features, Lookups, Scripts};
 
-mod value;
-
 pub mod table;
-
-pub use self::table::Table;
-pub use self::value::{Flags, One, Pair, PairSet};
+pub mod value;
 
 /// A glyph-positioning table.
 #[derive(Clone, Debug, Eq, PartialEq)]

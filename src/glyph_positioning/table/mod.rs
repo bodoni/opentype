@@ -1,4 +1,4 @@
-//! The lookup subtables.
+//! Lookup subtables.
 
 #![allow(unused_mut, unused_variables)]
 

@@ -1,5 +1,5 @@
 use {Result, Tape, Value};
-use glyph_positioning::{Flags, One, PairSet};
+use glyph_positioning::value::{Flags, One, Pairs};
 use layout::lookup::{Class, Coverage};
 
 /// A position adjustment of a pair of glyphs.
@@ -15,14 +15,14 @@ table! {
     @define
     #[doc = "A position adjustment of a pair of glyphs in format 1."]
     pub PairAdjustment1 {
-        format           (u16         ), // PosFormat
-        coverage_offset  (u16         ), // Coverage
-        value1_flags     (Flags       ), // ValueFormat1
-        value2_flags     (Flags       ), // ValueFormat2
-        pair_set_count   (u16         ), // PairSetCount
-        pair_set_offsets (Vec<u16>    ), // PairSetOffset
-        coverage         (Coverage    ),
-        pair_sets        (Vec<PairSet>),
+        format           (u16       ), // PosFormat
+        coverage_offset  (u16       ), // Coverage
+        value1_flags     (Flags     ), // ValueFormat1
+        value2_flags     (Flags     ), // ValueFormat2
+        pair_set_count   (u16       ), // PairSetCount
+        pair_set_offsets (Vec<u16>  ), // PairSetOffset
+        coverage         (Coverage  ),
+        pair_sets        (Vec<Pairs>),
     }
 }
 

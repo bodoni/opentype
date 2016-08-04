@@ -1,3 +1,5 @@
+//! Positioning values.
+
 use {Result, Tape, Walue};
 
 flags! {
@@ -42,7 +44,7 @@ table! {
 table! {
     @define
     #[doc = "A set of value pairs."]
-    pub PairSet {
+    pub Pairs {
         count   (u16      ), // PairValueCount
         records (Vec<Pair>), // PairValueRecord
     }
@@ -73,13 +75,13 @@ impl Walue<(Flags, Flags)> for Pair {
     }
 }
 
-impl Walue<(Flags, Flags)> for PairSet {
+impl Walue<(Flags, Flags)> for Pairs {
     fn read<T: Tape>(tape: &mut T, flags: (Flags, Flags)) -> Result<Self> {
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
             records.push(try!(tape.take_given(flags)));
         }
-        Ok(PairSet { count: count, records: records })
+        Ok(Pairs { count: count, records: records })
     }
 }

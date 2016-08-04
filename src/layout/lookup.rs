@@ -2,12 +2,6 @@
 
 use {Result, Tape, Value, Walue};
 
-mod class;
-mod coverage;
-
-pub use self::class::{Class, Class1, Class2, ClassRange};
-pub use self::coverage::{Coverage, Coverage1, Coverage2, CoverageRange};
-
 /// A lookup list.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Lookups<T> {

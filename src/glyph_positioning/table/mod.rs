@@ -7,8 +7,6 @@ use {Result, Tape, Walue};
 mod adjustment;
 
 pub use self::adjustment::{
-    ClassPair,
-    ClassPairSet,
     PairAdjustment,
     PairAdjustment1,
     PairAdjustment2,

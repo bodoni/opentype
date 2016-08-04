@@ -15,12 +15,12 @@ pub enum Class {
 table! {
     #[doc = "A class definition in format 1."]
     pub Class1 {
-        format (u16    ), // ClassFormat
-        start  (GlyphID), // StartGlyph
-        count  (u16    ), // GlyphCount
+        format      (u16    ), // ClassFormat
+        start       (GlyphID), // StartGlyph
+        value_count (u16    ), // GlyphCount
 
         values (Vec<u16>) |tape, this| { // ClassValueArray
-            tape.take_given(this.count as usize)
+            tape.take_given(this.value_count as usize)
         },
     }
 }
@@ -28,11 +28,11 @@ table! {
 table! {
     #[doc = "A class definition in format 2."]
     pub Class2 {
-        format (u16), // ClassFormat
-        count  (u16), // ClassRangeCount
+        format      (u16), // ClassFormat
+        range_count (u16), // ClassRangeCount
 
         ranges (Vec<Range>) |tape, this| { // ClassRangeRecord
-            tape.take_given(this.count as usize)
+            tape.take_given(this.range_count as usize)
         },
     }
 }

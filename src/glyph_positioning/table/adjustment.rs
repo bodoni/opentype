@@ -2,7 +2,7 @@ use {Result, Tape, Value};
 use glyph_positioning::value::{Flags, One, Pair, PairSet};
 use layout::{Class, Coverage};
 
-/// A position adjustment of a pair of glyphs.
+/// An adjustment table of pairs of glyphs.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PairAdjustment {
     /// Format 1.
@@ -13,7 +13,7 @@ pub enum PairAdjustment {
 
 table! {
     @define
-    #[doc = "A position adjustment of a pair of glyphs in format 1."]
+    #[doc = "An adjustment table of pairs of glyphs in format 1."]
     pub PairAdjustment1 {
         format           (u16         ), // PosFormat
         coverage_offset  (u16         ), // Coverage
@@ -28,7 +28,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A position adjustment of a pair of glyphs in format 2."]
+    #[doc = "An adjustment table of pairs of glyphs in format 2."]
     pub PairAdjustment2 {
         format          (u16           ), // PosFormat
         coverage_offset (u16           ), // Coverage
@@ -45,7 +45,7 @@ table! {
     }
 }
 
-/// A position adjustment of a single glyph.
+/// An adjustment table of single glyphs.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum SingleAdjustment {
     /// Format 1.
@@ -56,7 +56,7 @@ pub enum SingleAdjustment {
 
 table! {
     @define
-    #[doc = "A position adjustment of a single glyph in format 1."]
+    #[doc = "An adjustment table of single glyphs in format 1."]
     pub SingleAdjustment1 {
         format          (u16     ), // PosFormat
         coverage_offset (u16     ), // Coverage
@@ -68,7 +68,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A position adjustment of a single glyph in format 2."]
+    #[doc = "An adjustment table of single glyphs in format 2."]
     pub SingleAdjustment2 {
         format          (u16     ), // PosFormat
         coverage_offset (u16     ), // Coverage

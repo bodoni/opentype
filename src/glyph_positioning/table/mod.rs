@@ -1,4 +1,4 @@
-//! Lookup subtables.
+//! The tables.
 
 #![allow(unused_mut, unused_variables)]
 
@@ -15,7 +15,7 @@ pub use self::adjustment::{
     SingleAdjustment2,
 };
 
-/// A lookup subtable.
+/// A table.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Table {
     SingleAdjustment(SingleAdjustment),
@@ -30,43 +30,43 @@ pub enum Table {
 }
 
 table! {
-    #[doc = "A positioning of one or more glyphs in a chained context."]
+    #[doc = "A positioning table of glyphs in a chained context."]
     pub ChainedContextPositioning {
     }
 }
 
 table! {
-    #[doc = "A positioning of one or more glyphs in a context."]
+    #[doc = "A positioning table of glyphs in a context."]
     pub ContextPositioning {
     }
 }
 
 table! {
-    #[doc = "An attachment of cursive glyphs."]
+    #[doc = "An attachment table of cursive glyphs."]
     pub CursiveAttachment {
     }
 }
 
 table! {
-    #[doc = "An extension mechanism for other positionings."]
+    #[doc = "An extension table for other types of positioning."]
     pub ExtensionPositioning {
     }
 }
 
 table! {
-    #[doc = "An attachment of a combining mark to a base glyph."]
+    #[doc = "An attachment table of combining marks to base glyphs."]
     pub MarkToBaseAttachment {
     }
 }
 
 table! {
-    #[doc = "An attachment of a combining mark to a ligature."]
+    #[doc = "An attachment table of combining marks to ligatures."]
     pub MarkToLigatureAttachment {
     }
 }
 
 table! {
-    #[doc = "An attachment of a combining mark to another mark."]
+    #[doc = "An attachment table of combining marks to other marks."]
     pub MarkToMarkAttachment {
     }
 }

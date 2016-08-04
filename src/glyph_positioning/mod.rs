@@ -3,8 +3,14 @@
 //! [1]: https://www.microsoft.com/typography/otspec/gpos.htm
 
 use {Result, Tape, Value, q32};
-
 use layout::{Features, Lookups, Scripts};
+
+mod value;
+
+pub mod table;
+
+pub use self::table::Table;
+pub use self::value::{Flags, One, Pair, PairSet};
 
 /// A glyph-positioning table.
 #[derive(Clone, Debug, Eq, PartialEq)]

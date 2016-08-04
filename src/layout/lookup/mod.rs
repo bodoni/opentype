@@ -1,17 +1,12 @@
 //! The lookup list.
 
-use truetype::GlyphID;
-
 use {Result, Tape, Value};
 
 mod class;
 mod coverage;
 
-pub mod table;
-
-pub use self::class::{Class, Class1, Class2};
-pub use self::coverage::{Coverage, Coverage1, Coverage2};
-pub use self::table::Table;
+pub use self::class::{Class, Class1, Class2, ClassRange};
+pub use self::coverage::{Coverage, Coverage1, Coverage2, CoverageRange};
 
 table! {
     @define
@@ -27,27 +22,12 @@ table! {
     @define
     #[doc = "A lookup record."]
     pub Record {
-        kind               (Kind       ), // LookupType
+        kind               (u16        ), // LookupType
         flags              (Flags      ), // LookupFlag
         table_count        (u16        ), // SubTableCount
         table_offsets      (Vec<u16>   ), // SubTable
         mark_filtering_set (Option<u16>), // MarkFilteringSet
-        table_records      (Vec<Table> ),
     }
-}
-
-/// A lookup type.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Kind { // LookupType
-    SingleAdjustment = 1,
-    PairAdjustment = 2,
-    CursiveAttachment = 3,
-    MarkToBaseAttachment = 4,
-    MarkToLigatureAttachment = 5,
-    MarkToMarkAttachment = 6,
-    ContextPositioning = 7,
-    ChainedContextPositioning = 8,
-    ExtensionPositioning = 9,
 }
 
 flags! {
@@ -59,16 +39,6 @@ flags! {
         0b0000_0000_0000_1000 => should_ignore_marks,
         0b0000_0000_0001_0000 => has_mark_filtering,
         0b0000_0000_1110_0000 => is_invalid,
-    }
-}
-
-table! {
-    #[doc = "A glyph range."]
-    #[derive(Copy)]
-    pub Range { // RangeRecord or ClassRangeRecord
-        start (GlyphID), // Start
-        end   (GlyphID), // End
-        index (u16    ), // StartCoverageIndex or Class
     }
 }
 
@@ -88,41 +58,24 @@ impl Value for Lookups {
 
 impl Value for Record {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let kind = try!(tape.take::<Kind>());
+        let kind = try!(tape.take());
         let flags = try!(tape.take::<Flags>());
         if flags.is_invalid() {
             raise!("found a malformed lookup record");
         }
         let table_count = try!(tape.take::<u16>());
-        let table_offsets: Vec<u16> = try!(tape.take_given(table_count as usize));
+        let table_offsets = try!(tape.take_given(table_count as usize));
         let mark_filtering_set = if flags.has_mark_filtering() {
             Some(try!(tape.take()))
         } else {
             None
         };
-        let mut table_records = Vec::with_capacity(table_count as usize);
-        for i in 0..(table_count as usize) {
-            try!(tape.jump(position + table_offsets[i] as u64));
-            table_records.push(try!(tape.take_given(kind)));
-        }
         Ok(Record {
             kind: kind,
             flags: flags,
             table_count: table_count,
             table_offsets: table_offsets,
             mark_filtering_set: mark_filtering_set,
-            table_records: table_records,
         })
-    }
-}
-
-impl Value for Kind {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let kind = try!(tape.take::<u16>());
-        if kind < 1 || kind > 9 {
-            raise!("found an unknown lookup type");
-        }
-        Ok(unsafe { ::std::mem::transmute(kind as u8) })
     }
 }

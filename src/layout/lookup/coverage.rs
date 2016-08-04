@@ -1,7 +1,6 @@
 use truetype::GlyphID;
 
 use {Result, Tape, Value};
-use super::Range;
 
 /// A coverage table.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -30,9 +29,19 @@ table! {
         format (u16), // CoverageFormat
         count  (u16), // RangeCount
 
-        ranges (Vec<Range>) |tape, this| { // RangeRecord
+        ranges (Vec<CoverageRange>) |tape, this| { // RangeRecord
             tape.take_given(this.count as usize)
         },
+    }
+}
+
+table! {
+    #[doc = "A coverage range."]
+    #[derive(Copy)]
+    pub CoverageRange { // RangeRecord
+        start (GlyphID), // Start
+        end   (GlyphID), // End
+        index (u16    ), // StartCoverageIndex
     }
 }
 

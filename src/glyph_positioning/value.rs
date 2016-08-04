@@ -44,7 +44,7 @@ table! {
 table! {
     @define
     #[doc = "A set of value pairs."]
-    pub Pairs {
+    pub PairSet {
         count   (u16      ), // PairValueCount
         records (Vec<Pair>), // PairValueRecord
     }
@@ -75,13 +75,13 @@ impl Walue<(Flags, Flags)> for Pair {
     }
 }
 
-impl Walue<(Flags, Flags)> for Pairs {
+impl Walue<(Flags, Flags)> for PairSet {
     fn read<T: Tape>(tape: &mut T, flags: (Flags, Flags)) -> Result<Self> {
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
             records.push(try!(tape.take_given(flags)));
         }
-        Ok(Pairs { count: count, records: records })
+        Ok(PairSet { count: count, records: records })
     }
 }

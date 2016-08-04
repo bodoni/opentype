@@ -20,11 +20,28 @@ fn glyph_positioning_features() {
 #[test]
 fn glyph_positioning_lookups() {
     use opentype::GlyphPositioning;
+    use opentype::glyph_positioning::table::{PairAdjustment, Table};
 
     let GlyphPositioning { lookups, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
     assert_eq!(lookups.records.len(), 1);
     assert_eq!(lookups.records[0].kind, 2);
     assert!(lookups.records[0].mark_filtering_set.is_none());
+
+    let tables = &lookups.records[0].tables;
+    assert_eq!(tables.len(), 2);
+    match &tables[0] {
+        &Table::PairAdjustment(PairAdjustment::Format1(ref table)) => {
+            assert_eq!(table.pair_set_count, 65);
+        },
+        _ => unreachable!(),
+    }
+    match &tables[1] {
+        &Table::PairAdjustment(PairAdjustment::Format2(ref table)) => {
+            assert_eq!(table.class1_count, 99);
+            assert_eq!(table.class2_count, 95);
+        },
+        _ => unreachable!(),
+    }
 }
 
 #[test]

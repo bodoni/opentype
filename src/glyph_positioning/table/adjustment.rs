@@ -1,5 +1,5 @@
 use {Result, Tape, Value};
-use glyph_positioning::value::{Flags, One, Pairs};
+use glyph_positioning::value::{Flags, One, PairSet};
 use layout::lookup::{Class, Coverage};
 
 /// A position adjustment of a pair of glyphs.
@@ -15,14 +15,14 @@ table! {
     @define
     #[doc = "A position adjustment of a pair of glyphs in format 1."]
     pub PairAdjustment1 {
-        format           (u16       ), // PosFormat
-        coverage_offset  (u16       ), // Coverage
-        value1_flags     (Flags     ), // ValueFormat1
-        value2_flags     (Flags     ), // ValueFormat2
-        pair_set_count   (u16       ), // PairSetCount
-        pair_set_offsets (Vec<u16>  ), // PairSetOffset
-        coverage         (Coverage  ),
-        pair_sets        (Vec<Pairs>),
+        format           (u16         ), // PosFormat
+        coverage_offset  (u16         ), // Coverage
+        value1_flags     (Flags       ), // ValueFormat1
+        value2_flags     (Flags       ), // ValueFormat2
+        pair_set_count   (u16         ), // PairSetCount
+        pair_set_offsets (Vec<u16>    ), // PairSetOffset
+        coverage         (Coverage    ),
+        pair_sets        (Vec<PairSet>),
     }
 }
 
@@ -30,33 +30,18 @@ table! {
     @define
     #[doc = "A position adjustment of a pair of glyphs in format 2."]
     pub PairAdjustment2 {
-        format          (u16        ), // PosFormat
-        coverage_offset (u16        ), // Coverage
-        value1_flags    (Flags      ), // ValueFormat1
-        value2_flags    (Flags      ), // ValueFormat2
-        class1_offset   (u16        ), // ClassDef1
-        class2_offset   (u16        ), // ClassDef2
-        class1_count    (u16        ), // Class1Count
-        class2_count    (u16        ), // Class2Count
-        class1_records  (Vec<Class1>), // Class1Record
-        class1          (Class      ),
-        class2          (Class      ),
-        coverage        (Coverage   ),
-    }
-}
-
-table! {
-    @define
-    pub Class1 { // Class1Record
-        records (Vec<Class2>), // Class2Record
-    }
-}
-
-table! {
-    @define
-    pub Class2 { // Class2Record
-        value1 (One), // Value1
-        value2 (One), // Value2
+        format          (u16              ), // PosFormat
+        coverage_offset (u16              ), // Coverage
+        value1_flags    (Flags            ), // ValueFormat1
+        value2_flags    (Flags            ), // ValueFormat2
+        class1_offset   (u16              ), // ClassDef1
+        class2_offset   (u16              ), // ClassDef2
+        class1_count    (u16              ), // Class1Count
+        class2_count    (u16              ), // Class2Count
+        class_pair_sets (Vec<ClassPairSet>), // Class1Record
+        coverage        (Coverage         ),
+        class1          (Class            ),
+        class2          (Class            ),
     }
 }
 
@@ -94,6 +79,23 @@ table! {
     }
 }
 
+table! {
+    @define
+    #[doc = "A pair of values specific to a pair of classes."]
+    pub ClassPair { // Class2Record
+        value1 (One), // Value1
+        value2 (One), // Value2
+    }
+}
+
+table! {
+    @define
+    #[doc = "A set of value pairs specific to a pair of classes."]
+    pub ClassPairSet { // Class1Record
+        records (Vec<ClassPair>), // Class2Record
+    }
+}
+
 macro_rules! read_flags(
     ($tape:ident) => ({
         let flags: Flags = try!($tape.take());
@@ -108,7 +110,7 @@ impl Value for PairAdjustment {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match try!(tape.peek::<u16>()) {
             1 => PairAdjustment::Format1(try!(tape.take())),
-            2 => unimplemented!(),
+            2 => PairAdjustment::Format2(try!(tape.take())),
             _ => raise!("found a pair-adjustment table in an unknown format"),
         })
     }
@@ -139,6 +141,51 @@ impl Value for PairAdjustment1 {
             pair_set_offsets: pair_set_offsets,
             coverage: coverage,
             pair_sets: pair_sets,
+        })
+    }
+}
+
+impl Value for PairAdjustment2 {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        let position = try!(tape.position());
+        let format = try!(tape.take());
+        let coverage_offset = try!(tape.take());
+        let value1_flags = try!(tape.take());
+        let value2_flags = try!(tape.take());
+        let class1_offset = try!(tape.take());
+        let class2_offset = try!(tape.take());
+        let class1_count = try!(tape.take());
+        let class2_count = try!(tape.take());
+        let mut class_pair_sets = Vec::with_capacity(class1_count as usize);
+        for i in 0..(class1_count as usize) {
+            let mut records = Vec::with_capacity(class2_count as usize);
+            for j in 0..(class2_count as usize) {
+                records.push(ClassPair {
+                    value1: try!(tape.take_given(value1_flags)),
+                    value2: try!(tape.take_given(value2_flags)),
+                });
+            }
+            class_pair_sets.push(ClassPairSet { records: records });
+        }
+        try!(tape.jump(position + coverage_offset as u64));
+        let coverage = try!(tape.take());
+        try!(tape.jump(position + class1_offset as u64));
+        let class1 = try!(tape.take());
+        try!(tape.jump(position + class2_offset as u64));
+        let class2 = try!(tape.take());
+        Ok(PairAdjustment2 {
+            format: format,
+            coverage_offset: coverage_offset,
+            value1_flags: value1_flags,
+            value2_flags: value2_flags,
+            class1_offset: class1_offset,
+            class2_offset: class2_offset,
+            class1_count: class1_count,
+            class2_count: class2_count,
+            class_pair_sets: class_pair_sets,
+            coverage: coverage,
+            class1: class1,
+            class2: class2,
         })
     }
 }

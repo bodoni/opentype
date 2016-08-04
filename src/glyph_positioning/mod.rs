@@ -8,13 +8,15 @@ use layout::{Features, Lookups, Scripts};
 pub mod table;
 pub mod value;
 
+use self::table::Table;
+
 /// A glyph-positioning table.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GlyphPositioning {
     pub header: Header,
     pub scripts: Scripts,
     pub features: Features,
-    pub lookups: Lookups,
+    pub lookups: Lookups<Table>,
 }
 
 table! {

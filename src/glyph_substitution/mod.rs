@@ -2,7 +2,11 @@
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/GSUB.htm
 
+use layout::Directory;
+
+pub mod table;
+
+use self::table::Table;
+
 /// A glyph-substitution table.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct GlyphSubstitution {
-}
+pub type GlyphSubstitution = Directory<Table>;

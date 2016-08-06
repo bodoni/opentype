@@ -30,43 +30,43 @@ pub enum Table {
 }
 
 table! {
-    #[doc = "A positioning table of glyphs in a chained context."]
+    #[doc = "A table for positioning glyphs in a chained context."]
     pub ChainedContextPositioning {
     }
 }
 
 table! {
-    #[doc = "A positioning table of glyphs in a context."]
+    #[doc = "A table for positioning glyphs in a context."]
     pub ContextPositioning {
     }
 }
 
 table! {
-    #[doc = "An attachment table of cursive glyphs."]
+    #[doc = "A table for attaching cursive glyphs."]
     pub CursiveAttachment {
     }
 }
 
 table! {
-    #[doc = "An extension table for other types of positioning."]
+    #[doc = "A table for other types of positioning."]
     pub ExtensionPositioning {
     }
 }
 
 table! {
-    #[doc = "An attachment table of combining marks to base glyphs."]
+    #[doc = "A table for attaching combining marks to base glyphs."]
     pub MarkToBaseAttachment {
     }
 }
 
 table! {
-    #[doc = "An attachment table of combining marks to ligatures."]
+    #[doc = "A table for attaching combining marks to ligatures."]
     pub MarkToLigatureAttachment {
     }
 }
 
 table! {
-    #[doc = "An attachment table of combining marks to other marks."]
+    #[doc = "A table for attaching combining marks to other marks."]
     pub MarkToMarkAttachment {
     }
 }

@@ -42,7 +42,7 @@ impl Value for Class {
         Ok(match try!(tape.peek::<u16>()) {
             1 => Class::Format1(try!(tape.take())),
             2 => Class::Format2(try!(tape.take())),
-            _ => raise!("found a class definition in an unsupported format"),
+            _ => raise!("found an unknown format of the class definition"),
         })
     }
 }

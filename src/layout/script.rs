@@ -49,7 +49,7 @@ table! {
         lookup_order (u16) |tape, this| { // LookupOrder
             let value = try!(tape.take());
             if value != 0 {
-                raise!("found an unsupported lookup order");
+                raise!("found an unknown lookup order");
             }
             Ok(value)
         },

@@ -76,7 +76,7 @@ impl Walue<u16> for Table {
             6 => Table::ChainedContextSubstibution(try!(tape.take())),
             7 => Table::ExtensionSubstibution(try!(tape.take())),
             8 => Table::ReverseChainedContextSubstibution(try!(tape.take())),
-            _ => raise!("found an unknown lookup type"),
+            _ => raise!("found an unknown glyph-substitution type"),
         })
     }
 }

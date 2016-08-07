@@ -94,7 +94,7 @@ impl Value for PairAdjustment {
         Ok(match try!(tape.peek::<u16>()) {
             1 => PairAdjustment::Format1(try!(tape.take())),
             2 => PairAdjustment::Format2(try!(tape.take())),
-            _ => raise!("found a pair-adjustment table in an unknown format"),
+            _ => raise!("found an unknown format of the pair-adjustment table"),
         })
     }
 }
@@ -175,7 +175,7 @@ impl Value for SingleAdjustment {
         Ok(match try!(tape.peek::<u16>()) {
             1 => SingleAdjustment::Format1(try!(tape.take())),
             2 => SingleAdjustment::Format2(try!(tape.take())),
-            _ => raise!("found a single-adjustment table in an unknown format"),
+            _ => raise!("found an unknown format of the single-adjustment table"),
         })
     }
 }

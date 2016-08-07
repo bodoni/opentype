@@ -17,7 +17,7 @@ table! {
         version (q32) |tape, this| { // Version
             let value = try!(tape.take());
             if value != q32(0x00010000) {
-                raise!("found a directory table of an unsupported version");
+                raise!("found an unknown format of the directory table");
             }
             Ok(value)
         },

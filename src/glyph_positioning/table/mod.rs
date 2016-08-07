@@ -83,7 +83,7 @@ impl Walue<u16> for Table {
             7 => Table::ContextPositioning(try!(tape.take())),
             8 => Table::ChainedContextPositioning(try!(tape.take())),
             9 => Table::ExtensionPositioning(try!(tape.take())),
-            _ => raise!("found an unknown lookup type"),
+            _ => raise!("found an unknown glyph-positioning type"),
         })
     }
 }

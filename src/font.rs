@@ -52,7 +52,7 @@ pub struct Font {
 macro_rules! checksum_and_jump(
     ($record:ident, $tape:ident, $process:expr) => ({
         if !try!($record.checksum($tape, $process)) {
-            raise!("found a corrupted font table");
+            raise!("found a malformed font table");
         }
         try!(truetype::Tape::jump($tape, $record.offset as u64));
     });
@@ -77,7 +77,7 @@ impl Font {
             version => match &*Tag::from(version) {
                 b"OTTO" => {},
                 b"ttcf" => raise!("TrueType collections are not supported yet"),
-                _ => raise!("the font format is invalid"),
+                _ => raise!("found an unknown font format"),
             },
         }
 

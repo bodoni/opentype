@@ -1,9 +1,14 @@
 extern crate opentype;
 
 use opentype::{Tag, Value};
+use opentype::layout::Scripts;
 use std::fs::File;
 
 macro_rules! ok(($result:expr) => ($result.unwrap()));
+
+macro_rules! tags(
+    ($($name:expr),*) => (vec![$(Tag(*$name)),*]);
+);
 
 #[test]
 fn glyph_positioning_features() {
@@ -11,8 +16,8 @@ fn glyph_positioning_features() {
 
     let GlyphPositioning { features, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
     let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
-    assert_eq!(tags, &[Tag(*b"kern"), Tag(*b"kern"), Tag(*b"kern"), Tag(*b"kern"), Tag(*b"kern"),
-                       Tag(*b"size"), Tag(*b"size"), Tag(*b"size"), Tag(*b"size"), Tag(*b"size")]);
+    assert_eq!(tags, tags![b"kern", b"kern", b"kern", b"kern", b"kern",
+                           b"size", b"size", b"size", b"size", b"size"]);
     let lookups = features.records.iter().map(|record| record.lookup_count).collect::<Vec<_>>();
     assert_eq!(lookups, &[1, 1, 1, 1, 1, 0, 0, 0, 0, 0]);
 }
@@ -47,16 +52,53 @@ fn glyph_positioning_lookups() {
 #[test]
 fn glyph_positioning_scripts() {
     use opentype::GlyphPositioning;
+    scripts(&ok!(GlyphPositioning::read(&mut setup(60412))).scripts);
+}
 
-    let GlyphPositioning { scripts, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
+#[test]
+fn glyph_substitution_features() {
+    use opentype::GlyphSubstitution;
+
+    let GlyphSubstitution { features, .. } = ok!(GlyphSubstitution::read(&mut setup(57648)));
+    let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
+    assert_eq!(tags, tags![b"aalt", b"aalt", b"aalt", b"aalt", b"aalt",
+                           b"case", b"case", b"case", b"case", b"case",
+                           b"dnom", b"dnom", b"dnom", b"dnom", b"dnom",
+                           b"frac", b"frac", b"frac", b"frac", b"frac",
+                           b"liga", b"liga", b"liga", b"liga", b"liga",
+                           b"lnum", b"lnum", b"lnum", b"lnum", b"lnum",
+                           b"locl", b"locl", b"locl",
+                           b"numr", b"numr", b"numr", b"numr", b"numr",
+                           b"onum", b"onum", b"onum", b"onum", b"onum",
+                           b"ordn", b"ordn", b"ordn", b"ordn", b"ordn",
+                           b"pnum", b"pnum", b"pnum", b"pnum", b"pnum",
+                           b"sinf", b"sinf", b"sinf", b"sinf", b"sinf",
+                           b"subs", b"subs", b"subs", b"subs", b"subs",
+                           b"sups", b"sups", b"sups", b"sups", b"sups",
+                           b"tnum", b"tnum", b"tnum", b"tnum", b"tnum",
+                           b"zero", b"zero", b"zero", b"zero", b"zero"]);
+    let lookups = features.records.iter().map(|record| record.lookup_count).collect::<Vec<_>>();
+    assert_eq!(lookups, vec![2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 1, 1, 1,
+                             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 1,
+                             1, 1, 1, 1, 1, 1, 1, 1, 1]);
+}
+
+#[test]
+fn glyph_substitution_scripts() {
+    use opentype::GlyphSubstitution;
+    scripts(&ok!(GlyphSubstitution::read(&mut setup(57648))).scripts);
+}
+
+fn scripts(scripts: &Scripts) {
     let tags = scripts.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
-    assert_eq!(tags, &[Tag(*b"DFLT"), Tag(*b"latn")]);
+    assert_eq!(tags, tags![b"DFLT", b"latn"]);
     let tags = scripts.records.iter()
                               .map(|record| record.language_headers.iter()
                                                                    .map(|header| header.tag)
                                                                    .collect::<Vec<_>>())
                               .collect::<Vec<Vec<_>>>();
-    assert_eq!(tags, &[vec![], vec![Tag(*b"AZE "), Tag(*b"CRT "), Tag(*b"TRK ")]]);
+    assert_eq!(tags, &[vec![], tags![b"AZE ", b"CRT ", b"TRK "]]);
     assert!(scripts.records[0].default_language.is_some());
 }
 

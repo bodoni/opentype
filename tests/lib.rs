@@ -108,8 +108,12 @@ fn glyph_substitution_scripts() {
 }
 
 fn scripts(scripts: &Scripts) {
+    use opentype::layout::script::Script;
+
     let tags = scripts.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"DFLT", b"latn"]);
+    assert!(scripts.get(Script::Default).is_some());
+    assert!(scripts.get(Script::Latin).is_some());
     let tags = scripts.records.iter()
                               .map(|record| record.language_headers.iter()
                                                                    .map(|header| header.tag)

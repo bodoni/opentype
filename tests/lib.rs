@@ -5,10 +5,7 @@ use opentype::layout::Scripts;
 use std::fs::File;
 
 macro_rules! ok(($result:expr) => ($result.unwrap()));
-
-macro_rules! tags(
-    ($($name:expr),*) => (vec![$(Tag(*$name)),*]);
-);
+macro_rules! tags(($($name:expr),*) => (vec![$(Tag(*$name)),*]));
 
 #[test]
 fn glyph_positioning_features() {
@@ -29,18 +26,16 @@ fn glyph_positioning_lookups() {
 
     let GlyphPositioning { lookups, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
     assert_eq!(lookups.records.len(), 1);
-    assert_eq!(lookups.records[0].kind, 2);
-    assert!(lookups.records[0].mark_filtering_set.is_none());
-
-    let tables = &lookups.records[0].tables;
-    assert_eq!(tables.len(), 2);
-    match &tables[0] {
+    let record = &lookups.records[0];
+    assert!(record.mark_filtering_set.is_none());
+    assert_eq!(record.tables.len(), 2);
+    match &record.tables[0] {
         &Table::PairAdjustment(PairAdjustment::Format1(ref table)) => {
             assert_eq!(table.pair_set_count, 65);
         },
         _ => unreachable!(),
     }
-    match &tables[1] {
+    match &record.tables[1] {
         &Table::PairAdjustment(PairAdjustment::Format2(ref table)) => {
             assert_eq!(table.class1_count, 99);
             assert_eq!(table.class2_count, 95);
@@ -82,6 +77,28 @@ fn glyph_substitution_features() {
                              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 1,
                              1, 1, 1, 1, 1, 1, 1, 1, 1]);
+}
+
+#[test]
+fn glyph_substitution_lookups() {
+    use opentype::GlyphSubstitution;
+    use opentype::glyph_substitution::table::Table;
+
+    let GlyphSubstitution { lookups, .. } = ok!(GlyphSubstitution::read(&mut setup(57648)));
+    let kinds = lookups.records.iter().map(|record| record.kind).collect::<Vec<_>>();
+    assert_eq!(kinds, &[1, 3, 1, 1, 1, 1, 1, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1]);
+    let record = &lookups.records[0];
+    assert_eq!(record.tables.len(), 1);
+    match &record.tables[0] {
+        &Table::SingleSubstibution(..) => {},
+        _ => unreachable!(),
+    }
+    let record = &lookups.records[17];
+    assert_eq!(record.tables.len(), 1);
+    match &record.tables[0] {
+        &Table::LigatureSubstibution(..) => {},
+        _ => unreachable!(),
+    }
 }
 
 #[test]

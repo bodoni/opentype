@@ -108,7 +108,7 @@ fn glyph_substitution_scripts() {
 }
 
 fn scripts(scripts: &Scripts) {
-    use opentype::layout::script::Script;
+    use opentype::layout::script::{Language, Script};
 
     let tags = scripts.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"DFLT", b"latn"]);
@@ -120,7 +120,12 @@ fn scripts(scripts: &Scripts) {
                                                                    .collect::<Vec<_>>())
                               .collect::<Vec<Vec<_>>>();
     assert_eq!(tags, &[vec![], tags![b"AZE ", b"CRT ", b"TRK "]]);
-    assert!(scripts.records[0].default_language.is_some());
+    let record = &scripts.records[0];
+    assert!(record.default_language.is_some());
+    assert_eq!(record.language_count, 0);
+    let record = &scripts.records[1];
+    assert_eq!(record.language_count, 3);
+    assert!(record.get(Language::Turkish).is_some());
 }
 
 fn setup(seek: u64) -> File {

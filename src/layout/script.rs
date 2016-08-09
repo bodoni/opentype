@@ -3,11 +3,12 @@
 use truetype::Tag;
 
 table! {
+    @position
     #[doc = "A script list."]
     pub Scripts {
         count (u16), // ScriptCount
 
-        headers (Vec<Header>) |this, tape, position| { // ScriptRecord
+        headers (Vec<Header>) |this, tape, __| { // ScriptRecord
             tape.take_given(this.count as usize)
         },
 
@@ -32,12 +33,13 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A script record."]
     pub Record {
         default_language_offset (u16), // DefaultLangSys
         language_count          (u16), // LangSysCount
 
-        language_headers (Vec<LanguageHeader>) |this, tape, position| { // LangSysRecord
+        language_headers (Vec<LanguageHeader>) |this, tape, __| { // LangSysRecord
             tape.take_given(this.language_count as usize)
         },
 
@@ -72,7 +74,7 @@ table! {
 table! {
     #[doc = "A language-system record."]
     pub LanguageRecord {
-        lookup_order (u16) |this, tape, position| { // LookupOrder
+        lookup_order (u16) |__, tape| { // LookupOrder
             let value = try!(tape.take());
             if value != 0 {
                 raise!("found an unknown lookup order");
@@ -83,7 +85,7 @@ table! {
         required_feature_index (u16), // ReqFeatureIndex
         feature_count          (u16), // FeatureCount
 
-        feature_indices (Vec<u16>) |this, tape, position| { // FeatureIndex
+        feature_indices (Vec<u16>) |this, tape| { // FeatureIndex
             tape.take_given(this.feature_count as usize)
         },
     }

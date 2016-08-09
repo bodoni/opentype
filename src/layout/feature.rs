@@ -3,11 +3,12 @@
 use truetype::Tag;
 
 table! {
+    @position
     #[doc = "A feature list."]
     pub Features {
         count (u16), // FeatureCount
 
-        headers (Vec<Header>) |this, tape, position| { // FeatureRecord
+        headers (Vec<Header>) |this, tape, __| { // FeatureRecord
             tape.take_given(this.count as usize)
         },
 
@@ -32,12 +33,13 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A feature record."]
     pub Record {
         parameter_offset (u16), // FeatureParams
         lookup_count     (u16), // LookupCount
 
-        lookup_indices (Vec<u16>) |this, tape, position| { // LookupListIndex
+        lookup_indices (Vec<u16>) |this, tape, __| { // LookupListIndex
             tape.take_given(this.lookup_count as usize)
         },
 

@@ -66,6 +66,7 @@ pub enum SingleSubstibution {
 }
 
 table! {
+    @position
     #[doc = "A table for substituting one glyph with one glyph in format 1."]
     pub SingleSubstibution1 {
         format          (u16), // SubstFormat
@@ -80,6 +81,7 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for substituting one glyph with one glyph in format 2."]
     pub SingleSubstibution2 {
         format          (u16), // SubstFormat

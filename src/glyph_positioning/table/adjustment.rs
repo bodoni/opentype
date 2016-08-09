@@ -12,6 +12,7 @@ pub enum PairAdjustment {
 }
 
 table! {
+    @position
     #[doc = "A table for adjusting pairs of glyphs in format 1."]
     pub PairAdjustment1 {
         format          (u16  ), // PosFormat
@@ -41,6 +42,7 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for adjusting pairs of glyphs in format 2."]
     pub PairAdjustment2 {
         format          (u16  ), // PosFormat
@@ -91,6 +93,7 @@ pub enum SingleAdjustment {
 }
 
 table! {
+    @position
     #[doc = "A table for adjusting single glyphs in format 1."]
     pub SingleAdjustment1 {
         format          (u16  ), // PosFormat
@@ -109,6 +112,7 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for adjusting single glyphs in format 2."]
     pub SingleAdjustment2 {
         format          (u16  ), // PosFormat

@@ -2,15 +2,23 @@
 
 use truetype::Tag;
 
-use {Result, Tape, Value};
-
 table! {
-    @define
     #[doc = "A feature list."]
     pub Features {
-        count   (u16        ), // FeatureCount
-        headers (Vec<Header>), // FeatureRecord
-        records (Vec<Record>),
+        count (u16), // FeatureCount
+
+        headers (Vec<Header>) |tape, this, position| { // FeatureRecord
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<Record>) |tape, this, position| {
+            let mut values = Vec::with_capacity(this.count as usize);
+            for i in 0..(this.count as usize) {
+                try!(tape.jump(position + this.headers[i].offset as u64));
+                values.push(try!(tape.take()));
+            }
+            Ok(values)
+        },
     }
 }
 
@@ -24,50 +32,22 @@ table! {
 }
 
 table! {
-    @define
     #[doc = "A feature record."]
     pub Record {
-        parameter_offset (u16            ), // FeatureParams
-        lookup_count     (u16            ), // LookupCount
-        lookup_indices   (Vec<u16>       ), // LookupListIndex
-        parameters       (Option<Vec<u8>>),
-    }
-}
+        parameter_offset (u16), // FeatureParams
+        lookup_count     (u16), // LookupCount
 
-impl Value for Features {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let count = try!(tape.take::<u16>());
-        let headers: Vec<Header> = try!(tape.take_given(count as usize));
-        let mut records: Vec<Record> = Vec::with_capacity(count as usize);
-        for i in 0..(count as usize) {
-            try!(tape.jump(position + headers[i].offset as u64));
-            records.push(try!(tape.take()));
-        }
-        Ok(Features { count: count, headers: headers, records: records })
-    }
-}
+        lookup_indices (Vec<u16>) |tape, this, position| { // LookupListIndex
+            tape.take_given(this.lookup_count as usize)
+        },
 
-impl Value for Record {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let parameter_offset = try!(tape.take());
-        if parameter_offset != 0 {
-            // raise!("found a malformed feature");
-        }
-        let lookup_count = try!(tape.take());
-        let lookup_indices = try!(tape.take_given(lookup_count as usize));
-        let parameters = if parameter_offset != 0 {
-            try!(tape.jump(position + parameter_offset as u64));
-            Some(try!(tape.take_bytes(0)))
-        } else {
-            None
-        };
-        Ok(Record {
-            parameter_offset: parameter_offset,
-            lookup_count: lookup_count,
-            lookup_indices: lookup_indices,
-            parameters: parameters,
-        })
+        parameters (Option<Vec<u8>>) |tape, this, position| {
+            if this.parameter_offset != 0 {
+                try!(tape.jump(position + this.parameter_offset as u64));
+                Ok(Some(try!(tape.take_bytes(0))))
+            } else {
+                Ok(None)
+            }
+        },
     }
 }

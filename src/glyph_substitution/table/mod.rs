@@ -66,25 +66,34 @@ pub enum SingleSubstibution {
 }
 
 table! {
-    @define
     #[doc = "A table for substituting one glyph with one glyph in format 1."]
     pub SingleSubstibution1 {
-        format          (u16     ), // SubstFormat
-        coverage_offset (u16     ), // Coverage
-        delta_glyph_id  (i16     ), // DeltaGlyphID
-        coverage        (Coverage),
+        format          (u16), // SubstFormat
+        coverage_offset (u16), // Coverage
+        delta_glyph_id  (i16), // DeltaGlyphID
+
+        coverage (Coverage) |tape, this, position| {
+            try!(tape.jump(position + this.coverage_offset as u64));
+            tape.take()
+        },
     }
 }
 
 table! {
-    @define
     #[doc = "A table for substituting one glyph with one glyph in format 2."]
     pub SingleSubstibution2 {
-        format          (u16         ), // SubstFormat
-        coverage_offset (u16         ), // Coverage
-        glyph_count     (u16         ), // GlyphCount
-        glyph_ids       (Vec<GlyphID>), // Substitute
-        coverage        (Coverage    ),
+        format          (u16), // SubstFormat
+        coverage_offset (u16), // Coverage
+        glyph_count     (u16), // GlyphCount
+
+        glyph_ids (Vec<GlyphID>) |tape, this, position| { // Substitute
+            tape.take_given(this.glyph_count as usize)
+        },
+
+        coverage (Coverage) |tape, this, position| {
+            try!(tape.jump(position + this.coverage_offset as u64));
+            tape.take()
+        },
     }
 }
 
@@ -116,42 +125,6 @@ impl Value for SingleSubstibution {
             1 => SingleSubstibution::Format1(try!(tape.take())),
             2 => SingleSubstibution::Format2(try!(tape.take())),
             _ => raise!("found an unknown format of the single-substitution table"),
-        })
-    }
-}
-
-impl Value for SingleSubstibution1 {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let format = try!(tape.take());
-        let coverage_offset = try!(tape.take());
-        let delta_glyph_id = try!(tape.take());
-        try!(tape.jump(position + coverage_offset as u64));
-        let coverage = try!(tape.take());
-        Ok(SingleSubstibution1 {
-            format: format,
-            coverage_offset: coverage_offset,
-            delta_glyph_id: delta_glyph_id,
-            coverage: coverage,
-        })
-    }
-}
-
-impl Value for SingleSubstibution2 {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let format = try!(tape.take());
-        let coverage_offset = try!(tape.take());
-        let glyph_count = try!(tape.take());
-        let glyph_ids = try!(tape.take_given(glyph_count as usize));
-        try!(tape.jump(position + coverage_offset as u64));
-        let coverage = try!(tape.take());
-        Ok(SingleSubstibution2 {
-            format: format,
-            coverage_offset: coverage_offset,
-            glyph_count: glyph_count,
-            glyph_ids: glyph_ids,
-            coverage: coverage,
         })
     }
 }

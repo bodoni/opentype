@@ -2,15 +2,23 @@
 
 use truetype::Tag;
 
-use {Result, Tape, Value, Walue};
-
 table! {
-    @define
     #[doc = "A script list."]
     pub Scripts {
-        count   (u16        ), // ScriptCount
-        headers (Vec<Header>), // ScriptRecord
-        records (Vec<Record>),
+        count (u16), // ScriptCount
+
+        headers (Vec<Header>) |tape, this, position| { // ScriptRecord
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<Record>) |tape, this, position| {
+            let mut values: Vec<Record> = Vec::with_capacity(this.count as usize);
+            for i in 0..(this.count as usize) {
+                try!(tape.jump(position + this.headers[i].offset as u64));
+                values.push(try!(tape.take()));
+            }
+            Ok(values)
+        },
     }
 }
 
@@ -24,14 +32,32 @@ table! {
 }
 
 table! {
-    @define
     #[doc = "A script record."]
     pub Record {
-        default_language_offset (u16                   ), // DefaultLangSys
-        language_count          (u16                   ), // LangSysCount
-        language_headers        (Vec<LanguageHeader>   ), // LangSysRecord
-        default_language        (Option<LanguageRecord>),
-        language_records        (Vec<LanguageRecord>   ),
+        default_language_offset (u16), // DefaultLangSys
+        language_count          (u16), // LangSysCount
+
+        language_headers (Vec<LanguageHeader>) |tape, this, position| { // LangSysRecord
+            tape.take_given(this.language_count as usize)
+        },
+
+        default_language (Option<LanguageRecord>) |tape, this, position| {
+            if this.default_language_offset != 0 {
+                try!(tape.jump(position + this.default_language_offset as u64));
+                Ok(Some(try!(tape.take())))
+            } else {
+                Ok(None)
+            }
+        },
+
+        language_records (Vec<LanguageRecord>) |tape, this, position| {
+            let mut values = Vec::with_capacity(this.language_count as usize);
+            for i in 0..(this.language_count as usize) {
+                try!(tape.jump(position + this.language_headers[i].offset as u64));
+                values.push(try!(tape.take()));
+            }
+            Ok(values)
+        },
     }
 }
 
@@ -46,60 +72,20 @@ table! {
 table! {
     #[doc = "A language-system record."]
     pub LanguageRecord {
-        lookup_order (u16) |tape, this| { // LookupOrder
+        lookup_order (u16) |tape, this, position| { // LookupOrder
             let value = try!(tape.take());
             if value != 0 {
                 raise!("found an unknown lookup order");
             }
             Ok(value)
         },
+
         required_feature_index (u16), // ReqFeatureIndex
         feature_count          (u16), // FeatureCount
 
-        feature_indices (Vec<u16>) |tape, this| { // FeatureIndex
-            Walue::read(tape, this.feature_count as usize)
+        feature_indices (Vec<u16>) |tape, this, position| { // FeatureIndex
+            tape.take_given(this.feature_count as usize)
         },
-    }
-}
-
-impl Value for Scripts {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let count = try!(tape.take::<u16>());
-        let headers: Vec<Header> = try!(tape.take_given(count as usize));
-        let mut records: Vec<Record> = Vec::with_capacity(count as usize);
-        for i in 0..(count as usize) {
-            try!(tape.jump(position + headers[i].offset as u64));
-            records.push(try!(tape.take()));
-        }
-        Ok(Scripts { count: count, headers: headers, records: records })
-    }
-}
-
-impl Value for Record {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let default_language_offset = try!(tape.take::<u16>());
-        let language_count = try!(tape.take::<u16>());
-        let language_headers: Vec<LanguageHeader> = try!(tape.take_given(language_count as usize));
-        let default_language = if default_language_offset != 0 {
-            try!(tape.jump(position + default_language_offset as u64));
-            Some(try!(tape.take()))
-        } else {
-            None
-        };
-        let mut language_records = Vec::with_capacity(language_count as usize);
-        for i in 0..(language_count as usize) {
-            try!(tape.jump(position + language_headers[i].offset as u64));
-            language_records.push(try!(tape.take::<LanguageRecord>()));
-        }
-        Ok(Record {
-            default_language_offset: default_language_offset,
-            language_count: language_count,
-            language_headers: language_headers,
-            default_language: default_language,
-            language_records: language_records,
-        })
     }
 }
 

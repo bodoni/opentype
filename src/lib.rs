@@ -28,14 +28,13 @@
 
 extern crate postscript;
 
-#[macro_use(flags, table)]
+#[macro_use(flags)]
 extern crate truetype;
 
 pub use truetype::{Tag, Tape, Value, Walue, q32};
 
-macro_rules! raise(
-    ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
-);
+#[macro_use]
+mod macros;
 
 mod file;
 mod font;

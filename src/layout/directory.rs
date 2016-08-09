@@ -14,7 +14,7 @@ table! {
     #[doc = "The header of a directory table."]
     #[derive(Copy)]
     pub Header {
-        version (q32) |tape, this| { // Version
+        version (q32) |tape, this, position| { // Version
             let value = try!(tape.take());
             if value != q32(0x00010000) {
                 raise!("found an unknown format of the directory table");

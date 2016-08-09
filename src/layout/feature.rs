@@ -8,7 +8,7 @@ table! {
     pub Features {
         count (u16), // FeatureCount
 
-        headers (Vec<Header>) |this, tape, __| { // FeatureRecord
+        headers (Vec<Header>) |this, tape, _| { // FeatureRecord
             tape.take_given(this.count as usize)
         },
 
@@ -39,7 +39,7 @@ table! {
         parameter_offset (u16), // FeatureParams
         lookup_count     (u16), // LookupCount
 
-        lookup_indices (Vec<u16>) |this, tape, __| { // LookupListIndex
+        lookup_indices (Vec<u16>) |this, tape, _| { // LookupListIndex
             tape.take_given(this.lookup_count as usize)
         },
 

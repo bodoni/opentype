@@ -8,7 +8,7 @@ table! {
     pub Scripts {
         count (u16), // ScriptCount
 
-        headers (Vec<Header>) |this, tape, __| { // ScriptRecord
+        headers (Vec<Header>) |this, tape, _| { // ScriptRecord
             tape.take_given(this.count as usize)
         },
 
@@ -39,7 +39,7 @@ table! {
         default_language_offset (u16), // DefaultLangSys
         language_count          (u16), // LangSysCount
 
-        language_headers (Vec<LanguageHeader>) |this, tape, __| { // LangSysRecord
+        language_headers (Vec<LanguageHeader>) |this, tape, _| { // LangSysRecord
             tape.take_given(this.language_count as usize)
         },
 
@@ -74,7 +74,7 @@ table! {
 table! {
     #[doc = "A language-system record."]
     pub LanguageRecord {
-        lookup_order (u16) |__, tape| { // LookupOrder
+        lookup_order (u16) |_, tape| { // LookupOrder
             let value = try!(tape.take());
             if value != 0 {
                 raise!("found an unknown lookup order");

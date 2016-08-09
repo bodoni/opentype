@@ -18,7 +18,7 @@ table! {
         format (u16), // CoverageFormat
         count  (u16), // GlyphCount
 
-        glyphs (Vec<GlyphID>) |tape, this| { // GlyphArray
+        glyph_ids (Vec<GlyphID>) |tape, this| { // GlyphArray
             tape.take_given(this.count as usize)
         },
     }

@@ -20,16 +20,16 @@ table! {
         value2_flags    (Flags), // ValueFormat2
         pair_set_count  (u16  ), // PairSetCount
 
-        pair_set_offsets (Vec<u16>) |tape, this, position| { // PairSetOffset
+        pair_set_offsets (Vec<u16>) |this, tape, position| { // PairSetOffset
             tape.take_given(this.pair_set_count as usize)
         },
 
-        coverage (Coverage) |tape, this, position| {
+        coverage (Coverage) |this, tape, position| {
             try!(tape.jump(position + this.coverage_offset as u64));
             tape.take()
         },
 
-        pair_sets (Vec<PairSet>) |tape, this, position| {
+        pair_sets (Vec<PairSet>) |this, tape, position| {
             let mut values = Vec::with_capacity(this.pair_set_count as usize);
             for i in 0..(this.pair_set_count as usize) {
                 try!(tape.jump(position + this.pair_set_offsets[i] as u64));
@@ -52,7 +52,7 @@ table! {
         class1_count    (u16  ), // Class1Count
         class2_count    (u16  ), // Class2Count
 
-        pair_sets (Vec<Vec<Pair>>) |tape, this, position| { // Class1Record
+        pair_sets (Vec<Vec<Pair>>) |this, tape, position| { // Class1Record
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for i in 0..(this.class1_count as usize) {
                 let mut records = Vec::with_capacity(this.class2_count as usize);
@@ -64,17 +64,17 @@ table! {
             Ok(values)
         },
 
-        coverage (Coverage) |tape, this, position| {
+        coverage (Coverage) |this, tape, position| {
             try!(tape.jump(position + this.coverage_offset as u64));
             tape.take()
         },
 
-        class1 (Class) |tape, this, position| {
+        class1 (Class) |this, tape, position| {
             try!(tape.jump(position + this.class1_offset as u64));
             tape.take()
         },
 
-        class2 (Class) |tape, this, position| {
+        class2 (Class) |this, tape, position| {
             try!(tape.jump(position + this.class2_offset as u64));
             tape.take()
         },
@@ -97,11 +97,11 @@ table! {
         coverage_offset (u16  ), // Coverage
         value_flags     (Flags), // ValueFormat
 
-        value (One) |tape, this, position| { // Value
+        value (One) |this, tape, position| { // Value
             tape.take_given(this.value_flags)
         },
 
-        coverage (Coverage) |tape, this, position| {
+        coverage (Coverage) |this, tape, position| {
             try!(tape.jump(position + this.coverage_offset as u64));
             tape.take()
         },
@@ -116,7 +116,7 @@ table! {
         value_flags     (Flags), // ValueFormat
         value_count     (u16  ), // ValueCount
 
-        values (Vec<One>) |tape, this, position| { // Value
+        values (Vec<One>) |this, tape, position| { // Value
             let mut values = Vec::with_capacity(this.value_count as usize);
             for i in 0..(this.value_count as usize) {
                 values.push(try!(tape.take_given(this.value_flags)));
@@ -124,7 +124,7 @@ table! {
             Ok(values)
         },
 
-        coverage (Coverage) |tape, this, position| {
+        coverage (Coverage) |this, tape, position| {
             try!(tape.jump(position + this.coverage_offset as u64));
             tape.take()
         },

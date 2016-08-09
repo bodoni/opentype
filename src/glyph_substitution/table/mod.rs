@@ -72,7 +72,7 @@ table! {
         coverage_offset (u16), // Coverage
         delta_glyph_id  (i16), // DeltaGlyphID
 
-        coverage (Coverage) |tape, this, position| {
+        coverage (Coverage) |this, tape, position| {
             try!(tape.jump(position + this.coverage_offset as u64));
             tape.take()
         },
@@ -86,11 +86,11 @@ table! {
         coverage_offset (u16), // Coverage
         glyph_count     (u16), // GlyphCount
 
-        glyph_ids (Vec<GlyphID>) |tape, this, position| { // Substitute
+        glyph_ids (Vec<GlyphID>) |this, tape, position| { // Substitute
             tape.take_given(this.glyph_count as usize)
         },
 
-        coverage (Coverage) |tape, this, position| {
+        coverage (Coverage) |this, tape, position| {
             try!(tape.jump(position + this.coverage_offset as u64));
             tape.take()
         },

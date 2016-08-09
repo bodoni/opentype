@@ -19,7 +19,7 @@ table! {
         start       (GlyphID), // StartGlyph
         value_count (u16    ), // GlyphCount
 
-        values (Vec<u16>) |tape, this, position| { // ClassValueArray
+        values (Vec<u16>) |this, tape, position| { // ClassValueArray
             tape.take_given(this.value_count as usize)
         },
     }
@@ -31,7 +31,7 @@ table! {
         format      (u16), // ClassFormat
         range_count (u16), // ClassRangeCount
 
-        ranges (Vec<Range>) |tape, this, position| { // ClassRangeRecord
+        ranges (Vec<Range>) |this, tape, position| { // ClassRangeRecord
             tape.take_given(this.range_count as usize)
         },
     }

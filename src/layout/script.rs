@@ -7,11 +7,11 @@ table! {
     pub Scripts {
         count (u16), // ScriptCount
 
-        headers (Vec<Header>) |tape, this, position| { // ScriptRecord
+        headers (Vec<Header>) |this, tape, position| { // ScriptRecord
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<Record>) |tape, this, position| {
+        records (Vec<Record>) |this, tape, position| {
             let mut values: Vec<Record> = Vec::with_capacity(this.count as usize);
             for i in 0..(this.count as usize) {
                 try!(tape.jump(position + this.headers[i].offset as u64));
@@ -37,11 +37,11 @@ table! {
         default_language_offset (u16), // DefaultLangSys
         language_count          (u16), // LangSysCount
 
-        language_headers (Vec<LanguageHeader>) |tape, this, position| { // LangSysRecord
+        language_headers (Vec<LanguageHeader>) |this, tape, position| { // LangSysRecord
             tape.take_given(this.language_count as usize)
         },
 
-        default_language (Option<LanguageRecord>) |tape, this, position| {
+        default_language (Option<LanguageRecord>) |this, tape, position| {
             if this.default_language_offset != 0 {
                 try!(tape.jump(position + this.default_language_offset as u64));
                 Ok(Some(try!(tape.take())))
@@ -50,7 +50,7 @@ table! {
             }
         },
 
-        language_records (Vec<LanguageRecord>) |tape, this, position| {
+        language_records (Vec<LanguageRecord>) |this, tape, position| {
             let mut values = Vec::with_capacity(this.language_count as usize);
             for i in 0..(this.language_count as usize) {
                 try!(tape.jump(position + this.language_headers[i].offset as u64));
@@ -72,7 +72,7 @@ table! {
 table! {
     #[doc = "A language-system record."]
     pub LanguageRecord {
-        lookup_order (u16) |tape, this, position| { // LookupOrder
+        lookup_order (u16) |this, tape, position| { // LookupOrder
             let value = try!(tape.take());
             if value != 0 {
                 raise!("found an unknown lookup order");
@@ -83,7 +83,7 @@ table! {
         required_feature_index (u16), // ReqFeatureIndex
         feature_count          (u16), // FeatureCount
 
-        feature_indices (Vec<u16>) |tape, this, position| { // FeatureIndex
+        feature_indices (Vec<u16>) |this, tape, position| { // FeatureIndex
             tape.take_given(this.feature_count as usize)
         },
     }

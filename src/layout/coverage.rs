@@ -18,7 +18,7 @@ table! {
         format (u16), // CoverageFormat
         count  (u16), // GlyphCount
 
-        glyph_ids (Vec<GlyphID>) |tape, this, position| { // GlyphArray
+        glyph_ids (Vec<GlyphID>) |this, tape, position| { // GlyphArray
             tape.take_given(this.count as usize)
         },
     }
@@ -30,7 +30,7 @@ table! {
         format (u16), // CoverageFormat
         count  (u16), // RangeCount
 
-        ranges (Vec<Range>) |tape, this, position| { // RangeRecord
+        ranges (Vec<Range>) |this, tape, position| { // RangeRecord
             tape.take_given(this.count as usize)
         },
     }

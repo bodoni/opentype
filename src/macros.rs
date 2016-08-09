@@ -2,8 +2,6 @@ macro_rules! raise(
     ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
 );
 
-#[doc(hidden)]
-#[macro_export]
 macro_rules! table {
     ($(#[$attribute:meta])* pub $structure:ident {
         $($field:ident ($($kind:tt)+) $(|$($argument:ident),+| $body:block)*,)*

@@ -1,6 +1,66 @@
-use {Result, Tape, Value};
+//! The tables.
+
+#![allow(unused_mut, unused_variables)]
+
+use {Result, Tape, Value, Walue};
 use glyph_positioning::value::{Flags, One, Pair, PairSet};
 use layout::{Class, Coverage};
+
+/// A table.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Table {
+    SingleAdjustment(SingleAdjustment),
+    PairAdjustment(PairAdjustment),
+    CursiveAttachment(CursiveAttachment),
+    MarkToBaseAttachment(MarkToBaseAttachment),
+    MarkToLigatureAttachment(MarkToLigatureAttachment),
+    MarkToMarkAttachment(MarkToMarkAttachment),
+    ContextPositioning(ContextPositioning),
+    ChainedContextPositioning(ChainedContextPositioning),
+    ExtensionPositioning(ExtensionPositioning),
+}
+
+table! {
+    #[doc = "A table for positioning glyphs in a chained context."]
+    pub ChainedContextPositioning {
+    }
+}
+
+table! {
+    #[doc = "A table for positioning glyphs in a context."]
+    pub ContextPositioning {
+    }
+}
+
+table! {
+    #[doc = "A table for attaching cursive glyphs."]
+    pub CursiveAttachment {
+    }
+}
+
+table! {
+    #[doc = "A table for other types of positioning."]
+    pub ExtensionPositioning {
+    }
+}
+
+table! {
+    #[doc = "A table for attaching combining marks to base glyphs."]
+    pub MarkToBaseAttachment {
+    }
+}
+
+table! {
+    #[doc = "A table for attaching combining marks to ligatures."]
+    pub MarkToLigatureAttachment {
+    }
+}
+
+table! {
+    #[doc = "A table for attaching combining marks to other marks."]
+    pub MarkToMarkAttachment {
+    }
+}
 
 /// A table for adjusting pairs of glyphs.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -135,15 +195,22 @@ table! {
     }
 }
 
-macro_rules! read_flags(
-    ($tape:ident) => ({
-        let flags: Flags = try!($tape.take());
-        if flags.is_invalid() {
-            raise!("found a malformed adjustment table");
-        }
-        flags
-    });
-);
+impl Walue<u16> for Table {
+    fn read<T: Tape>(tape: &mut T, kind: u16) -> Result<Self> {
+        Ok(match kind {
+            1 => Table::SingleAdjustment(try!(tape.take())),
+            2 => Table::PairAdjustment(try!(tape.take())),
+            3 => Table::CursiveAttachment(try!(tape.take())),
+            4 => Table::MarkToBaseAttachment(try!(tape.take())),
+            5 => Table::MarkToLigatureAttachment(try!(tape.take())),
+            6 => Table::MarkToMarkAttachment(try!(tape.take())),
+            7 => Table::ContextPositioning(try!(tape.take())),
+            8 => Table::ChainedContextPositioning(try!(tape.take())),
+            9 => Table::ExtensionPositioning(try!(tape.take())),
+            _ => raise!("found an unknown glyph-positioning type"),
+        })
+    }
+}
 
 impl Value for PairAdjustment {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {

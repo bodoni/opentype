@@ -152,26 +152,8 @@ table! {
 }
 
 table! {
-    #[doc = "A table for positioning glyphs in a chained context."]
-    pub ChainedContextPositioning {
-    }
-}
-
-table! {
-    #[doc = "A table for positioning glyphs in a context."]
-    pub ContextPositioning {
-    }
-}
-
-table! {
     #[doc = "A table for attaching cursive glyphs."]
     pub CursiveAttachment {
-    }
-}
-
-table! {
-    #[doc = "A table for other types of positioning."]
-    pub ExtensionPositioning {
     }
 }
 
@@ -190,6 +172,24 @@ table! {
 table! {
     #[doc = "A table for attaching combining marks to other marks."]
     pub MarkToMarkAttachment {
+    }
+}
+
+table! {
+    #[doc = "A table for positioning glyphs in a context."]
+    pub ContextPositioning {
+    }
+}
+
+table! {
+    #[doc = "A table for positioning glyphs in a chained context."]
+    pub ChainedContextPositioning {
+    }
+}
+
+table! {
+    #[doc = "A table for other types of positioning."]
+    pub ExtensionPositioning {
     }
 }
 

@@ -62,6 +62,34 @@ table! {
 }
 
 table! {
+    @position
+    #[doc = "A table for substituting one glyph with more than one glyph."]
+    pub MultipleSubstibution {
+        format           (u16) = { 1 }, // SubstFormat
+        coverage_offset  (u16), // Coverage
+        sequence_count   (u16), // SequenceCount
+
+        sequence_offsets (Vec<u16>) |this, tape, _| { // Sequence
+            tape.take_given(this.sequence_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            try!(tape.jump(position + this.coverage_offset as u64));
+            tape.take()
+        },
+
+        sequences (Vec<Sequence>) |this, tape, position| {
+            let mut values = Vec::with_capacity(this.sequence_count as usize);
+            for i in 0..(this.sequence_count as usize) {
+                try!(tape.jump(position + this.sequence_offsets[i] as u64));
+                values.push(try!(tape.take()));
+            }
+            Ok(values)
+        },
+    }
+}
+
+table! {
     #[doc = "A table for substituting one glyph with one of many glyphs."]
     pub AlternateSubstibution {
     }
@@ -96,26 +124,20 @@ table! {
 }
 
 table! {
-    #[doc = "A table for substituting glyphs in a chained context."]
-    pub ChainedContextSubstibution {
-    }
-}
-
-table! {
     #[doc = "A table for substituting glyphs in a context."]
     pub ContextSubstibution {
     }
 }
 
 table! {
-    #[doc = "A table for other types of substitution."]
-    pub ExtensionSubstibution {
+    #[doc = "A table for substituting glyphs in a chained context."]
+    pub ChainedContextSubstibution {
     }
 }
 
 table! {
-    #[doc = "A table for substituting one glyph with more than one glyph."]
-    pub MultipleSubstibution {
+    #[doc = "A table for other types of substitution."]
+    pub ExtensionSubstibution {
     }
 }
 
@@ -157,6 +179,17 @@ table! {
                 values.push(try!(tape.take()));
             }
             Ok(values)
+        },
+    }
+}
+
+table! {
+    #[doc = "A sequence of glyphs."]
+    pub Sequence {
+        count (u16), // GlyphCount
+
+        glyph_ids (Vec<GlyphID>) |this, tape| { // Substitute
+            tape.take_given(this.count as usize)
         },
     }
 }

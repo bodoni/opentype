@@ -3,36 +3,37 @@ macro_rules! raise(
 );
 
 macro_rules! table {
-    ($(#[$attribute:meta])* pub $structure:ident {
-        $($field:ident ($($kind:tt)+) $(|$($argument:tt),+| $body:block)*,)*
+    ($(#[$attribute:meta])* pub $name:ident {
+        $($field:ident ($($kind:tt)+) $(= $value:block)* $(|$($argument:tt),+| $body:block)*,)*
     }) => (
-        table! { @define $(#[$attribute])* pub $structure { $($field ($($kind)+),)* } }
-        table! { @implement pub $structure { $($field ($($kind)+) $(|$($argument),+| $body)*,)* } }
+        table! { @define $(#[$attribute])* pub $name { $($field ($($kind)+),)* } }
+        table! {
+            @implement
+            pub $name { $($field ($($kind)+) [$($value)*] $(|$($argument),+| $body)*,)* }
+        }
     );
-    (@position $(#[$attribute:meta])* pub $structure:ident {
-        $($field:ident ($($kind:tt)+) $(|$($argument:tt),+| $body:block)*,)*
+    (@position $(#[$attribute:meta])* pub $name:ident {
+        $($field:ident ($($kind:tt)+) $(= $value:block)* $(|$($argument:tt),+| $body:block)*,)*
     }) => (
-        table! { @define $(#[$attribute])* pub $structure { $($field ($($kind)+),)* } }
+        table! { @define $(#[$attribute])* pub $name { $($field ($($kind)+),)* } }
         table! {
             @implement @position
-            pub $structure { $($field ($($kind)+) $(|$($argument),+| $body)*,)* }
+            pub $name { $($field ($($kind)+) [$($value)*] $(|$($argument),+| $body)*,)* }
         }
     );
-    (@define $(#[$attribute:meta])* pub $structure:ident {
-        $($field:ident ($kind:ty),)*
-    }) => (
+    (@define $(#[$attribute:meta])* pub $name:ident { $($field:ident ($kind:ty),)* }) => (
         $(#[$attribute])*
         #[derive(Clone, Debug, Eq, PartialEq)]
-        pub struct $structure { $(pub $field: $kind,)* }
+        pub struct $name { $(pub $field: $kind,)* }
     );
-    (@implement pub $structure:ident {
-        $($field:ident ($($kind:tt)+) $(|$($argument:tt),+| $body:block)*,)*
+    (@implement pub $name:ident {
+        $($field:ident ($($kind:tt)+) [$($value:block)*] $(|$($argument:tt),+| $body:block)*,)*
     }) => (
-        impl $crate::Value for $structure {
+        impl $crate::Value for $name {
             fn read<T: $crate::Tape>(tape: &mut T) -> $crate::Result<Self> {
-                let mut table: $structure = unsafe { ::std::mem::uninitialized() };
+                let mut table: $name = unsafe { ::std::mem::uninitialized() };
                 $({
-                    let value = table!(@read $structure, tape, table, [], [$($kind)+]
+                    let value = table!(@read $name, table, tape [] [$($kind)+] [$($value)*]
                                        $(|$($argument),+| $body)*);
                     ::std::mem::forget(::std::mem::replace(&mut table.$field, value));
                 })*
@@ -40,15 +41,15 @@ macro_rules! table {
             }
         }
     );
-    (@implement @position pub $structure:ident {
-        $($field:ident ($($kind:tt)+) $(|$($argument:tt),+| $body:block)*,)*
+    (@implement @position pub $name:ident {
+        $($field:ident ($($kind:tt)+) [$($value:block)*] $(|$($argument:tt),+| $body:block)*,)*
     }) => (
-        impl $crate::Value for $structure {
+        impl $crate::Value for $name {
             fn read<T: $crate::Tape>(tape: &mut T) -> $crate::Result<Self> {
                 let position = try!(tape.position());
-                let mut table: $structure = unsafe { ::std::mem::uninitialized() };
+                let mut table: $name = unsafe { ::std::mem::uninitialized() };
                 $({
-                    let value = table!(@read $structure, tape, table, [position], [$($kind)+]
+                    let value = table!(@read $name, table, tape [position] [$($kind)+] [$($value)*]
                                        $(|$($argument),+| $body)*);
                     ::std::mem::forget(::std::mem::replace(&mut table.$field, value));
                 })*
@@ -56,20 +57,28 @@ macro_rules! table {
             }
         }
     );
-    (@read $structure:ident, $tape:ident, $table:ident, [], [$kind:ty]
-     |$chair:pat, $band:pat| $body:block) => ({
-        #[inline(always)]
-        fn read<T: $crate::Tape>($chair: &$structure, $band: &mut T) -> $crate::Result<$kind> $body
-        try!(read(&$table, $tape))
-    });
-    (@read $structure:ident, $tape:ident, $table:ident, [$position:ident], [$kind:ty]
-     |$chair:pat, $band:pat, $location:pat| $body:block) => ({
-        #[inline(always)]
-        fn read<T: $crate::Tape>($chair: &$structure, $band: &mut T, $location: u64)
-                                 -> $crate::Result<$kind> $body
-        try!(read(&$table, $tape, $position))
-    });
-    (@read $structure:ident, $tape:ident, $table:expr, [$($position:tt)*], [$kind:ty]) => (
+    (@read $name:ident, $this:ident, $tape:ident [$($position:tt)*] [$kind:ty] []) => (
         try!($tape.take())
     );
+    (@read $name:ident, $this:ident, $tape:ident [$($position:tt)*] [$kind:ty]
+     [$value:block]) => ({
+        let value = try!($tape.take());
+        if value != $value {
+            raise!("found a malformed or unsupported table");
+        }
+        value
+    });
+    (@read $name:ident, $this:ident, $tape:ident [] [$kind:ty] []
+     |$this_:pat, $tape_:pat| $body:block) => ({
+        #[inline(always)]
+        fn read<T: $crate::Tape>($this_: &$name, $tape_: &mut T) -> $crate::Result<$kind> $body
+        try!(read(&$this, $tape))
+    });
+    (@read $name:ident, $this:ident, $tape:ident [$position:ident] [$kind:ty] []
+     |$this_:pat, $tape_:pat, $position_:pat| $body:block) => ({
+        #[inline(always)]
+        fn read<T: $crate::Tape>($this_: &$name, $tape_: &mut T, $position_: u64)
+                                 -> $crate::Result<$kind> $body
+        try!(read(&$this, $tape, $position))
+    });
 }

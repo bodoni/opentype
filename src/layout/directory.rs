@@ -14,14 +14,7 @@ table! {
     #[doc = "The header of a directory table."]
     #[derive(Copy)]
     pub Header {
-        version (q32) |_, tape| { // Version
-            let value = try!(tape.take());
-            if value != q32(0x00010000) {
-                raise!("found an unknown format of the directory table");
-            }
-            Ok(value)
-        },
-
+        version        (q32) = { q32(0x00010000) }, // Version
         script_offset  (u16), // ScriptList
         feature_offset (u16), // FeatureList
         lookup_offset  (u16), // LookupList

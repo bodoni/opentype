@@ -48,14 +48,7 @@ table! {
     @position
     #[doc = "A table for substituting multiple glyphs with one glyph."]
     pub LigatureSubstibution {
-        format (u16) |this, tape, _| { // SubstFormat
-            let value = try!(tape.take());
-            if value != 1 {
-                raise!("found an unknown ligature-substitution format");
-            }
-            Ok(value)
-        },
-
+        format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // LigSetCount
 
@@ -98,7 +91,7 @@ table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 1."]
     pub SingleSubstibution1 {
-        format          (u16), // SubstFormat
+        format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         delta_glyph_id  (i16), // DeltaGlyphID
 
@@ -113,7 +106,7 @@ table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 2."]
     pub SingleSubstibution2 {
-        format          (u16), // SubstFormat
+        format          (u16) = { 2 }, // SubstFormat
         coverage_offset (u16), // Coverage
         glyph_count     (u16), // GlyphCount
 

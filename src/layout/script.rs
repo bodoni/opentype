@@ -74,14 +74,7 @@ table! {
 table! {
     #[doc = "A language-system record."]
     pub LanguageRecord {
-        lookup_order (u16) |_, tape| { // LookupOrder
-            let value = try!(tape.take());
-            if value != 0 {
-                raise!("found an unknown lookup order");
-            }
-            Ok(value)
-        },
-
+        lookup_order           (u16) = { 0 }, // LookupOrder
         required_feature_index (u16), // ReqFeatureIndex
         feature_count          (u16), // FeatureCount
 

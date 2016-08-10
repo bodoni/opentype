@@ -15,7 +15,7 @@ pub enum Coverage {
 table! {
     #[doc = "A coverage table in format 1."]
     pub Coverage1 {
-        format (u16), // CoverageFormat
+        format (u16) = { 1 }, // CoverageFormat
         count  (u16), // GlyphCount
 
         glyph_ids (Vec<GlyphID>) |this, tape| { // GlyphArray
@@ -27,7 +27,7 @@ table! {
 table! {
     #[doc = "A coverage table in format 2."]
     pub Coverage2 {
-        format (u16), // CoverageFormat
+        format (u16) = { 2 }, // CoverageFormat
         count  (u16), // RangeCount
 
         ranges (Vec<Range>) |this, tape| { // RangeRecord

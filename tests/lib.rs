@@ -4,6 +4,9 @@ use opentype::{Tag, Value};
 use opentype::layout::Scripts;
 use std::fs::File;
 
+const GPOS: u64 = 60412;
+const GSUB: u64 = 57648;
+
 macro_rules! ok(($result:expr) => ($result.unwrap()));
 macro_rules! tags(($($name:expr),*) => (vec![$(Tag(*$name)),*]));
 
@@ -11,7 +14,7 @@ macro_rules! tags(($($name:expr),*) => (vec![$(Tag(*$name)),*]));
 fn glyph_positioning_features() {
     use opentype::GlyphPositioning;
 
-    let GlyphPositioning { features, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
+    let GlyphPositioning { features, .. } = ok!(Value::read(&mut setup(GPOS)));
     let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"kern", b"kern", b"kern", b"kern", b"kern",
                            b"size", b"size", b"size", b"size", b"size"]);
@@ -24,7 +27,7 @@ fn glyph_positioning_lookups() {
     use opentype::GlyphPositioning;
     use opentype::glyph_positioning::table::{PairAdjustment, Table};
 
-    let GlyphPositioning { lookups, .. } = ok!(GlyphPositioning::read(&mut setup(60412)));
+    let GlyphPositioning { lookups, .. } = ok!(Value::read(&mut setup(GPOS)));
     assert_eq!(lookups.records.len(), 1);
     let record = &lookups.records[0];
     assert!(record.mark_filtering_set.is_none());
@@ -47,14 +50,14 @@ fn glyph_positioning_lookups() {
 #[test]
 fn glyph_positioning_scripts() {
     use opentype::GlyphPositioning;
-    scripts(&ok!(GlyphPositioning::read(&mut setup(60412))).scripts);
+    scripts(&ok!(GlyphPositioning::read(&mut setup(GPOS))).scripts);
 }
 
 #[test]
 fn glyph_substitution_features() {
     use opentype::GlyphSubstitution;
 
-    let GlyphSubstitution { features, .. } = ok!(GlyphSubstitution::read(&mut setup(57648)));
+    let GlyphSubstitution { features, .. } = ok!(Value::read(&mut setup(GSUB)));
     let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"aalt", b"aalt", b"aalt", b"aalt", b"aalt",
                            b"case", b"case", b"case", b"case", b"case",
@@ -84,7 +87,7 @@ fn glyph_substitution_lookups() {
     use opentype::GlyphSubstitution;
     use opentype::glyph_substitution::table::{SingleSubstibution, Table};
 
-    let GlyphSubstitution { lookups, .. } = ok!(GlyphSubstitution::read(&mut setup(57648)));
+    let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup(GSUB)));
     let kinds = lookups.records.iter().map(|record| record.kind).collect::<Vec<_>>();
     assert_eq!(kinds, &[1, 3, 1, 1, 1, 1, 1, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1]);
     let record = &lookups.records[0];
@@ -98,7 +101,13 @@ fn glyph_substitution_lookups() {
     let record = &lookups.records[17];
     assert_eq!(record.tables.len(), 1);
     match &record.tables[0] {
-        &Table::LigatureSubstibution(..) => {},
+        &Table::LigatureSubstibution(ref table) => {
+            assert_eq!(table.set_count, 1);
+            let table = &table.sets[0];
+            assert_eq!(table.count, 3);
+            let table = &table.records[0];
+            assert_eq!(table.component_count, 2);
+        },
         _ => unreachable!(),
     }
 }
@@ -106,7 +115,7 @@ fn glyph_substitution_lookups() {
 #[test]
 fn glyph_substitution_scripts() {
     use opentype::GlyphSubstitution;
-    scripts(&ok!(GlyphSubstitution::read(&mut setup(57648))).scripts);
+    scripts(&ok!(GlyphSubstitution::read(&mut setup(GSUB))).scripts);
 }
 
 fn scripts(scripts: &Scripts) {
@@ -120,7 +129,7 @@ fn scripts(scripts: &Scripts) {
                               .map(|record| record.language_headers.iter()
                                                                    .map(|header| header.tag)
                                                                    .collect::<Vec<_>>())
-                              .collect::<Vec<Vec<_>>>();
+                              .collect::<Vec<_>>();
     assert_eq!(tags, &[vec![], tags![b"AZE ", b"CRT ", b"TRK "]]);
     let record = &scripts.records[0];
     assert!(record.default_language.is_some());

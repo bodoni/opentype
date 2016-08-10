@@ -45,8 +45,37 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for substituting multiple glyphs with one glyph."]
     pub LigatureSubstibution {
+        format (u16) |this, tape, _| { // SubstFormat
+            let value = try!(tape.take());
+            if value != 1 {
+                raise!("found an unknown ligature-substitution format");
+            }
+            Ok(value)
+        },
+
+        coverage_offset (u16), // Coverage
+        set_count       (u16), // LigSetCount
+
+        set_offsets (Vec<u16>) |this, tape, _| { // LigatureSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            try!(tape.jump(position + this.coverage_offset as u64));
+            tape.take()
+        },
+
+        sets (Vec<LigatureSet>) |this, tape, position| {
+            let mut values = Vec::with_capacity(this.set_count as usize);
+            for i in 0..(this.set_count as usize) {
+                try!(tape.jump(position + this.set_offsets[i] as u64));
+                values.push(try!(tape.take()));
+            }
+            Ok(values)
+        },
     }
 }
 
@@ -88,7 +117,7 @@ table! {
         coverage_offset (u16), // Coverage
         glyph_count     (u16), // GlyphCount
 
-        glyph_ids (Vec<GlyphID>) |this, tape, position| { // Substitute
+        glyph_ids (Vec<GlyphID>) |this, tape, _| { // Substitute
             tape.take_given(this.glyph_count as usize)
         },
 
@@ -102,6 +131,42 @@ table! {
 table! {
     #[doc = "A table for substituting glyphs in reverse order in a chained context."]
     pub ReverseChainedContextSubstibution {
+    }
+}
+
+table! {
+    #[doc = "A ligature record."]
+    pub Ligature {
+        glyph_id        (GlyphID), // LigGlyph
+        component_count (u16    ), // CompCount
+
+        component_ids (Vec<GlyphID>) |this, tape| { // Component
+            if this.component_count == 0 {
+                raise!("found a malformed ligature record");
+            }
+            tape.take_given(this.component_count as usize - 1)
+        },
+    }
+}
+
+table! {
+    @position
+    #[doc = "A set of ligature records."]
+    pub LigatureSet {
+        count (u16), // LigatureCount
+
+        offsets (Vec<u16>) |this, tape, _| { // Ligature
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<Ligature>) |this, tape, position| {
+            let mut values = Vec::with_capacity(this.count as usize);
+            for i in 0..(this.count as usize) {
+                try!(tape.jump(position + this.offsets[i] as u64));
+                values.push(try!(tape.take()));
+            }
+            Ok(values)
+        },
     }
 }
 

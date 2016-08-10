@@ -25,7 +25,7 @@ fn glyph_positioning_features() {
 #[test]
 fn glyph_positioning_lookups() {
     use opentype::GlyphPositioning;
-    use opentype::glyph_positioning::table::{PairAdjustment, Table};
+    use opentype::glyph_positioning::{PairAdjustment, Table};
 
     let GlyphPositioning { lookups, .. } = ok!(Value::read(&mut setup(GPOS)));
     assert_eq!(lookups.records.len(), 1);
@@ -85,7 +85,7 @@ fn glyph_substitution_features() {
 #[test]
 fn glyph_substitution_lookups() {
     use opentype::GlyphSubstitution;
-    use opentype::glyph_substitution::table::{SingleSubstibution, Table};
+    use opentype::glyph_substitution::{SingleSubstibution, Table};
 
     let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup(GSUB)));
     let kinds = lookups.records.iter().map(|record| record.kind).collect::<Vec<_>>();

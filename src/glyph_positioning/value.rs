@@ -1,26 +1,9 @@
-//! Positioning values.
-
 use {Result, Tape, Walue};
-
-flags! {
-    #[doc = "Value flags."]
-    pub Flags(u16) {
-        0b0000_0000_0000_0001 => has_x_placement,
-        0b0000_0000_0000_0010 => has_y_placement,
-        0b0000_0000_0000_0100 => has_x_advance,
-        0b0000_0000_0000_1000 => has_y_advance,
-        0b0000_0000_0001_0000 => has_device_x_placement,
-        0b0000_0000_0010_0000 => has_device_y_placement,
-        0b0000_0000_0100_0000 => has_device_x_advance,
-        0b0000_0000_1000_0000 => has_device_y_advance,
-        0b1111_1111_0000_0000 => is_invalid,
-    }
-}
 
 table! {
     @define
     #[doc = "A single value."]
-    pub One { // ValueRecord
+    pub SingleValue { // ValueRecord
         x_placement               (Option<i16>), // XPlacement
         y_placement               (Option<i16>), // YPlacement
         x_advance                 (Option<i16>), // XAdvance
@@ -34,28 +17,64 @@ table! {
 
 table! {
     @define
-    #[doc = "A pair of values."]
-    pub Pair { // PairValueRecord
-        value1 (One), // Value1
-        value2 (One), // Value2
+    #[doc = "A value pair."]
+    pub PairValue { // PairValueRecord
+        value1 (SingleValue), // Value1
+        value2 (SingleValue), // Value2
     }
 }
 
 table! {
     @define
     #[doc = "A set of value pairs."]
-    pub PairSet {
-        count   (u16      ), // PairValueCount
-        records (Vec<Pair>), // PairValueRecord
+    pub PairValueSet {
+        count   (u16           ), // PairValueCount
+        records (Vec<PairValue>), // PairValueRecord
     }
 }
 
-impl Walue<Flags> for One {
-    fn read<T: Tape>(tape: &mut T, flags: Flags) -> Result<Self> {
+flags! {
+    #[doc = "Value flags."]
+    pub ValueFlags(u16) {
+        0b0000_0000_0000_0001 => has_x_placement,
+        0b0000_0000_0000_0010 => has_y_placement,
+        0b0000_0000_0000_0100 => has_x_advance,
+        0b0000_0000_0000_1000 => has_y_advance,
+        0b0000_0000_0001_0000 => has_device_x_placement,
+        0b0000_0000_0010_0000 => has_device_y_placement,
+        0b0000_0000_0100_0000 => has_device_x_advance,
+        0b0000_0000_1000_0000 => has_device_y_advance,
+        0b1111_1111_0000_0000 => is_invalid,
+    }
+}
+
+impl Walue<(ValueFlags, ValueFlags)> for PairValue {
+    #[inline]
+    fn read<T: Tape>(tape: &mut T, (flags1, flags2): (ValueFlags, ValueFlags)) -> Result<Self> {
+        Ok(PairValue {
+            value1: try!(tape.take_given(flags1)),
+            value2: try!(tape.take_given(flags2)),
+        })
+    }
+}
+
+impl Walue<(ValueFlags, ValueFlags)> for PairValueSet {
+    fn read<T: Tape>(tape: &mut T, flags: (ValueFlags, ValueFlags)) -> Result<Self> {
+        let count = try!(tape.take());
+        let mut records = Vec::with_capacity(count as usize);
+        for _ in 0..(count as usize) {
+            records.push(try!(tape.take_given(flags)));
+        }
+        Ok(PairValueSet { count: count, records: records })
+    }
+}
+
+impl Walue<ValueFlags> for SingleValue {
+    fn read<T: Tape>(tape: &mut T, flags: ValueFlags) -> Result<Self> {
         macro_rules! read(
             ($flag:ident) => (if flags.$flag() { Some(try!(tape.take())) } else { None });
         );
-        Ok(One {
+        Ok(SingleValue {
             x_placement: read!(has_x_placement),
             y_placement: read!(has_y_placement),
             x_advance: read!(has_x_advance),
@@ -65,23 +84,5 @@ impl Walue<Flags> for One {
             device_x_advance_offset: read!(has_device_x_advance),
             device_y_advance_offset: read!(has_device_y_advance),
         })
-    }
-}
-
-impl Walue<(Flags, Flags)> for Pair {
-    #[inline]
-    fn read<T: Tape>(tape: &mut T, (flags1, flags2): (Flags, Flags)) -> Result<Self> {
-        Ok(Pair { value1: try!(tape.take_given(flags1)), value2: try!(tape.take_given(flags2)) })
-    }
-}
-
-impl Walue<(Flags, Flags)> for PairSet {
-    fn read<T: Tape>(tape: &mut T, flags: (Flags, Flags)) -> Result<Self> {
-        let count = try!(tape.take());
-        let mut records = Vec::with_capacity(count as usize);
-        for _ in 0..(count as usize) {
-            records.push(try!(tape.take_given(flags)));
-        }
-        Ok(PairSet { count: count, records: records })
     }
 }

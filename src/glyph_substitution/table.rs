@@ -1,5 +1,3 @@
-//! The tables.
-
 #![allow(unused_mut, unused_variables)]
 
 use truetype::GlyphID;
@@ -18,64 +16,6 @@ pub enum Table {
     ChainedContextSubstibution(ChainedContextSubstibution),
     ExtensionSubstibution(ExtensionSubstibution),
     ReverseChainedContextSubstibution(ReverseChainedContextSubstibution),
-}
-
-table! {
-    #[doc = "A table for substituting one glyph with one of many glyphs."]
-    pub AlternateSubstibution {
-    }
-}
-
-table! {
-    #[doc = "A table for substituting glyphs in a chained context."]
-    pub ChainedContextSubstibution {
-    }
-}
-
-table! {
-    #[doc = "A table for substituting glyphs in a context."]
-    pub ContextSubstibution {
-    }
-}
-
-table! {
-    #[doc = "A table for other types of substitution."]
-    pub ExtensionSubstibution {
-    }
-}
-
-table! {
-    @position
-    #[doc = "A table for substituting multiple glyphs with one glyph."]
-    pub LigatureSubstibution {
-        format          (u16) = { 1 }, // SubstFormat
-        coverage_offset (u16), // Coverage
-        set_count       (u16), // LigSetCount
-
-        set_offsets (Vec<u16>) |this, tape, _| { // LigatureSet
-            tape.take_given(this.set_count as usize)
-        },
-
-        coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
-        },
-
-        sets (Vec<LigatureSet>) |this, tape, position| {
-            let mut values = Vec::with_capacity(this.set_count as usize);
-            for i in 0..(this.set_count as usize) {
-                try!(tape.jump(position + this.set_offsets[i] as u64));
-                values.push(try!(tape.take()));
-            }
-            Ok(values)
-        },
-    }
-}
-
-table! {
-    #[doc = "A table for substituting one glyph with more than one glyph."]
-    pub MultipleSubstibution {
-    }
 }
 
 /// A table for substituting one glyph with one glyph.
@@ -118,6 +58,64 @@ table! {
             try!(tape.jump(position + this.coverage_offset as u64));
             tape.take()
         },
+    }
+}
+
+table! {
+    #[doc = "A table for substituting one glyph with one of many glyphs."]
+    pub AlternateSubstibution {
+    }
+}
+
+table! {
+    @position
+    #[doc = "A table for substituting multiple glyphs with one glyph."]
+    pub LigatureSubstibution {
+        format          (u16) = { 1 }, // SubstFormat
+        coverage_offset (u16), // Coverage
+        set_count       (u16), // LigSetCount
+
+        set_offsets (Vec<u16>) |this, tape, _| { // LigatureSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            try!(tape.jump(position + this.coverage_offset as u64));
+            tape.take()
+        },
+
+        sets (Vec<LigatureSet>) |this, tape, position| {
+            let mut values = Vec::with_capacity(this.set_count as usize);
+            for i in 0..(this.set_count as usize) {
+                try!(tape.jump(position + this.set_offsets[i] as u64));
+                values.push(try!(tape.take()));
+            }
+            Ok(values)
+        },
+    }
+}
+
+table! {
+    #[doc = "A table for substituting glyphs in a chained context."]
+    pub ChainedContextSubstibution {
+    }
+}
+
+table! {
+    #[doc = "A table for substituting glyphs in a context."]
+    pub ContextSubstibution {
+    }
+}
+
+table! {
+    #[doc = "A table for other types of substitution."]
+    pub ExtensionSubstibution {
+    }
+}
+
+table! {
+    #[doc = "A table for substituting one glyph with more than one glyph."]
+    pub MultipleSubstibution {
     }
 }
 

@@ -4,9 +4,9 @@
 
 use layout::Directory;
 
-pub mod table;
+mod table;
 
-use self::table::Table;
+pub use self::table::*;
 
 /// A glyph-substitution table.
 pub type GlyphSubstitution = Directory<Table>;

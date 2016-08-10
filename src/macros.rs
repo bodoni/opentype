@@ -57,13 +57,13 @@ macro_rules! table {
         }
     );
     (@read $structure:ident, $tape:ident, $table:ident, [], [$kind:ty]
-     |$chair:tt, $band:tt| $body:block) => ({
+     |$chair:pat, $band:pat| $body:block) => ({
         #[inline(always)]
         fn read<T: $crate::Tape>($chair: &$structure, $band: &mut T) -> $crate::Result<$kind> $body
         try!(read(&$table, $tape))
     });
     (@read $structure:ident, $tape:ident, $table:ident, [$position:ident], [$kind:ty]
-     |$chair:tt, $band:tt, $location:tt| $body:block) => ({
+     |$chair:pat, $band:pat, $location:pat| $body:block) => ({
         #[inline(always)]
         fn read<T: $crate::Tape>($chair: &$structure, $band: &mut T, $location: u64)
                                  -> $crate::Result<$kind> $body

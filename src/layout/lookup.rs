@@ -52,9 +52,6 @@ impl<U> Value for Record<U> where U: Walue<u16> {
         let position = try!(tape.position());
         let kind = try!(tape.take());
         let flags = try!(tape.take::<Flags>());
-        if flags.is_invalid() {
-            raise!("found a malformed lookup record");
-        }
         let table_count = try!(tape.take::<u16>());
         let table_offsets: Vec<u16> = try!(tape.take_given(table_count as usize));
         let mark_filtering_set = if flags.has_mark_filtering() {

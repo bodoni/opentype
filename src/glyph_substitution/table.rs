@@ -3,7 +3,7 @@
 use truetype::GlyphID;
 
 use {Result, Tape, Value, Walue};
-use glyph_substitution::{AlternateSet, ClassRuleSet, LigatureSet, RuleSet, Sequence};
+use glyph_substitution::{AlternateSet, ClassRuleSet, LigatureSet, RuleSet, Sequence, Substitution};
 use layout::Coverage;
 
 /// A table.
@@ -183,9 +183,24 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for substituting glyphs in a context in format 3."]
     pub ContextSubstibution3 {
-        format (u16) = { 3 }, // SubstFormat
+        format             (u16) = { 3 }, // SubstFormat
+        glyph_count        (u16), // GlyphCount
+        substitution_count (u16), // SubstCount
+
+        coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+            tape.take_given(this.glyph_count as usize)
+        },
+
+        substitutions (Vec<Substitution>) |this, tape, _| { // SubstLookupRecord
+            tape.take_given(this.substitution_count as usize)
+        },
+
+        coverages (Vec<Coverage>) |this, tape, position| {
+            jump_take!(tape, position, this.glyph_count, this.coverage_offsets)
+        },
     }
 }
 

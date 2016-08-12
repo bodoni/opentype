@@ -12,6 +12,41 @@ table! {
 }
 
 table! {
+    #[doc = "A class substitution rule."]
+    pub ClassRule {
+        glyph_count        (u16), // GlyphCount
+        substitution_count (u16), // SubstCount
+
+        class_ids (Vec<u16>) |this, tape| { // Class
+            if this.glyph_count == 0 {
+                raise!("found a malformed class substitution rule");
+            }
+            tape.take_given(this.glyph_count as usize - 1)
+        },
+
+        substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
+            tape.take_given(this.substitution_count as usize)
+        },
+    }
+}
+
+table! {
+    @position
+    #[doc = "A set of class substitution rules."]
+    pub ClassRuleSet {
+        count (u16), // SubClassRuleCnt
+
+        offsets (Vec<u16>) |this, tape, _| { // SubClassRule
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<ClassRule>) |this, tape, position| {
+            jump_take!(tape, position, this.count, this.offsets)
+        },
+    }
+}
+
+table! {
     #[doc = "A ligature."]
     pub Ligature {
         glyph_id        (GlyphID), // LigGlyph
@@ -49,7 +84,10 @@ table! {
         substitution_count (u16), // SubstCount
 
         glyph_ids (Vec<GlyphID>) |this, tape| { // Input
-            tape.take_given(this.glyph_count as usize)
+            if this.glyph_count == 0 {
+                raise!("found a malformed substitution rule");
+            }
+            tape.take_given(this.glyph_count as usize - 1)
         },
 
         substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord

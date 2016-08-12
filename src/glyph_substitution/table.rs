@@ -90,8 +90,30 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for substituting one glyph with one of many glyphs."]
     pub AlternateSubstibution {
+        format          (u16) = { 1 }, // SubstFormat
+        coverage_offset (u16), // Coverage
+        set_count       (u16), // AlternateSetCount
+
+        set_offsets (Vec<u16>) |this, tape, _| { // AlternateSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            try!(tape.jump(position + this.coverage_offset as u64));
+            tape.take()
+        },
+
+        sets (Vec<AlternateSet>) |this, tape, position| {
+            let mut values = Vec::with_capacity(this.set_count as usize);
+            for i in 0..(this.set_count as usize) {
+                try!(tape.jump(position + this.set_offsets[i] as u64));
+                values.push(try!(tape.take()));
+            }
+            Ok(values)
+        },
     }
 }
 
@@ -148,7 +170,18 @@ table! {
 }
 
 table! {
-    #[doc = "A ligature record."]
+    #[doc = "A set of alternate glyphs."]
+    pub AlternateSet {
+        count (u16), // GlyphCount
+
+        glyph_ids (Vec<GlyphID>) |this, tape| { // Alternate
+            tape.take_given(this.count as usize)
+        },
+    }
+}
+
+table! {
+    #[doc = "A ligature."]
     pub Ligature {
         glyph_id        (GlyphID), // LigGlyph
         component_count (u16    ), // CompCount
@@ -164,7 +197,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of ligature records."]
+    #[doc = "A set of ligatures."]
     pub LigatureSet {
         count (u16), // LigatureCount
 

@@ -4,11 +4,11 @@
 
 use layout::Directory;
 
+mod element;
 mod table;
-mod value;
 
+pub use self::element::*;
 pub use self::table::*;
-pub use self::value::*;
 
 /// A glyph-positioning table.
 pub type GlyphPositioning = Directory<Table>;

@@ -1,7 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
 use {Result, Tape, Value, Walue};
-use glyph_positioning::{PairValue, PairValueSet, SingleValue, ValueFlags};
+use glyph_positioning::element::{PairValue, PairValueSet, SingleValue, ValueFlags};
 use layout::{Class, Coverage};
 
 /// A table.

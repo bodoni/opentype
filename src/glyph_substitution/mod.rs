@@ -4,8 +4,10 @@
 
 use layout::Directory;
 
+mod element;
 mod table;
 
+pub use self::element::*;
 pub use self::table::*;
 
 /// A glyph-substitution table.

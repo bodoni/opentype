@@ -3,6 +3,7 @@
 use truetype::GlyphID;
 
 use {Result, Tape, Value, Walue};
+use glyph_substitution::{AlternateSet, LigatureSet, RuleSet, Sequence};
 use layout::Coverage;
 
 /// A table.
@@ -125,9 +126,50 @@ table! {
     }
 }
 
+/// A table for substituting glyphs in a context.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ContextSubstibution {
+    /// Format 1.
+    Format1(ContextSubstibution1),
+    /// Format 2.
+    Format2(ContextSubstibution2),
+    /// Format 3.
+    Format3(ContextSubstibution3),
+}
+
 table! {
-    #[doc = "A table for substituting glyphs in a context."]
-    pub ContextSubstibution {
+    @position
+    #[doc = "A table for substituting glyphs in a context in format 1."]
+    pub ContextSubstibution1 {
+        format          (u16) = { 1 }, // SubstFormat
+        coverage_offset (u16), // Coverage
+        set_count       (u16), // SubRuleSetCount
+
+        set_offsets (Vec<u16>) |this, tape, position| { // SubRuleSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.coverage_offset)
+        },
+
+        sets (Vec<RuleSet>) |this, tape, position| {
+            jump_take!(tape, position, this.set_count, this.set_offsets)
+        },
+    }
+}
+
+table! {
+    #[doc = "A table for substituting glyphs in a context in format 2."]
+    pub ContextSubstibution2 {
+        format (u16) = { 2 }, // SubstFormat
+    }
+}
+
+table! {
+    #[doc = "A table for substituting glyphs in a context in format 3."]
+    pub ContextSubstibution3 {
+        format (u16) = { 3 }, // SubstFormat
     }
 }
 
@@ -146,59 +188,6 @@ table! {
 table! {
     #[doc = "A table for substituting glyphs in reverse order in a chained context."]
     pub ReverseChainedContextSubstibution {
-    }
-}
-
-table! {
-    #[doc = "A set of alternate glyphs."]
-    pub AlternateSet {
-        count (u16), // GlyphCount
-
-        glyph_ids (Vec<GlyphID>) |this, tape| { // Alternate
-            tape.take_given(this.count as usize)
-        },
-    }
-}
-
-table! {
-    #[doc = "A ligature."]
-    pub Ligature {
-        glyph_id        (GlyphID), // LigGlyph
-        component_count (u16    ), // CompCount
-
-        component_ids (Vec<GlyphID>) |this, tape| { // Component
-            if this.component_count == 0 {
-                raise!("found a malformed ligature record");
-            }
-            tape.take_given(this.component_count as usize - 1)
-        },
-    }
-}
-
-table! {
-    @position
-    #[doc = "A set of ligatures."]
-    pub LigatureSet {
-        count (u16), // LigatureCount
-
-        offsets (Vec<u16>) |this, tape, _| { // Ligature
-            tape.take_given(this.count as usize)
-        },
-
-        records (Vec<Ligature>) |this, tape, position| {
-            jump_take!(tape, position, this.count, this.offsets)
-        },
-    }
-}
-
-table! {
-    #[doc = "A sequence of glyphs."]
-    pub Sequence {
-        count (u16), // GlyphCount
-
-        glyph_ids (Vec<GlyphID>) |this, tape| { // Substitute
-            tape.take_given(this.count as usize)
-        },
     }
 }
 
@@ -224,6 +213,17 @@ impl Value for SingleSubstibution {
             1 => SingleSubstibution::Format1(try!(tape.take())),
             2 => SingleSubstibution::Format2(try!(tape.take())),
             _ => raise!("found an unknown format of the single-substitution table"),
+        })
+    }
+}
+
+impl Value for ContextSubstibution {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        Ok(match try!(tape.peek::<u16>()) {
+            1 => ContextSubstibution::Format1(try!(tape.take())),
+            2 => ContextSubstibution::Format2(try!(tape.take())),
+            3 => ContextSubstibution::Format3(try!(tape.take())),
+            _ => raise!("found an unknown format of the context-substitution table"),
         })
     }
 }

@@ -52,7 +52,7 @@ table! {
             tape.take_given(this.glyph_count as usize)
         },
 
-        substitutions (Vec<Substibution>) |this, tape| { // SubstLookupRecord
+        substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
             tape.take_given(this.substitution_count as usize)
         },
     }
@@ -88,8 +88,8 @@ table! {
 table! {
     #[doc = "A substitution."]
     #[derive(Copy)]
-    pub Substibution {
-        index        (u16), // SequenceIndex
-        lookup_index (u16), // LookupListIndex
+    pub Substitution {
+        sequence_index (u16), // SequenceIndex
+        lookup_index   (u16), // LookupListIndex
     }
 }

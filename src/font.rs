@@ -49,7 +49,7 @@ pub struct Font {
     pub windows_metrics: Option<WindowsMetrics>,
 }
 
-macro_rules! checksum_and_jump(
+macro_rules! check_jump(
     ($record:ident, $tape:ident, $process:expr) => ({
         if !try!($record.checksum($tape, $process)) {
             raise!("found a malformed font table");
@@ -57,7 +57,7 @@ macro_rules! checksum_and_jump(
         try!(truetype::Tape::jump($tape, $record.offset as u64));
     });
     ($record:ident, $tape:ident) => (
-        checksum_and_jump!($record, $tape, |_, word| word);
+        check_jump!($record, $tape, |_, word| word);
     );
 );
 
@@ -99,7 +99,7 @@ impl Font {
         for record in sort!(font.offset_table.records) {
             macro_rules! set(
                 ($field:ident, $value:expr) => ({
-                    checksum_and_jump!(record, tape);
+                    check_jump!(record, tape);
                     font.$field = Some(try!($value));
                 });
                 ($field:ident) => (set!($field, truetype::Value::read(tape)));
@@ -121,7 +121,7 @@ impl Font {
                     set!(glyph_data, truetype::Walue::read(tape, mapping));
                 },
                 b"head" => {
-                    checksum_and_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
+                    check_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
                     font.font_header = Some(try!(truetype::Value::read(tape)));
                 },
                 b"hhea" => set!(horizontal_header),

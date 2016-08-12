@@ -40,8 +40,7 @@ table! {
         },
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
     }
 }
@@ -64,8 +63,7 @@ table! {
         },
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
     }
 }
@@ -94,8 +92,7 @@ table! {
         },
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
 
         pair_sets (Vec<PairValueSet>) |this, tape, position| {
@@ -135,18 +132,15 @@ table! {
         },
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
 
         class1 (Class) |this, tape, position| {
-            try!(tape.jump(position + this.class1_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.class1_offset)
         },
 
         class2 (Class) |this, tape, position| {
-            try!(tape.jump(position + this.class2_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.class2_offset)
         },
     }
 }

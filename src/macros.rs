@@ -1,3 +1,30 @@
+macro_rules! jump_take(
+    (@unwrap $tape:ident, $position:ident, $offset:expr) => ({
+        try!($tape.jump($position + $offset as u64));
+        try!($tape.take())
+    });
+    (@unwrap $tape:ident, $position:ident, $count:expr, $offsets:expr) => (
+        jump_take!(@unwrap $tape, $position, $count, i => $offsets[i])
+    );
+    (@unwrap $tape:ident, $position:ident, $count:expr, $i:ident => $iterator:expr) => ({
+        let mut values = Vec::with_capacity($count as usize);
+        for $i in 0..($count as usize) {
+            try!($tape.jump($position + $iterator as u64));
+            values.push(try!($tape.take()));
+        }
+        values
+    });
+    ($tape:ident, $position:ident, $offset:expr) => (
+        Ok(jump_take!(@unwrap $tape, $position, $offset))
+    );
+    ($tape:ident, $position:ident, $count:expr, $offsets:expr) => (
+        Ok(jump_take!(@unwrap $tape, $position, $count, i => $offsets[i]))
+    );
+    ($tape:ident, $position:ident, $count:expr, $i:ident => $iterator:expr) => (
+        Ok(jump_take!(@unwrap $tape, $position, $count, $i => $iterator))
+    );
+);
+
 macro_rules! raise(
     ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
 );

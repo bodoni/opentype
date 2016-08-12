@@ -36,8 +36,7 @@ table! {
         delta_glyph_id  (i16), // DeltaGlyphID
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
     }
 }
@@ -55,8 +54,7 @@ table! {
         },
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
     }
 }
@@ -74,17 +72,11 @@ table! {
         },
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
 
         sequences (Vec<Sequence>) |this, tape, position| {
-            let mut values = Vec::with_capacity(this.sequence_count as usize);
-            for i in 0..(this.sequence_count as usize) {
-                try!(tape.jump(position + this.sequence_offsets[i] as u64));
-                values.push(try!(tape.take()));
-            }
-            Ok(values)
+            jump_take!(tape, position, this.sequence_count, this.sequence_offsets)
         },
     }
 }
@@ -102,17 +94,11 @@ table! {
         },
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
 
         sets (Vec<AlternateSet>) |this, tape, position| {
-            let mut values = Vec::with_capacity(this.set_count as usize);
-            for i in 0..(this.set_count as usize) {
-                try!(tape.jump(position + this.set_offsets[i] as u64));
-                values.push(try!(tape.take()));
-            }
-            Ok(values)
+            jump_take!(tape, position, this.set_count, this.set_offsets)
         },
     }
 }
@@ -130,17 +116,11 @@ table! {
         },
 
         coverage (Coverage) |this, tape, position| {
-            try!(tape.jump(position + this.coverage_offset as u64));
-            tape.take()
+            jump_take!(tape, position, this.coverage_offset)
         },
 
         sets (Vec<LigatureSet>) |this, tape, position| {
-            let mut values = Vec::with_capacity(this.set_count as usize);
-            for i in 0..(this.set_count as usize) {
-                try!(tape.jump(position + this.set_offsets[i] as u64));
-                values.push(try!(tape.take()));
-            }
-            Ok(values)
+            jump_take!(tape, position, this.set_count, this.set_offsets)
         },
     }
 }
@@ -206,12 +186,7 @@ table! {
         },
 
         records (Vec<Ligature>) |this, tape, position| {
-            let mut values = Vec::with_capacity(this.count as usize);
-            for i in 0..(this.count as usize) {
-                try!(tape.jump(position + this.offsets[i] as u64));
-                values.push(try!(tape.take()));
-            }
-            Ok(values)
+            jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }

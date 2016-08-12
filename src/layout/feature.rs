@@ -13,12 +13,7 @@ table! {
         },
 
         records (Vec<Record>) |this, tape, position| {
-            let mut values = Vec::with_capacity(this.count as usize);
-            for i in 0..(this.count as usize) {
-                try!(tape.jump(position + this.headers[i].offset as u64));
-                values.push(try!(tape.take()));
-            }
-            Ok(values)
+            jump_take!(tape, position, this.count, i => this.headers[i].offset)
         },
     }
 }

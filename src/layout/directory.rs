@@ -25,12 +25,9 @@ impl<U> Value for Directory<U> where U: Walue<u16> {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
         let header = try!(tape.take::<Header>());
-        try!(tape.jump(position + header.script_offset as u64));
-        let scripts = try!(tape.take());
-        try!(tape.jump(position + header.feature_offset as u64));
-        let features = try!(tape.take());
-        try!(tape.jump(position + header.lookup_offset as u64));
-        let lookups = try!(tape.take());
+        let scripts = jump_take!(@unwrap tape, position, header.script_offset);
+        let features = jump_take!(@unwrap tape, position, header.feature_offset);
+        let lookups = jump_take!(@unwrap tape, position, header.lookup_offset);
         Ok(Directory { header: header, scripts: scripts, features: features, lookups: lookups })
     }
 }

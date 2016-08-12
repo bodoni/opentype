@@ -13,12 +13,7 @@ table! {
         },
 
         records (Vec<Record>) |this, tape, position| {
-            let mut values: Vec<Record> = Vec::with_capacity(this.count as usize);
-            for i in 0..(this.count as usize) {
-                try!(tape.jump(position + this.headers[i].offset as u64));
-                values.push(try!(tape.take()));
-            }
-            Ok(values)
+            jump_take!(tape, position, this.count, i => this.headers[i].offset)
         },
     }
 }
@@ -45,20 +40,14 @@ table! {
 
         default_language (Option<LanguageRecord>) |this, tape, position| {
             if this.default_language_offset != 0 {
-                try!(tape.jump(position + this.default_language_offset as u64));
-                Ok(Some(try!(tape.take())))
+                Ok(Some(jump_take!(@unwrap tape, position, this.default_language_offset)))
             } else {
                 Ok(None)
             }
         },
 
         language_records (Vec<LanguageRecord>) |this, tape, position| {
-            let mut values = Vec::with_capacity(this.language_count as usize);
-            for i in 0..(this.language_count as usize) {
-                try!(tape.jump(position + this.language_headers[i].offset as u64));
-                values.push(try!(tape.take()));
-            }
-            Ok(values)
+            jump_take!(tape, position, this.language_count, i => this.language_headers[i].offset)
         },
     }
 }

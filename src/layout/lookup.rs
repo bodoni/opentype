@@ -38,11 +38,7 @@ impl<U> Value for Lookups<U> where U: Walue<u16> {
         let position = try!(tape.position());
         let count = try!(tape.take::<u16>());
         let offsets: Vec<u16> = try!(tape.take_given(count as usize));
-        let mut records = Vec::with_capacity(count as usize);
-        for i in 0..(count as usize) {
-            try!(tape.jump(position + offsets[i] as u64));
-            records.push(try!(tape.take()));
-        }
+        let records = jump_take!(@unwrap tape, position, count, offsets);
         Ok(Lookups { count: count, offsets: offsets, records: records })
     }
 }

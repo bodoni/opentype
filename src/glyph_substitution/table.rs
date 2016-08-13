@@ -14,9 +14,9 @@ pub enum Table {
     AlternateSubstitution(AlternateSubstitution),
     LigatureSubstitution(LigatureSubstitution),
     ContextSubstitution(ContextSubstitution),
-    ChainedContextSubstitution(ChainedContextSubstitution),
+    ChainContextSubstitution(ChainContextSubstitution),
     ExtensionSubstitution(ExtensionSubstitution),
-    ReverseChainedContextSubstitution(ReverseChainedContextSubstitution),
+    ReverseChainContextSubstitution(ReverseChainContextSubstitution),
 }
 
 /// A table for substituting one glyph with one glyph.
@@ -204,10 +204,15 @@ table! {
     }
 }
 
-table! {
-    #[doc = "A table for substituting glyphs in a chained context."]
-    pub ChainedContextSubstitution {
-    }
+/// A table for substituting glyphs in a chaining context.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ChainContextSubstitution {
+    /// Format 1.
+    Format1(ChainContextSubstitution1),
+    /// Format 2.
+    Format2(ChainContextSubstitution2),
+    /// Format 3.
+    Format3(ChainContextSubstitution3),
 }
 
 table! {
@@ -220,8 +225,29 @@ table! {
 }
 
 table! {
-    #[doc = "A table for substituting glyphs in reverse order in a chained context."]
-    pub ReverseChainedContextSubstitution {
+    #[doc = "A table for substituting glyphs in a chaining context in format 1."]
+    pub ChainContextSubstitution1 {
+        format (u16) = { 1 }, // SubstFormat
+    }
+}
+
+table! {
+    #[doc = "A table for substituting glyphs in a chaining context in format 2."]
+    pub ChainContextSubstitution2 {
+        format (u16) = { 2 }, // SubstFormat
+    }
+}
+
+table! {
+    #[doc = "A table for substituting glyphs in a chaining context in format 3."]
+    pub ChainContextSubstitution3 {
+        format (u16) = { 3 }, // SubstFormat
+    }
+}
+
+table! {
+    #[doc = "A table for substituting glyphs in reverse order in a chaining context."]
+    pub ReverseChainContextSubstitution {
     }
 }
 
@@ -233,9 +259,9 @@ impl Walue<u16> for Table {
             3 => Table::AlternateSubstitution(try!(tape.take())),
             4 => Table::LigatureSubstitution(try!(tape.take())),
             5 => Table::ContextSubstitution(try!(tape.take())),
-            6 => Table::ChainedContextSubstitution(try!(tape.take())),
+            6 => Table::ChainContextSubstitution(try!(tape.take())),
             7 => Table::ExtensionSubstitution(try!(tape.take())),
-            8 => Table::ReverseChainedContextSubstitution(try!(tape.take())),
+            8 => Table::ReverseChainContextSubstitution(try!(tape.take())),
             _ => raise!("found an unknown glyph-substitution type"),
         })
     }
@@ -258,6 +284,17 @@ impl Value for ContextSubstitution {
             2 => ContextSubstitution::Format2(try!(tape.take())),
             3 => ContextSubstitution::Format3(try!(tape.take())),
             _ => raise!("found an unknown format of the context-substitution table"),
+        })
+    }
+}
+
+impl Value for ChainContextSubstitution {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        Ok(match try!(tape.peek::<u16>()) {
+            1 => ChainContextSubstitution::Format1(try!(tape.take())),
+            2 => ChainContextSubstitution::Format2(try!(tape.take())),
+            3 => ChainContextSubstitution::Format3(try!(tape.take())),
+            _ => raise!("found an unknown format of the chaining-context-substitution table"),
         })
     }
 }

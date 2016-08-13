@@ -14,7 +14,7 @@ pub enum Table {
     MarkToLigatureAttachment(MarkToLigatureAttachment),
     MarkToMarkAttachment(MarkToMarkAttachment),
     ContextPositioning(ContextPositioning),
-    ChainedContextPositioning(ChainedContextPositioning),
+    ChainContextPositioning(ChainContextPositioning),
     ExtensionPositioning(ExtensionPositioning),
 }
 
@@ -176,8 +176,8 @@ table! {
 }
 
 table! {
-    #[doc = "A table for positioning glyphs in a chained context."]
-    pub ChainedContextPositioning {
+    #[doc = "A table for positioning glyphs in a chaining context."]
+    pub ChainContextPositioning {
     }
 }
 
@@ -197,7 +197,7 @@ impl Walue<u16> for Table {
             5 => Table::MarkToLigatureAttachment(try!(tape.take())),
             6 => Table::MarkToMarkAttachment(try!(tape.take())),
             7 => Table::ContextPositioning(try!(tape.take())),
-            8 => Table::ChainedContextPositioning(try!(tape.take())),
+            8 => Table::ChainContextPositioning(try!(tape.take())),
             9 => Table::ExtensionPositioning(try!(tape.take())),
             _ => raise!("found an unknown glyph-positioning type"),
         })

@@ -1,4 +1,6 @@
-use {Result, Tape, Value, Walue, q32};
+use truetype::q32;
+
+use {Result, Tape, Value, Walue};
 use super::{Features, Lookups, Scripts};
 
 /// A directory of scripts, features, and lookups.

@@ -1,8 +1,10 @@
 extern crate opentype;
+extern crate truetype;
 
-use opentype::{Tag, Value};
+use opentype::Value;
 use opentype::layout::Scripts;
 use std::fs::File;
+use truetype::Tag;
 
 const GPOS: u64 = 60412;
 const GSUB: u64 = 57648;

@@ -336,8 +336,40 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for substituting glyphs in reverse order in a chaining context."]
     pub ReverseChainContextSubstitution { // ReverseChainSingleSubstFormat1
+        format               (u16), // SubstFormat
+        coverage_offset      (u16), // Coverage
+        backward_glyph_count (u16), // BacktrackGlyphCount
+
+        backward_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+            tape.take_given(this.backward_glyph_count as usize)
+        },
+
+        forward_glyph_count (u16), // LookaheadGlyphCount
+
+        forward_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+            tape.take_given(this.forward_glyph_count as usize)
+        },
+
+        glyph_count (u16), // GlyphCount
+
+        glyph_ids (Vec<GlyphID>) |this, tape, _| { // Substitute
+            tape.take_given(this.glyph_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.coverage_offset)
+        },
+
+        backward_coverages (Vec<Coverage>) |this, tape, position| {
+            jump_take!(tape, position, this.backward_glyph_count, this.backward_coverage_offsets)
+        },
+
+        forward_coverages (Vec<Coverage>) |this, tape, position| {
+            jump_take!(tape, position, this.forward_glyph_count, this.forward_coverage_offsets)
+        },
     }
 }
 

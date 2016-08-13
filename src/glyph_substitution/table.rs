@@ -3,7 +3,15 @@
 use truetype::GlyphID;
 
 use {Result, Tape, Value, Walue};
-use glyph_substitution::{AlternateSet, ClassRuleSet, LigatureSet, RuleSet, Sequence, Substitution};
+use glyph_substitution::{
+    AlternateSet,
+    ChainRuleSet,
+    ClassRuleSet,
+    LigatureSet,
+    RuleSet,
+    Sequence,
+    Substitution,
+};
 use layout::Coverage;
 
 /// A table.
@@ -225,9 +233,24 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for substituting glyphs in a chaining context in format 1."]
     pub ChainContextSubstitution1 {
-        format (u16) = { 1 }, // SubstFormat
+        format          (u16) = { 1 }, // SubstFormat
+        coverage_offset (u16), // Coverage
+        set_count       (u16), // ChainSubRuleSetCount
+
+        set_offsets (Vec<u16>) |this, tape, _| { // ChainSubRuleSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.coverage_offset)
+        },
+
+        sets (Vec<ChainRuleSet>) |this, tape, position| {
+            jump_take!(tape, position, this.set_count, this.set_offsets)
+        },
     }
 }
 

@@ -5,6 +5,7 @@ use truetype::GlyphID;
 use {Result, Tape, Value, Walue};
 use glyph_substitution::{
     AlternateSet,
+    ChainClassRuleSet,
     ChainRuleSet,
     ClassRuleSet,
     LigatureSet,
@@ -12,7 +13,7 @@ use glyph_substitution::{
     Sequence,
     Substitution,
 };
-use layout::Coverage;
+use layout::{Class, Coverage};
 
 /// A table.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -39,7 +40,7 @@ pub enum SingleSubstitution {
 table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 1."]
-    pub SingleSubstitution1 {
+    pub SingleSubstitution1 { // SingleSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         delta_glyph_id  (i16), // DeltaGlyphID
@@ -53,7 +54,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 2."]
-    pub SingleSubstitution2 {
+    pub SingleSubstitution2 { // SingleSubstFormat2
         format          (u16) = { 2 }, // SubstFormat
         coverage_offset (u16), // Coverage
         glyph_count     (u16), // GlyphCount
@@ -71,7 +72,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting one glyph with more than one glyph."]
-    pub MultipleSubstitution {
+    pub MultipleSubstitution { // MultipleSubstFormat1
         format           (u16) = { 1 }, // SubstFormat
         coverage_offset  (u16), // Coverage
         sequence_count   (u16), // SequenceCount
@@ -93,7 +94,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting one glyph with one of many glyphs."]
-    pub AlternateSubstitution {
+    pub AlternateSubstitution { // AlternateSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // AlternateSetCount
@@ -115,7 +116,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting multiple glyphs with one glyph."]
-    pub LigatureSubstitution {
+    pub LigatureSubstitution { // LigatureSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // LigSetCount
@@ -148,7 +149,7 @@ pub enum ContextSubstitution {
 table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 1."]
-    pub ContextSubstitution1 {
+    pub ContextSubstitution1 { // ContextSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // SubRuleSetCount
@@ -170,7 +171,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 2."]
-    pub ContextSubstitution2 {
+    pub ContextSubstitution2 { // ContextSubstFormat2
         format          (u16) = { 2 }, // SubstFormat
         coverage_offset (u16), // Coverage
         class_offset    (u16), // ClassDef
@@ -193,7 +194,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 3."]
-    pub ContextSubstitution3 {
+    pub ContextSubstitution3 { // ContextSubstFormat3
         format             (u16) = { 3 }, // SubstFormat
         glyph_count        (u16), // GlyphCount
         substitution_count (u16), // SubstCount
@@ -224,18 +225,9 @@ pub enum ChainContextSubstitution {
 }
 
 table! {
-    #[doc = "A table for other types of substitution."]
-    pub ExtensionSubstitution {
-        format (u16) = { 1 }, // SubstFormat
-        kind   (u16), // ExtensionLookupType
-        offset (u32), // ExtensionOffset
-    }
-}
-
-table! {
     @position
     #[doc = "A table for substituting glyphs in a chaining context in format 1."]
-    pub ChainContextSubstitution1 {
+    pub ChainContextSubstitution1 { // ChainContextSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // ChainSubRuleSetCount
@@ -255,22 +247,61 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for substituting glyphs in a chaining context in format 2."]
-    pub ChainContextSubstitution2 {
-        format (u16) = { 2 }, // SubstFormat
+    pub ChainContextSubstitution2 { // ChainContextSubstFormat2
+        format                (u16) = { 2 }, // SubstFormat
+        coverage_offset       (u16), // Coverage
+        backward_class_offset (u16), // BacktrackClassDef
+        input_class_offset    (u16), // InputClassDef
+        forward_class_offset  (u16), // LookaheadClassDef
+        set_count             (u16), // ChainSubClassSetCnt
+
+        set_offsets (Vec<u16>) |this, tape, _| { // ChainSubClassSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.coverage_offset)
+        },
+
+        backward_class (Class) |this, tape, position| {
+            jump_take!(tape, position, this.backward_class_offset)
+        },
+
+        input_class (Class) |this, tape, position| {
+            jump_take!(tape, position, this.input_class_offset)
+        },
+
+        forward_class (Class) |this, tape, position| {
+            jump_take!(tape, position, this.forward_class_offset)
+        },
+
+        sets (Vec<ChainClassRuleSet>) |this, tape, position| {
+            jump_take!(tape, position, this.set_count, this.set_offsets)
+        },
     }
 }
 
 table! {
     #[doc = "A table for substituting glyphs in a chaining context in format 3."]
-    pub ChainContextSubstitution3 {
+    pub ChainContextSubstitution3 { // ChainContextSubstFormat3
         format (u16) = { 3 }, // SubstFormat
     }
 }
 
 table! {
+    #[doc = "A table for other types of substitution."]
+    pub ExtensionSubstitution { // ExtensionSubstFormat1
+        format (u16) = { 1 }, // SubstFormat
+        kind   (u16), // ExtensionLookupType
+        offset (u32), // ExtensionOffset
+    }
+}
+
+table! {
     #[doc = "A table for substituting glyphs in reverse order in a chaining context."]
-    pub ReverseChainContextSubstitution {
+    pub ReverseChainContextSubstitution { // ReverseChainSingleSubstFormat1
     }
 }
 

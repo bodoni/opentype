@@ -30,7 +30,7 @@ pub enum SingleAdjustment {
 table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 1."]
-    pub SingleAdjustment1 {
+    pub SingleAdjustment1 { // SinglePosFormat1
         format          (u16       ) = { 1 }, // PosFormat
         coverage_offset (u16       ), // Coverage
         value_flags     (ValueFlags), // ValueFormat
@@ -48,7 +48,7 @@ table! {
 table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 2."]
-    pub SingleAdjustment2 {
+    pub SingleAdjustment2 { // SinglePosFormat2
         format          (u16       ) = { 2 }, // PosFormat
         coverage_offset (u16       ), // Coverage
         value_flags     (ValueFlags), // ValueFormat
@@ -80,7 +80,7 @@ pub enum PairAdjustment {
 table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 1."]
-    pub PairAdjustment1 {
+    pub PairAdjustment1 { // PairPosFormat1
         format          (u16       ) = { 1 }, // PosFormat
         coverage_offset (u16       ), // Coverage
         value1_flags    (ValueFlags), // ValueFormat1
@@ -109,7 +109,7 @@ table! {
 table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 2."]
-    pub PairAdjustment2 {
+    pub PairAdjustment2 { // PairPosFormat2
         format          (u16       ) = { 2 }, // PosFormat
         coverage_offset (u16       ), // Coverage
         value1_flags    (ValueFlags), // ValueFormat1

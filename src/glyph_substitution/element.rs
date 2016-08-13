@@ -2,7 +2,7 @@ use truetype::GlyphID;
 
 table! {
     #[doc = "A set of alternate glyphs."]
-    pub AlternateSet {
+    pub AlternateSet { // AlternateSet
         count (u16), // GlyphCount
 
         glyph_ids (Vec<GlyphID>) |this, tape| { // Alternate
@@ -12,8 +12,37 @@ table! {
 }
 
 table! {
-    #[doc = "A chain rule."]
-    pub ChainRule {
+    #[doc = "A chaining class rule."]
+    pub ChainClassRule { // ChainSubClassRule
+        backward_glyph_count (u16), // BacktrackGlyphCount
+
+        backward_class_ids (Vec<u16>) |this, tape| { // Backtrack
+            tape.take_given(this.backward_glyph_count as usize)
+        },
+
+        input_glyph_count (u16), // InputGlyphCount
+
+        input_class_ids (Vec<u16>) |this, tape| { // Input
+            tape.take_given(this.input_glyph_count as usize)
+        },
+
+        forward_glyph_count (u16), // LookaheadGlyphCount
+
+        forward_class_ids (Vec<u16>) |this, tape| { // LookAhead
+            tape.take_given(this.forward_glyph_count as usize)
+        },
+
+        substitution_count (u16), // SubstCount
+
+        substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
+            tape.take_given(this.substitution_count as usize)
+        },
+    }
+}
+
+table! {
+    #[doc = "A chaining rule."]
+    pub ChainRule { // ChainSubRule
         backward_glyph_count (u16), // BacktrackGlyphCount
 
         backward_glyph_ids (Vec<GlyphID>) |this, tape| { // Backtrack
@@ -42,8 +71,24 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of chain rules."]
-    pub ChainRuleSet {
+    #[doc = "A set of chaining class rules."]
+    pub ChainClassRuleSet { // ChainSubClassSet
+        count (u16), // ChainSubClassRuleCnt
+
+        offsets (Vec<u16>) |this, tape, _| { // ChainSubClassRule
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<ChainClassRule>) |this, tape, position| {
+            jump_take!(tape, position, this.count, this.offsets)
+        },
+    }
+}
+
+table! {
+    @position
+    #[doc = "A set of chaining rules."]
+    pub ChainRuleSet { // ChainSubRuleSet
         count (u16), // ChainSubRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // ChainSubRule
@@ -58,7 +103,7 @@ table! {
 
 table! {
     #[doc = "A class rule."]
-    pub ClassRule {
+    pub ClassRule { // SubClassRule
         glyph_count        (u16), // GlyphCount
         substitution_count (u16), // SubstCount
 
@@ -93,7 +138,7 @@ table! {
 
 table! {
     #[doc = "A ligature."]
-    pub Ligature {
+    pub Ligature { // Ligature
         glyph_id        (GlyphID), // LigGlyph
         component_count (u16    ), // CompCount
 
@@ -109,7 +154,7 @@ table! {
 table! {
     @position
     #[doc = "A set of ligatures."]
-    pub LigatureSet {
+    pub LigatureSet { // LigatureSet
         count (u16), // LigatureCount
 
         offsets (Vec<u16>) |this, tape, _| { // Ligature
@@ -124,7 +169,7 @@ table! {
 
 table! {
     #[doc = "A rule."]
-    pub Rule {
+    pub Rule { // SubRule
         glyph_count        (u16), // GlyphCount
         substitution_count (u16), // SubstCount
 
@@ -159,7 +204,7 @@ table! {
 
 table! {
     #[doc = "A sequence of glyphs."]
-    pub Sequence {
+    pub Sequence { // Sequence
         count (u16), // GlyphCount
 
         glyph_ids (Vec<GlyphID>) |this, tape| { // Substitute
@@ -171,7 +216,7 @@ table! {
 table! {
     #[doc = "A substitution."]
     #[derive(Copy)]
-    pub Substitution {
+    pub Substitution { // SubstLookupRecord
         sequence_index (u16), // SequenceIndex
         lookup_index   (u16), // LookupListIndex
     }

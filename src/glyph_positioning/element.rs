@@ -27,7 +27,7 @@ table! {
 table! {
     @define
     #[doc = "A set of value pairs."]
-    pub PairValueSet {
+    pub PairValueSet { // PairSet
         count   (u16           ), // PairValueCount
         records (Vec<PairValue>), // PairValueRecord
     }

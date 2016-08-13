@@ -85,7 +85,7 @@ fn glyph_substitution_features() {
 #[test]
 fn glyph_substitution_lookups() {
     use opentype::GlyphSubstitution;
-    use opentype::glyph_substitution::{SingleSubstibution, Table};
+    use opentype::glyph_substitution::{SingleSubstitution, Table};
 
     let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup(GSUB)));
     let kinds = lookups.records.iter().map(|record| record.kind).collect::<Vec<_>>();
@@ -93,7 +93,7 @@ fn glyph_substitution_lookups() {
     let record = &lookups.records[0];
     assert_eq!(record.tables.len(), 1);
     match &record.tables[0] {
-        &Table::SingleSubstibution(SingleSubstibution::Format2(ref table)) => {
+        &Table::SingleSubstitution(SingleSubstitution::Format2(ref table)) => {
             assert_eq!(table.glyph_count, 61);
         },
         _ => unreachable!(),
@@ -101,7 +101,7 @@ fn glyph_substitution_lookups() {
     let record = &lookups.records[17];
     assert_eq!(record.tables.len(), 1);
     match &record.tables[0] {
-        &Table::LigatureSubstibution(ref table) => {
+        &Table::LigatureSubstitution(ref table) => {
             assert_eq!(table.set_count, 1);
             let table = &table.sets[0];
             assert_eq!(table.count, 3);

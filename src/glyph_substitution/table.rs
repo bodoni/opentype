@@ -9,29 +9,29 @@ use layout::Coverage;
 /// A table.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Table {
-    SingleSubstibution(SingleSubstibution),
-    MultipleSubstibution(MultipleSubstibution),
-    AlternateSubstibution(AlternateSubstibution),
-    LigatureSubstibution(LigatureSubstibution),
-    ContextSubstibution(ContextSubstibution),
-    ChainedContextSubstibution(ChainedContextSubstibution),
-    ExtensionSubstibution(ExtensionSubstibution),
-    ReverseChainedContextSubstibution(ReverseChainedContextSubstibution),
+    SingleSubstitution(SingleSubstitution),
+    MultipleSubstitution(MultipleSubstitution),
+    AlternateSubstitution(AlternateSubstitution),
+    LigatureSubstitution(LigatureSubstitution),
+    ContextSubstitution(ContextSubstitution),
+    ChainedContextSubstitution(ChainedContextSubstitution),
+    ExtensionSubstitution(ExtensionSubstitution),
+    ReverseChainedContextSubstitution(ReverseChainedContextSubstitution),
 }
 
 /// A table for substituting one glyph with one glyph.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum SingleSubstibution {
+pub enum SingleSubstitution {
     /// Format 1.
-    Format1(SingleSubstibution1),
+    Format1(SingleSubstitution1),
     /// Format 2.
-    Format2(SingleSubstibution2),
+    Format2(SingleSubstitution2),
 }
 
 table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 1."]
-    pub SingleSubstibution1 {
+    pub SingleSubstitution1 {
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         delta_glyph_id  (i16), // DeltaGlyphID
@@ -45,7 +45,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 2."]
-    pub SingleSubstibution2 {
+    pub SingleSubstitution2 {
         format          (u16) = { 2 }, // SubstFormat
         coverage_offset (u16), // Coverage
         glyph_count     (u16), // GlyphCount
@@ -63,7 +63,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting one glyph with more than one glyph."]
-    pub MultipleSubstibution {
+    pub MultipleSubstitution {
         format           (u16) = { 1 }, // SubstFormat
         coverage_offset  (u16), // Coverage
         sequence_count   (u16), // SequenceCount
@@ -85,7 +85,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting one glyph with one of many glyphs."]
-    pub AlternateSubstibution {
+    pub AlternateSubstitution {
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // AlternateSetCount
@@ -107,7 +107,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting multiple glyphs with one glyph."]
-    pub LigatureSubstibution {
+    pub LigatureSubstitution {
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // LigSetCount
@@ -128,19 +128,19 @@ table! {
 
 /// A table for substituting glyphs in a context.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum ContextSubstibution {
+pub enum ContextSubstitution {
     /// Format 1.
-    Format1(ContextSubstibution1),
+    Format1(ContextSubstitution1),
     /// Format 2.
-    Format2(ContextSubstibution2),
+    Format2(ContextSubstitution2),
     /// Format 3.
-    Format3(ContextSubstibution3),
+    Format3(ContextSubstitution3),
 }
 
 table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 1."]
-    pub ContextSubstibution1 {
+    pub ContextSubstitution1 {
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // SubRuleSetCount
@@ -162,7 +162,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 2."]
-    pub ContextSubstibution2 {
+    pub ContextSubstitution2 {
         format          (u16) = { 2 }, // SubstFormat
         coverage_offset (u16), // Coverage
         class_offset    (u16), // ClassDef
@@ -185,7 +185,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 3."]
-    pub ContextSubstibution3 {
+    pub ContextSubstitution3 {
         format             (u16) = { 3 }, // SubstFormat
         glyph_count        (u16), // GlyphCount
         substitution_count (u16), // SubstCount
@@ -206,54 +206,57 @@ table! {
 
 table! {
     #[doc = "A table for substituting glyphs in a chained context."]
-    pub ChainedContextSubstibution {
+    pub ChainedContextSubstitution {
     }
 }
 
 table! {
     #[doc = "A table for other types of substitution."]
-    pub ExtensionSubstibution {
+    pub ExtensionSubstitution {
+        format (u16) = { 1 }, // SubstFormat
+        kind   (u16), // ExtensionLookupType
+        offset (u32), // ExtensionOffset
     }
 }
 
 table! {
     #[doc = "A table for substituting glyphs in reverse order in a chained context."]
-    pub ReverseChainedContextSubstibution {
+    pub ReverseChainedContextSubstitution {
     }
 }
 
 impl Walue<u16> for Table {
     fn read<T: Tape>(tape: &mut T, kind: u16) -> Result<Self> {
         Ok(match kind {
-            1 => Table::SingleSubstibution(try!(tape.take())),
-            2 => Table::MultipleSubstibution(try!(tape.take())),
-            3 => Table::AlternateSubstibution(try!(tape.take())),
-            4 => Table::LigatureSubstibution(try!(tape.take())),
-            5 => Table::ContextSubstibution(try!(tape.take())),
-            6 => Table::ChainedContextSubstibution(try!(tape.take())),
-            7 => Table::ExtensionSubstibution(try!(tape.take())),
-            8 => Table::ReverseChainedContextSubstibution(try!(tape.take())),
+            1 => Table::SingleSubstitution(try!(tape.take())),
+            2 => Table::MultipleSubstitution(try!(tape.take())),
+            3 => Table::AlternateSubstitution(try!(tape.take())),
+            4 => Table::LigatureSubstitution(try!(tape.take())),
+            5 => Table::ContextSubstitution(try!(tape.take())),
+            6 => Table::ChainedContextSubstitution(try!(tape.take())),
+            7 => Table::ExtensionSubstitution(try!(tape.take())),
+            8 => Table::ReverseChainedContextSubstitution(try!(tape.take())),
             _ => raise!("found an unknown glyph-substitution type"),
         })
     }
 }
 
-impl Value for SingleSubstibution {
+impl Value for SingleSubstitution {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match try!(tape.peek::<u16>()) {
-            1 => SingleSubstibution::Format1(try!(tape.take())),
-            2 => SingleSubstibution::Format2(try!(tape.take())),
+            1 => SingleSubstitution::Format1(try!(tape.take())),
+            2 => SingleSubstitution::Format2(try!(tape.take())),
             _ => raise!("found an unknown format of the single-substitution table"),
         })
     }
 }
 
-impl Value for ContextSubstibution {
+impl Value for ContextSubstitution {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match try!(tape.peek::<u16>()) {
-            1 => ContextSubstibution::Format1(try!(tape.take())),
-            2 => ContextSubstibution::Format2(try!(tape.take())),
-            3 => ContextSubstibution::Format3(try!(tape.take())),
+            1 => ContextSubstitution::Format1(try!(tape.take())),
+            2 => ContextSubstitution::Format2(try!(tape.take())),
+            3 => ContextSubstitution::Format3(try!(tape.take())),
             _ => raise!("found an unknown format of the context-substitution table"),
         })
     }

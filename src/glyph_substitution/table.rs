@@ -183,8 +183,8 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<ClassRuleSet>) |this, tape, position| {
-            jump_take!(tape, position, this.set_count, this.set_offsets)
+        sets (Vec<Option<ClassRuleSet>>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.set_count, this.set_offsets)
         },
     }
 }
@@ -275,8 +275,8 @@ table! {
             jump_take!(tape, position, this.forward_class_offset)
         },
 
-        sets (Vec<ChainClassRuleSet>) |this, tape, position| {
-            jump_take!(tape, position, this.set_count, this.set_offsets)
+        sets (Vec<Option<ChainClassRuleSet>>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.set_count, this.set_offsets)
         },
     }
 }

@@ -26,12 +26,19 @@ macro_rules! jump_take(
 );
 
 macro_rules! jump_take_maybe(
+    (@unwrap $tape:ident, $position:ident, $offset:expr) => (
+        if $offset > 0 {
+            try!($tape.jump($position + $offset as u64));
+            Some(try!($tape.take()))
+        } else {
+            None
+        }
+    );
     (@unwrap $tape:ident, $position:ident, $count:expr, $i:ident => $iterator:expr) => ({
         let mut values = Vec::with_capacity($count as usize);
         for $i in 0..($count as usize) {
-            let offset = $iterator as u64;
-            if offset > 0 {
-                try!($tape.jump($position + offset));
+            if $iterator > 0 {
+                try!($tape.jump($position + $iterator as u64));
                 values.push(Some(try!($tape.take())));
             } else {
                 values.push(None);
@@ -39,6 +46,9 @@ macro_rules! jump_take_maybe(
         }
         values
     });
+    ($tape:ident, $position:ident, $offset:expr) => (
+        Ok(jump_take_maybe!(@unwrap $tape, $position, $offset))
+    );
     ($tape:ident, $position:ident, $count:expr, $offsets:expr) => (
         Ok(jump_take_maybe!(@unwrap $tape, $position, $count, i => $offsets[i]))
     );

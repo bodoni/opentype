@@ -17,6 +17,9 @@ table! {
     #[doc = "An anchor in format 1."]
     #[derive(Copy)]
     pub Anchor1 { // AnchorFormat1
+        format (u16) = { 1 }, // AnchorFormat
+        x      (i16), // XCoordinate
+        y      (i16), // YCoordinate
     }
 }
 
@@ -24,13 +27,30 @@ table! {
     #[doc = "An anchor in format 2."]
     #[derive(Copy)]
     pub Anchor2 { // AnchorFormat2
+        format (u16) = { 2 }, // AnchorFormat
+        x      (i16), // XCoordinate
+        y      (i16), // YCoordinate
+        index  (u16), // AnchorPoint
     }
 }
 
 table! {
+    @position
     #[doc = "An anchor in format 3."]
-    #[derive(Copy)]
     pub Anchor3 { // AnchorFormat3
+        format          (u16) = { 3 }, // AnchorFormat
+        x               (i16), // XCoordinate
+        y               (i16), // YCoordinate
+        device_x_offset (u16), // XDeviceTable
+        device_y_offset (u16), // YDeviceTable
+
+        device_x (Option<Device>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.device_x_offset)
+        },
+
+        device_y (Option<Device>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.device_y_offset)
+        },
     }
 }
 
@@ -40,6 +60,17 @@ table! {
     pub Connection { // EntryExitRecord
         entry_offset (u16), // EntryAnchor
         exit_offset  (u16), // ExitAnchor
+    }
+}
+
+table! {
+    @define
+    #[doc = "A device table."]
+    pub Device { // Device
+        start_size   (u16     ), // StartSize
+        end_size     (u16     ), // EndSize
+        delta_format (u16     ), // DeltaFormat
+        delta_data   (Vec<u16>), // DeltaValue
     }
 }
 
@@ -100,6 +131,30 @@ impl Value for Anchor {
             2 => Anchor::Format2(try!(tape.take())),
             3 => Anchor::Format3(try!(tape.take())),
             _ => raise!("found an unknown format of the anchor table"),
+        })
+    }
+}
+
+impl Value for Device {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        let start_size = try!(tape.take());
+        let end_size = try!(tape.take());
+        if start_size > end_size {
+            raise!("found a malformed device table");
+        }
+        let delta_format = try!(tape.take());
+        if delta_format == 0 || delta_format > 3 {
+            raise!("found an unknow format of the device table");
+        }
+        let count = (end_size - start_size) as usize + 1;
+        let bit_count = (1 << delta_format as usize) * count;
+        let short_count = (bit_count + 16 - bit_count % 16) >> 4;
+        let delta_data = try!(tape.take_given(short_count));
+        Ok(Device {
+            start_size: start_size,
+            end_size: end_size,
+            delta_format: delta_format,
+            delta_data: delta_data,
         })
     }
 }

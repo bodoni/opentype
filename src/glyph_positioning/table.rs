@@ -5,7 +5,7 @@ use glyph_positioning::element::{PairValue, PairValueSet, SingleValue, ValueFlag
 use layout::{Class, Coverage};
 
 /// A table.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum Table {
     SingleAdjustment(SingleAdjustment),
     PairAdjustment(PairAdjustment),
@@ -19,7 +19,7 @@ pub enum Table {
 }
 
 /// A table for adjusting single glyphs.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum SingleAdjustment {
     /// Format 1.
     Format1(SingleAdjustment1),
@@ -69,7 +69,7 @@ table! {
 }
 
 /// A table for adjusting pairs of glyphs.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum PairAdjustment {
     /// Format 1.
     Format1(PairAdjustment1),

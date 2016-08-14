@@ -4,7 +4,7 @@ use {Result, Tape, Value, Walue};
 use super::{Features, Lookups, Scripts};
 
 /// A directory of scripts, features, and lookups.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Directory<T> {
     pub header: Header,
     pub scripts: Scripts,

@@ -4,7 +4,7 @@ use {Result, Tape, Value};
 use super::Range;
 
 /// A coverage table.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum Coverage {
     /// Format 1.
     Format1(Coverage1),

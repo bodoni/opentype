@@ -16,7 +16,7 @@ use glyph_substitution::{
 use layout::{Class, Coverage};
 
 /// A table.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum Table {
     SingleSubstitution(SingleSubstitution),
     MultipleSubstitution(MultipleSubstitution),
@@ -29,7 +29,7 @@ pub enum Table {
 }
 
 /// A table for substituting one glyph with one glyph.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum SingleSubstitution {
     /// Format 1.
     Format1(SingleSubstitution1),
@@ -136,7 +136,7 @@ table! {
 }
 
 /// A table for substituting glyphs in a context.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum ContextSubstitution {
     /// Format 1.
     Format1(ContextSubstitution1),
@@ -214,7 +214,7 @@ table! {
 }
 
 /// A table for substituting glyphs in a chaining context.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum ChainContextSubstitution {
     /// Format 1.
     Format1(ChainContextSubstitution1),

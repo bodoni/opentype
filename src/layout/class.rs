@@ -4,7 +4,7 @@ use {Result, Tape, Value};
 use super::Range;
 
 /// A class definition.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum Class {
     /// Format 1.
     Format1(Class1),

@@ -23,7 +23,10 @@ table! {
         input_glyph_count (u16), // InputGlyphCount
 
         input_class_ids (Vec<u16>) |this, tape| { // Input
-            tape.take_given(this.input_glyph_count as usize)
+            if this.input_glyph_count == 0 {
+                raise!("found a malformed chaining class rule");
+            }
+            tape.take_given(this.input_glyph_count as usize - 1)
         },
 
         forward_glyph_count (u16), // LookaheadGlyphCount
@@ -52,7 +55,10 @@ table! {
         input_glyph_count (u16), // InputGlyphCount
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // Input
-            tape.take_given(this.input_glyph_count as usize)
+            if this.input_glyph_count == 0 {
+                raise!("found a malformed chaining class rule");
+            }
+            tape.take_given(this.input_glyph_count as usize - 1)
         },
 
         forward_glyph_count (u16), // LookaheadGlyphCount

@@ -96,13 +96,8 @@ table! {
         },
 
         pair_sets (Vec<PairSet>) |this, tape, position| {
-            let mut values = Vec::with_capacity(this.pair_set_count as usize);
-            for i in 0..(this.pair_set_count as usize) {
-                try!(tape.jump(position + this.pair_set_offsets[i] as u64));
-                values.push(try!(tape.take_given((position, this.value1_flags,
-                                                  this.value2_flags))));
-            }
-            Ok(values)
+            jump_take_given!(tape, position, this.pair_set_count, this.pair_set_offsets,
+                             (position, this.value1_flags, this.value2_flags))
         },
     }
 }

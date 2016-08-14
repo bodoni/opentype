@@ -191,11 +191,11 @@ impl Walue<(u64, ValueFlags, ValueFlags)> for Pair {
 }
 
 impl Walue<(u64, ValueFlags, ValueFlags)> for PairSet {
-    fn read<T: Tape>(tape: &mut T, parameters: (u64, ValueFlags, ValueFlags)) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, parameter: (u64, ValueFlags, ValueFlags)) -> Result<Self> {
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
-            records.push(try!(tape.take_given(parameters)));
+            records.push(try!(tape.take_given(parameter)));
         }
         Ok(PairSet { count: count, records: records })
     }

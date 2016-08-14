@@ -25,6 +25,24 @@ macro_rules! jump_take(
     );
 );
 
+macro_rules! jump_take_given(
+    (@unwrap $tape:ident, $position:ident, $count:expr, $offsets:expr, $parameter:expr) => (
+        jump_take_given!(@unwrap $tape, $position, $count, i => $offsets[i], $parameter)
+    );
+    (@unwrap $tape:ident, $position:ident, $count:expr, $i:ident => $iterator:expr,
+     $parameter:expr) => ({
+        let mut values = Vec::with_capacity($count as usize);
+        for $i in 0..($count as usize) {
+            try!($tape.jump($position + $iterator as u64));
+            values.push(try!($tape.take_given($parameter)));
+        }
+        values
+    });
+    ($tape:ident, $position:ident, $count:expr, $offsets:expr, $parameter:expr) => (
+        Ok(jump_take_given!(@unwrap $tape, $position, $count, i => $offsets[i], $parameter))
+    );
+);
+
 macro_rules! jump_take_maybe(
     (@unwrap $tape:ident, $position:ident, $offset:expr) => (
         if $offset > 0 {

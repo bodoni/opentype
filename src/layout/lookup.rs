@@ -55,11 +55,7 @@ impl<U> Value for Record<U> where U: Walue<u16> {
         } else {
             None
         };
-        let mut tables = Vec::with_capacity(table_count as usize);
-        for i in 0..(table_count as usize) {
-            try!(tape.jump(position + table_offsets[i] as u64));
-            tables.push(try!(tape.take_given(kind)));
-        }
+        let tables = jump_take_given!(@unwrap tape, position, table_count, table_offsets, kind);
         Ok(Record {
             kind: kind,
             flags: flags,

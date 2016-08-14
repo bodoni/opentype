@@ -161,7 +161,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        entires (Vec<Anchor>) |this, tape, position| {
+        entries (Vec<Anchor>) |this, tape, position| {
             jump_take!(tape, position, this.connection_count,
                        i => this.connections[i].entry_offset)
         },

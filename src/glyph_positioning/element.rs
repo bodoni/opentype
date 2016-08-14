@@ -1,8 +1,52 @@
-use {Result, Tape, Walue};
+#![allow(unused_mut, unused_variables)]
+
+use {Result, Tape, Value, Walue};
+
+/// An anchor.
+#[derive(Clone, Debug)]
+pub enum Anchor {
+    /// Format 1.
+    Format1(Anchor1),
+    /// Format 2.
+    Format2(Anchor2),
+    /// Format 3.
+    Format3(Anchor3),
+}
+
+table! {
+    #[doc = "An anchor in format 1."]
+    #[derive(Copy)]
+    pub Anchor1 { // AnchorFormat1
+    }
+}
+
+table! {
+    #[doc = "An anchor in format 2."]
+    #[derive(Copy)]
+    pub Anchor2 { // AnchorFormat2
+    }
+}
+
+table! {
+    #[doc = "An anchor in format 3."]
+    #[derive(Copy)]
+    pub Anchor3 { // AnchorFormat3
+    }
+}
+
+table! {
+    #[doc = "An entry-exit record."]
+    #[derive(Copy)]
+    pub Connection { // EntryExitRecord
+        entry_offset (u16), // EntryAnchor
+        exit_offset  (u16), // ExitAnchor
+    }
+}
 
 table! {
     @define
     #[doc = "A single value."]
+    #[derive(Copy)]
     pub SingleValue { // ValueRecord
         x_placement               (Option<i16>), // XPlacement
         y_placement               (Option<i16>), // YPlacement
@@ -18,6 +62,7 @@ table! {
 table! {
     @define
     #[doc = "A value pair."]
+    #[derive(Copy)]
     pub PairValue { // PairValueRecord
         value1 (SingleValue), // Value1
         value2 (SingleValue), // Value2
@@ -45,6 +90,17 @@ flags! {
         0b0000_0000_0100_0000 => has_device_x_advance,
         0b0000_0000_1000_0000 => has_device_y_advance,
         0b1111_1111_0000_0000 => is_invalid,
+    }
+}
+
+impl Value for Anchor {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        Ok(match try!(tape.peek::<u16>()) {
+            1 => Anchor::Format1(try!(tape.take())),
+            2 => Anchor::Format2(try!(tape.take())),
+            3 => Anchor::Format3(try!(tape.take())),
+            _ => raise!("found an unknown format of the anchor table"),
+        })
     }
 }
 

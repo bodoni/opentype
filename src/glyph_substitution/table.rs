@@ -1,5 +1,3 @@
-#![allow(unused_mut, unused_variables)]
-
 use truetype::GlyphID;
 
 use {Result, Tape, Value, Walue};
@@ -154,7 +152,7 @@ table! {
         coverage_offset (u16), // Coverage
         set_count       (u16), // SubRuleSetCount
 
-        set_offsets (Vec<u16>) |this, tape, position| { // SubRuleSet
+        set_offsets (Vec<u16>) |this, tape, _| { // SubRuleSet
             tape.take_given(this.set_count as usize)
         },
 

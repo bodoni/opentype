@@ -1,7 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
 use {Result, Tape, Value, Walue};
-use glyph_positioning::element::{PairValue, PairValueSet, SingleValue, ValueFlags};
+use glyph_positioning::{Anchor, Connection, PairValue, PairValueSet, SingleValue, ValueFlags};
 use layout::{Class, Coverage};
 
 /// A table.
@@ -146,8 +146,30 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for attaching cursive glyphs."]
-    pub CursiveAttachment {
+    pub CursiveAttachment { // CursivePosFormat1
+        format           (u16) = { 1 }, // PosFormat
+        coverage_offset  (u16), // Coverage
+        connection_count (u16), // EntryExitCount
+
+        connections (Vec<Connection>) |this, tape, _| { // EntryExitRecord
+            tape.take_given(this.connection_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.coverage_offset)
+        },
+
+        entires (Vec<Anchor>) |this, tape, position| {
+            jump_take!(tape, position, this.connection_count,
+                       i => this.connections[i].entry_offset)
+        },
+
+        exits (Vec<Anchor>) |this, tape, position| {
+            jump_take!(tape, position, this.connection_count,
+                       i => this.connections[i].exit_offset)
+        },
     }
 }
 

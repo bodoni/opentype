@@ -12,12 +12,11 @@
 //! # fn main() {
 //! let path = "SourceSerifPro-Regular.otf";
 //! # let path = "tests/fixtures/SourceSerifPro-Regular.otf";
-//! let file = File::open(path).unwrap();
-//! let font = &file[0];
+//! let File { fonts, .. } = File::open(path).unwrap();
 //!
-//! assert_eq!(font.font_header.as_ref().unwrap().units_per_em, 1000);
-//! assert_eq!(font.horizontal_header.as_ref().unwrap().ascender, 918);
-//! let strings = match font.naming_table {
+//! assert_eq!(fonts[0].font_header.as_ref().unwrap().units_per_em, 1000);
+//! assert_eq!(fonts[0].horizontal_header.as_ref().unwrap().ascender, 918);
+//! let strings = match fonts[0].naming_table {
 //!     Some(NamingTable::Format0(ref table)) => table.strings().unwrap(),
 //!     _ => unreachable!(),
 //! };

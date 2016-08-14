@@ -203,18 +203,18 @@ impl Walue<(u64, ValueFlags, ValueFlags)> for PairSet {
 
 impl Walue<(u64, ValueFlags)> for Single {
     fn read<T: Tape>(tape: &mut T, (position, flags): (u64, ValueFlags)) -> Result<Self> {
-        macro_rules! read(
+        macro_rules! take(
             ($flag:ident) => (if flags.$flag() { Some(try!(tape.take())) } else { None });
         );
-        let x_placement = read!(has_x_placement);
-        let y_placement = read!(has_y_placement);
-        let x_advance = read!(has_x_advance);
-        let y_advance = read!(has_y_advance);
-        let device_x_placement_offset = read!(has_device_x_placement);
-        let device_y_placement_offset = read!(has_device_y_placement);
-        let device_x_advance_offset = read!(has_device_x_advance);
-        let device_y_advance_offset = read!(has_device_y_advance);
-        macro_rules! read(
+        let x_placement = take!(has_x_placement);
+        let y_placement = take!(has_y_placement);
+        let x_advance = take!(has_x_advance);
+        let y_advance = take!(has_y_advance);
+        let device_x_placement_offset = take!(has_device_x_placement);
+        let device_y_placement_offset = take!(has_device_y_placement);
+        let device_x_advance_offset = take!(has_device_x_advance);
+        let device_y_advance_offset = take!(has_device_y_advance);
+        macro_rules! take(
             ($offset:ident) => (
                 match $offset {
                     Some(offset) => Some(jump_take!(@unwrap tape, position, offset)),
@@ -222,10 +222,10 @@ impl Walue<(u64, ValueFlags)> for Single {
                 }
             );
         );
-        let device_x_placement = read!(device_x_placement_offset);
-        let device_y_placement = read!(device_y_placement_offset);
-        let device_x_advance = read!(device_x_advance_offset);
-        let device_y_advance = read!(device_y_advance_offset);
+        let device_x_placement = take!(device_x_placement_offset);
+        let device_y_placement = take!(device_y_placement_offset);
+        let device_x_advance = take!(device_x_advance_offset);
+        let device_y_advance = take!(device_y_advance_offset);
         Ok(Single {
             x_placement: x_placement,
             y_placement: y_placement,

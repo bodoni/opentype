@@ -47,7 +47,7 @@ table! {
     @define
     #[doc = "A single value."]
     #[derive(Copy)]
-    pub SingleValue { // ValueRecord
+    pub Single { // ValueRecord
         x_placement               (Option<i16>), // XPlacement
         y_placement               (Option<i16>), // YPlacement
         x_advance                 (Option<i16>), // XAdvance
@@ -63,18 +63,18 @@ table! {
     @define
     #[doc = "A value pair."]
     #[derive(Copy)]
-    pub PairValue { // PairValueRecord
-        value1 (SingleValue), // Value1
-        value2 (SingleValue), // Value2
+    pub Pair { // PairValueRecord
+        value1 (Single), // Value1
+        value2 (Single), // Value2
     }
 }
 
 table! {
     @define
     #[doc = "A set of value pairs."]
-    pub PairValueSet { // PairSet
-        count   (u16           ), // PairValueCount
-        records (Vec<PairValue>), // PairValueRecord
+    pub PairSet { // PairSet
+        count   (u16      ), // PairValueCount
+        records (Vec<Pair>), // PairValueRecord
     }
 }
 
@@ -104,33 +104,30 @@ impl Value for Anchor {
     }
 }
 
-impl Walue<(ValueFlags, ValueFlags)> for PairValue {
+impl Walue<(ValueFlags, ValueFlags)> for Pair {
     #[inline]
     fn read<T: Tape>(tape: &mut T, (flags1, flags2): (ValueFlags, ValueFlags)) -> Result<Self> {
-        Ok(PairValue {
-            value1: try!(tape.take_given(flags1)),
-            value2: try!(tape.take_given(flags2)),
-        })
+        Ok(Pair { value1: try!(tape.take_given(flags1)), value2: try!(tape.take_given(flags2)) })
     }
 }
 
-impl Walue<(ValueFlags, ValueFlags)> for PairValueSet {
+impl Walue<(ValueFlags, ValueFlags)> for PairSet {
     fn read<T: Tape>(tape: &mut T, flags: (ValueFlags, ValueFlags)) -> Result<Self> {
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
             records.push(try!(tape.take_given(flags)));
         }
-        Ok(PairValueSet { count: count, records: records })
+        Ok(PairSet { count: count, records: records })
     }
 }
 
-impl Walue<ValueFlags> for SingleValue {
+impl Walue<ValueFlags> for Single {
     fn read<T: Tape>(tape: &mut T, flags: ValueFlags) -> Result<Self> {
         macro_rules! read(
             ($flag:ident) => (if flags.$flag() { Some(try!(tape.take())) } else { None });
         );
-        Ok(SingleValue {
+        Ok(Single {
             x_placement: read!(has_x_placement),
             y_placement: read!(has_y_placement),
             x_advance: read!(has_x_advance),

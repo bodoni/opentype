@@ -1,7 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
 use {Result, Tape, Value, Walue};
-use glyph_positioning::{Anchor, Connection, PairValue, PairValueSet, SingleValue, ValueFlags};
+use glyph_positioning::{Anchor, Connection, Pair, PairSet, Single, ValueFlags};
 use layout::{Class, Coverage};
 
 /// A table.
@@ -35,7 +35,7 @@ table! {
         coverage_offset (u16       ), // Coverage
         value_flags     (ValueFlags), // ValueFormat
 
-        value (SingleValue) |this, tape, position| { // Value
+        value (Single) |this, tape, position| { // Value
             tape.take_given(this.value_flags)
         },
 
@@ -54,7 +54,7 @@ table! {
         value_flags     (ValueFlags), // ValueFormat
         value_count     (u16       ), // ValueCount
 
-        values (Vec<SingleValue>) |this, tape, position| { // Value
+        values (Vec<Single>) |this, tape, position| { // Value
             let mut values = Vec::with_capacity(this.value_count as usize);
             for i in 0..(this.value_count as usize) {
                 values.push(try!(tape.take_given(this.value_flags)));
@@ -95,7 +95,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        pair_sets (Vec<PairValueSet>) |this, tape, position| {
+        pair_sets (Vec<PairSet>) |this, tape, position| {
             let mut values = Vec::with_capacity(this.pair_set_count as usize);
             for i in 0..(this.pair_set_count as usize) {
                 try!(tape.jump(position + this.pair_set_offsets[i] as u64));
@@ -119,7 +119,7 @@ table! {
         class1_count    (u16       ), // Class1Count
         class2_count    (u16       ), // Class2Count
 
-        pair_sets (Vec<Vec<PairValue>>) |this, tape, position| { // Class1Record
+        pair_sets (Vec<Vec<Pair>>) |this, tape, position| { // Class1Record
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for i in 0..(this.class1_count as usize) {
                 let mut records = Vec::with_capacity(this.class2_count as usize);

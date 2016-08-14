@@ -1,7 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
 use {Result, Tape, Value, Walue};
-use glyph_positioning::{Anchor, Connection, Pair, PairSet, Single, ValueFlags};
+use glyph_positioning::{Gesture, Pair, PairSet, Single, ValueFlags};
 use layout::{Class, Coverage};
 
 /// A table.
@@ -36,7 +36,7 @@ table! {
         value_flags     (ValueFlags), // ValueFormat
 
         value (Single) |this, tape, position| { // Value
-            tape.take_given(this.value_flags)
+            tape.take_given((position, this.value_flags))
         },
 
         coverage (Coverage) |this, tape, position| {
@@ -57,7 +57,7 @@ table! {
         values (Vec<Single>) |this, tape, position| { // Value
             let mut values = Vec::with_capacity(this.value_count as usize);
             for i in 0..(this.value_count as usize) {
-                values.push(try!(tape.take_given(this.value_flags)));
+                values.push(try!(tape.take_given((position, this.value_flags))));
             }
             Ok(values)
         },
@@ -99,7 +99,8 @@ table! {
             let mut values = Vec::with_capacity(this.pair_set_count as usize);
             for i in 0..(this.pair_set_count as usize) {
                 try!(tape.jump(position + this.pair_set_offsets[i] as u64));
-                values.push(try!(tape.take_given((this.value1_flags, this.value2_flags))));
+                values.push(try!(tape.take_given((position, this.value1_flags,
+                                                  this.value2_flags))));
             }
             Ok(values)
         },
@@ -124,7 +125,8 @@ table! {
             for i in 0..(this.class1_count as usize) {
                 let mut records = Vec::with_capacity(this.class2_count as usize);
                 for j in 0..(this.class2_count as usize) {
-                    records.push(try!(tape.take_given((this.value1_flags, this.value2_flags))));
+                    records.push(try!(tape.take_given((position, this.value1_flags,
+                                                       this.value2_flags))));
                 }
                 values.push(records);
             }
@@ -149,26 +151,20 @@ table! {
     @position
     #[doc = "A table for attaching cursive glyphs."]
     pub CursiveAttachment { // CursivePosFormat1
-        format           (u16) = { 1 }, // PosFormat
-        coverage_offset  (u16), // Coverage
-        connection_count (u16), // EntryExitCount
+        format          (u16) = { 1 }, // PosFormat
+        coverage_offset (u16), // Coverage
+        gesture_count   (u16), // EntryExitCount
 
-        connections (Vec<Connection>) |this, tape, _| { // EntryExitRecord
-            tape.take_given(this.connection_count as usize)
+        gestures (Vec<Gesture>) |this, tape, position| { // EntryExitRecord
+            let mut values = Vec::with_capacity(this.gesture_count as usize);
+            for i in 0..(this.gesture_count as usize) {
+                values.push(try!(tape.take_given(position)));
+            }
+            Ok(values)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
-        },
-
-        entries (Vec<Anchor>) |this, tape, position| {
-            jump_take!(tape, position, this.connection_count,
-                       i => this.connections[i].entry_offset)
-        },
-
-        exits (Vec<Anchor>) |this, tape, position| {
-            jump_take!(tape, position, this.connection_count,
-                       i => this.connections[i].exit_offset)
         },
     }
 }

@@ -55,15 +55,6 @@ table! {
 }
 
 table! {
-    #[doc = "An entry-exit record."]
-    #[derive(Copy)]
-    pub Connection { // EntryExitRecord
-        entry_offset (u16), // EntryAnchor
-        exit_offset  (u16), // ExitAnchor
-    }
-}
-
-table! {
     @define
     #[doc = "A device table."]
     pub Device { // Device
@@ -76,24 +67,37 @@ table! {
 
 table! {
     @define
+    #[doc = "An entry-exit record."]
+    pub Gesture { // EntryExitRecord
+        entry_offset (u16   ), // EntryAnchor
+        exit_offset  (u16   ), // ExitAnchor
+        entry        (Anchor),
+        exit         (Anchor),
+    }
+}
+
+table! {
+    @define
     #[doc = "A single value."]
-    #[derive(Copy)]
     pub Single { // ValueRecord
-        x_placement               (Option<i16>), // XPlacement
-        y_placement               (Option<i16>), // YPlacement
-        x_advance                 (Option<i16>), // XAdvance
-        y_advance                 (Option<i16>), // YAdvance
-        device_x_placement_offset (Option<u16>), // XPlaDevice
-        device_y_placement_offset (Option<u16>), // YPlaDevice
-        device_x_advance_offset   (Option<u16>), // XAdvDevice
-        device_y_advance_offset   (Option<u16>), // YAdvDevice
+        x_placement               (Option<i16>   ), // XPlacement
+        y_placement               (Option<i16>   ), // YPlacement
+        x_advance                 (Option<i16>   ), // XAdvance
+        y_advance                 (Option<i16>   ), // YAdvance
+        device_x_placement_offset (Option<u16>   ), // XPlaDevice
+        device_y_placement_offset (Option<u16>   ), // YPlaDevice
+        device_x_advance_offset   (Option<u16>   ), // XAdvDevice
+        device_y_advance_offset   (Option<u16>   ), // YAdvDevice
+        device_x_placement        (Option<Device>),
+        device_y_placement        (Option<Device>),
+        device_x_advance          (Option<Device>),
+        device_y_advance          (Option<Device>),
     }
 }
 
 table! {
     @define
     #[doc = "A value pair."]
-    #[derive(Copy)]
     pub Pair { // PairValueRecord
         value1 (Single), // Value1
         value2 (Single), // Value2
@@ -159,38 +163,82 @@ impl Value for Device {
     }
 }
 
-impl Walue<(ValueFlags, ValueFlags)> for Pair {
-    #[inline]
-    fn read<T: Tape>(tape: &mut T, (flags1, flags2): (ValueFlags, ValueFlags)) -> Result<Self> {
-        Ok(Pair { value1: try!(tape.take_given(flags1)), value2: try!(tape.take_given(flags2)) })
+impl Walue<u64> for Gesture {
+    fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
+        let entry_offset = try!(tape.take());
+        let exit_offset = try!(tape.take());
+        let entry = jump_take!(@unwrap tape, position, entry_offset);
+        let exit = jump_take!(@unwrap tape, position, exit_offset);
+        Ok(Gesture {
+            entry_offset: entry_offset,
+            exit_offset: exit_offset,
+            entry: entry,
+            exit: exit,
+        })
     }
 }
 
-impl Walue<(ValueFlags, ValueFlags)> for PairSet {
-    fn read<T: Tape>(tape: &mut T, flags: (ValueFlags, ValueFlags)) -> Result<Self> {
+impl Walue<(u64, ValueFlags, ValueFlags)> for Pair {
+    #[inline]
+    fn read<T: Tape>(tape: &mut T, (position, flags1, flags2): (u64, ValueFlags, ValueFlags))
+                     -> Result<Self> {
+
+        Ok(Pair {
+            value1: try!(tape.take_given((position, flags1))),
+            value2: try!(tape.take_given((position, flags2))),
+        })
+    }
+}
+
+impl Walue<(u64, ValueFlags, ValueFlags)> for PairSet {
+    fn read<T: Tape>(tape: &mut T, parameters: (u64, ValueFlags, ValueFlags)) -> Result<Self> {
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
-            records.push(try!(tape.take_given(flags)));
+            records.push(try!(tape.take_given(parameters)));
         }
         Ok(PairSet { count: count, records: records })
     }
 }
 
-impl Walue<ValueFlags> for Single {
-    fn read<T: Tape>(tape: &mut T, flags: ValueFlags) -> Result<Self> {
+impl Walue<(u64, ValueFlags)> for Single {
+    fn read<T: Tape>(tape: &mut T, (position, flags): (u64, ValueFlags)) -> Result<Self> {
         macro_rules! read(
             ($flag:ident) => (if flags.$flag() { Some(try!(tape.take())) } else { None });
         );
+        let x_placement = read!(has_x_placement);
+        let y_placement = read!(has_y_placement);
+        let x_advance = read!(has_x_advance);
+        let y_advance = read!(has_y_advance);
+        let device_x_placement_offset = read!(has_device_x_placement);
+        let device_y_placement_offset = read!(has_device_y_placement);
+        let device_x_advance_offset = read!(has_device_x_advance);
+        let device_y_advance_offset = read!(has_device_y_advance);
+        macro_rules! read(
+            ($offset:ident) => (
+                match $offset {
+                    Some(offset) => Some(jump_take!(@unwrap tape, position, offset)),
+                    _ => None,
+                }
+            );
+        );
+        let device_x_placement = read!(device_x_placement_offset);
+        let device_y_placement = read!(device_y_placement_offset);
+        let device_x_advance = read!(device_x_advance_offset);
+        let device_y_advance = read!(device_y_advance_offset);
         Ok(Single {
-            x_placement: read!(has_x_placement),
-            y_placement: read!(has_y_placement),
-            x_advance: read!(has_x_advance),
-            y_advance: read!(has_y_advance),
-            device_x_placement_offset: read!(has_device_x_placement),
-            device_y_placement_offset: read!(has_device_y_placement),
-            device_x_advance_offset: read!(has_device_x_advance),
-            device_y_advance_offset: read!(has_device_y_advance),
+            x_placement: x_placement,
+            y_placement: y_placement,
+            x_advance: x_advance,
+            y_advance: y_advance,
+            device_x_placement_offset: device_x_placement_offset,
+            device_y_placement_offset: device_y_placement_offset,
+            device_x_advance_offset: device_x_advance_offset,
+            device_y_advance_offset: device_y_advance_offset,
+            device_x_placement: device_x_placement,
+            device_y_placement: device_y_placement,
+            device_x_advance: device_x_advance,
+            device_y_advance: device_y_advance,
         })
     }
 }

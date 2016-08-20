@@ -4,7 +4,8 @@ use {Result, Tape, Value, Walue};
 use glyph_positioning::{
     BaseSet,
     LigatureSet,
-    MarkSet,
+    Mark1Set,
+    Mark2Set,
     Pair,
     PairSet,
     Passage,
@@ -192,7 +193,7 @@ table! {
             jump_take!(tape, position, this.base_coverage_offset)
         },
 
-        mark_set (MarkSet) |this, tape, position| {
+        mark_set (Mark1Set) |this, tape, position| {
             jump_take!(tape, position, this.mark_set_offset)
         },
 
@@ -221,7 +222,7 @@ table! {
             jump_take!(tape, position, this.ligature_coverage_offset)
         },
 
-        mark_set (MarkSet) |this, tape, position| {
+        mark_set (Mark1Set) |this, tape, position| {
             jump_take!(tape, position, this.mark_set_offset)
         },
 
@@ -232,8 +233,31 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for attaching combining marks to other marks."]
-    pub MarkToMarkAttachment {
+    pub MarkToMarkAttachment { // MarkMarkPosFormat1
+        format                (u16) = { 1 }, // PosFormat
+        mark1_coverage_offset (u16), // Mark1Coverage
+        mark2_coverage_offset (u16), // Mark2Coverage
+        class_count           (u16), // ClassCount
+        mark1_set_offset      (u16), // Mark1Array
+        mark2_set_offset      (u16), // Mark2Array
+
+        mark1_coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.mark1_coverage_offset)
+        },
+
+        mark2_coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.mark2_coverage_offset)
+        },
+
+        mark1_set (Mark1Set) |this, tape, position| {
+            jump_take!(tape, position, this.mark1_set_offset)
+        },
+
+        mark2_set (Mark2Set) |this, tape, position| {
+            jump_take_given!(tape, position, this.mark2_set_offset, this.class_count)
+        },
     }
 }
 

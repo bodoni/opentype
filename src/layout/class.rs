@@ -1,7 +1,6 @@
 use truetype::GlyphID;
 
 use {Result, Tape, Value};
-use super::Range;
 
 /// A class definition.
 #[derive(Clone, Debug)]
@@ -31,9 +30,19 @@ table! {
         format      (u16) = { 2 }, // ClassFormat
         range_count (u16), // ClassRangeCount
 
-        ranges (Vec<Range>) |this, tape| { // ClassRangeRecord
+        ranges (Vec<ClassRange>) |this, tape| { // ClassRangeRecord
             tape.take_given(this.range_count as usize)
         },
+    }
+}
+
+table! {
+    #[doc = "A class range."]
+    #[derive(Copy)]
+    pub ClassRange { // ClassRangeRecord
+        start (GlyphID), // Start
+        end   (GlyphID), // End
+        index (u16    ), // Class
     }
 }
 

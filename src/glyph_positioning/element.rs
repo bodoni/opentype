@@ -215,12 +215,10 @@ impl Walue<(u64, ValueFlags)> for Single {
         let device_x_advance_offset = take!(has_device_x_advance);
         let device_y_advance_offset = take!(has_device_y_advance);
         macro_rules! take(
-            ($offset:ident) => (
-                match $offset {
-                    Some(offset) => Some(jump_take!(@unwrap tape, position, offset)),
-                    _ => None,
-                }
-            );
+            ($offset:ident) => (match $offset {
+                Some(offset) => Some(jump_take!(@unwrap tape, position, offset)),
+                _ => None,
+            });
         );
         let device_x_placement = take!(device_x_placement_offset);
         let device_y_placement = take!(device_y_placement_offset);

@@ -56,12 +56,56 @@ table! {
 
 table! {
     @define
+    #[doc = "A base record."]
+    pub Base { // BaseRecord
+        anchor_offsets (Vec<u16>   ), // BaseAnchor
+        anchors        (Vec<Anchor>),
+    }
+}
+
+table! {
+    @define
+    #[doc = "A base array."]
+    pub BaseArray { // BaseArray
+        count   (u16      ), // BaseCount
+        records (Vec<Base>), // BaseRecord
+    }
+}
+
+table! {
+    @define
     #[doc = "A device table."]
     pub Device { // Device
         start_size   (u16     ), // StartSize
         end_size     (u16     ), // EndSize
         delta_format (u16     ), // DeltaFormat
         delta_data   (Vec<u16>), // DeltaValue
+    }
+}
+
+table! {
+    @define
+    #[doc = "A mark record."]
+    pub Mark { // MarkRecord
+        class_id      (u16   ), // Class
+        anchor_offset (u16   ), // MarkAnchor
+        anchor        (Anchor),
+    }
+}
+
+table! {
+    @position
+    #[doc = "A mark array."]
+    pub MarkArray { // MarkArray
+        count (u16), // MarkCount
+
+        records (Vec<Mark>) |this, tape, position| { // MarkRecord
+            let mut values = Vec::with_capacity(this.count as usize);
+            for i in 0..(this.count as usize) {
+                values.push(try!(tape.take_given(position)));
+            }
+            Ok(values)
+        },
     }
 }
 
@@ -139,6 +183,26 @@ impl Value for Anchor {
     }
 }
 
+impl Walue<(u64, u16)> for Base {
+    fn read<T: Tape>(tape: &mut T, (position, class_count): (u64, u16)) -> Result<Self> {
+        let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
+        let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
+        Ok(Base { anchor_offsets: anchor_offsets, anchors: anchors })
+    }
+}
+
+impl Walue<u16> for BaseArray {
+    fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
+        let position = try!(tape.position());
+        let count = try!(tape.take());
+        let mut records = Vec::with_capacity(count as usize);
+        for i in 0..(count as usize) {
+            records.push(try!(tape.take_given((position, class_count))));
+        }
+        Ok(BaseArray { count: count, records: records })
+    }
+}
+
 impl Value for Device {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let start_size = try!(tape.take());
@@ -160,6 +224,15 @@ impl Value for Device {
             delta_format: delta_format,
             delta_data: delta_data,
         })
+    }
+}
+
+impl Walue<u64> for Mark {
+    fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
+        let class_id = try!(tape.take());
+        let anchor_offset = try!(tape.take());
+        let anchor = jump_take!(@unwrap tape, position, anchor_offset);
+        Ok(Mark { class_id: class_id, anchor_offset: anchor_offset, anchor: anchor })
     }
 }
 

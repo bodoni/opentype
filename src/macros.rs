@@ -26,6 +26,10 @@ macro_rules! jump_take(
 );
 
 macro_rules! jump_take_given(
+    (@unwrap $tape:ident, $position:ident, $offset:expr, $parameter:expr) => ({
+        try!($tape.jump($position + $offset as u64));
+        try!($tape.take_given($parameter))
+    });
     (@unwrap $tape:ident, $position:ident, $count:expr, $offsets:expr, $parameter:expr) => (
         jump_take_given!(@unwrap $tape, $position, $count, i => $offsets[i], $parameter)
     );
@@ -38,6 +42,9 @@ macro_rules! jump_take_given(
         }
         values
     });
+    ($tape:ident, $position:ident, $offset:expr, $parameter:expr) => (
+        Ok(jump_take_given!(@unwrap $tape, $position, $offset, $parameter))
+    );
     ($tape:ident, $position:ident, $count:expr, $offsets:expr, $parameter:expr) => (
         Ok(jump_take_given!(@unwrap $tape, $position, $count, i => $offsets[i], $parameter))
     );

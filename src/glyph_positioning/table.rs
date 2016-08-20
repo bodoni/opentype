@@ -1,7 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
 use {Result, Tape, Value, Walue};
-use glyph_positioning::{Pair, PairSet, Passage, Single, ValueFlags};
+use glyph_positioning::{BaseArray, MarkArray, Pair, PairSet, Passage, Single, ValueFlags};
 use layout::{Class, Coverage};
 
 /// A table.
@@ -165,8 +165,31 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for attaching combining marks to base glyphs."]
-    pub MarkToBaseAttachment {
+    pub MarkToBaseAttachment { // MarkBasePosFormat1
+        format               (u16) = { 1 }, // PosFormat
+        mark_coverage_offset (u16), // MarkCoverage
+        base_coverage_offset (u16), // BaseCoverage
+        class_count          (u16), // ClassCount
+        mark_array_offset    (u16), // MarkArray
+        base_array_offset    (u16), // BaseArray
+
+        mark_coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.mark_coverage_offset)
+        },
+
+        base_coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.base_coverage_offset)
+        },
+
+        mark_array (MarkArray) |this, tape, position| {
+            jump_take!(tape, position, this.mark_array_offset)
+        },
+
+        base_array (BaseArray) |this, tape, position| {
+            jump_take_given!(tape, position, this.base_array_offset, this.class_count)
+        },
     }
 }
 

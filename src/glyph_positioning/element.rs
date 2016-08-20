@@ -68,7 +68,7 @@ table! {
 table! {
     @define
     #[doc = "An entry-exit record."]
-    pub Gesture { // EntryExitRecord
+    pub Passage { // EntryExitRecord
         entry_offset (u16   ), // EntryAnchor
         exit_offset  (u16   ), // ExitAnchor
         entry        (Anchor),
@@ -163,13 +163,13 @@ impl Value for Device {
     }
 }
 
-impl Walue<u64> for Gesture {
+impl Walue<u64> for Passage {
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
         let entry_offset = try!(tape.take());
         let exit_offset = try!(tape.take());
         let entry = jump_take!(@unwrap tape, position, entry_offset);
         let exit = jump_take!(@unwrap tape, position, exit_offset);
-        Ok(Gesture {
+        Ok(Passage {
             entry_offset: entry_offset,
             exit_offset: exit_offset,
             entry: entry,

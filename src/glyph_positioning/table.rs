@@ -1,7 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
 use {Result, Tape, Value, Walue};
-use glyph_positioning::{Gesture, Pair, PairSet, Single, ValueFlags};
+use glyph_positioning::{Pair, PairSet, Passage, Single, ValueFlags};
 use layout::{Class, Coverage};
 
 /// A table.
@@ -148,11 +148,11 @@ table! {
     pub CursiveAttachment { // CursivePosFormat1
         format          (u16) = { 1 }, // PosFormat
         coverage_offset (u16), // Coverage
-        gesture_count   (u16), // EntryExitCount
+        passage_count   (u16), // EntryExitCount
 
-        gestures (Vec<Gesture>) |this, tape, position| { // EntryExitRecord
-            let mut values = Vec::with_capacity(this.gesture_count as usize);
-            for i in 0..(this.gesture_count as usize) {
+        passages (Vec<Passage>) |this, tape, position| { // EntryExitRecord
+            let mut values = Vec::with_capacity(this.passage_count as usize);
+            for i in 0..(this.passage_count as usize) {
                 values.push(try!(tape.take_given(position)));
             }
             Ok(values)

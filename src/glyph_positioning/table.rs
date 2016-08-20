@@ -1,7 +1,16 @@
 #![allow(unused_mut, unused_variables)]
 
 use {Result, Tape, Value, Walue};
-use glyph_positioning::{BaseArray, MarkArray, Pair, PairSet, Passage, Single, SingleFlags};
+use glyph_positioning::{
+    BaseArray,
+    LigatureArray,
+    MarkArray,
+    Pair,
+    PairSet,
+    Passage,
+    Single,
+    SingleFlags,
+};
 use layout::{Class, Coverage};
 
 /// A table.
@@ -194,8 +203,31 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for attaching combining marks to ligatures."]
-    pub MarkToLigatureAttachment {
+    pub MarkToLigatureAttachment { // MarkLigPosFormat1
+        format                   (u16) = { 1 }, // PosFormat
+        mark_coverage_offset     (u16), // MarkCoverage
+        ligature_coverage_offset (u16), // LigatureCoverage
+        class_count              (u16), // ClassCount
+        mark_array_offset        (u16), // MarkArray
+        ligature_array_offset    (u16), // LigatureArray
+
+        mark_coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.mark_coverage_offset)
+        },
+
+        ligature_coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.ligature_coverage_offset)
+        },
+
+        mark_array (MarkArray) |this, tape, position| {
+            jump_take!(tape, position, this.mark_array_offset)
+        },
+
+        ligature_array (LigatureArray) |this, tape, position| {
+            jump_take_given!(tape, position, this.ligature_array_offset, this.class_count)
+        },
     }
 }
 

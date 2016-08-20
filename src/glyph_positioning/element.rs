@@ -56,7 +56,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A base record."]
+    #[doc = "A base-attachment record."]
     pub Base { // BaseRecord
         anchor_offsets (Vec<u16>   ), // BaseAnchor
         anchors        (Vec<Anchor>),
@@ -65,7 +65,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A base array."]
+    #[doc = "A base-attachment array."]
     pub BaseArray { // BaseArray
         count   (u16      ), // BaseCount
         records (Vec<Base>), // BaseRecord
@@ -85,17 +85,35 @@ table! {
 
 table! {
     @define
-    #[doc = "A mark record."]
-    pub Mark { // MarkRecord
-        class_id      (u16   ), // Class
-        anchor_offset (u16   ), // MarkAnchor
-        anchor        (Anchor),
+    #[doc = "A ligature-attachment record."]
+    pub Ligature { // LigatureAttach
+        component_count (u16                   ), // ComponentCount
+        components      (Vec<LigatureComponent>), // ComponentRecord
+    }
+}
+
+table! {
+    @define
+    #[doc = "A ligature-attachment array."]
+    pub LigatureArray { // LigatureArray
+        count   (u16          ), // LigatureCount
+        offsets (Vec<u16>     ), // LigatureAttach
+        records (Vec<Ligature>),
+    }
+}
+
+table! {
+    @define
+    #[doc = "A ligature-attachment component."]
+    pub LigatureComponent { // ComponentRecord
+        anchor_offsets (Vec<u16>   ),
+        anchors        (Vec<Anchor>),
     }
 }
 
 table! {
     @position
-    #[doc = "A mark array."]
+    #[doc = "A mark-attachment array."]
     pub MarkArray { // MarkArray
         count (u16), // MarkCount
 
@@ -106,6 +124,16 @@ table! {
             }
             Ok(values)
         },
+    }
+}
+
+table! {
+    @define
+    #[doc = "A mark-attachment record."]
+    pub Mark { // MarkRecord
+        class_id      (u16   ), // Class
+        anchor_offset (u16   ), // MarkAnchor
+        anchor        (Anchor),
     }
 }
 
@@ -212,7 +240,7 @@ impl Value for Device {
         }
         let delta_format = try!(tape.take());
         if delta_format == 0 || delta_format > 3 {
-            raise!("found an unknow format of the device table");
+            raise!("found an unknown format of the device table");
         }
         let count = (end_size - start_size) as usize + 1;
         let bit_count = (1 << delta_format as usize) * count;
@@ -224,6 +252,36 @@ impl Value for Device {
             delta_format: delta_format,
             delta_data: delta_data,
         })
+    }
+}
+
+impl Walue<u16> for Ligature {
+    fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
+        let position = try!(tape.position());
+        let component_count = try!(tape.take());
+        let mut components = Vec::with_capacity(component_count as usize);
+        for i in 0..(component_count as usize) {
+            components.push(try!(tape.take_given((position, class_count))));
+        }
+        Ok(Ligature { component_count: component_count, components: components })
+    }
+}
+
+impl Walue<u16> for LigatureArray {
+    fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
+        let position = try!(tape.position());
+        let count = try!(tape.take());
+        let offsets: Vec<u16> = try!(tape.take_given(count as usize));
+        let records = jump_take_given!(@unwrap tape, position, count, offsets, class_count);
+        Ok(LigatureArray { count: count, offsets: offsets, records: records })
+    }
+}
+
+impl Walue<(u64, u16)> for LigatureComponent {
+    fn read<T: Tape>(tape: &mut T, (position, class_count): (u64, u16)) -> Result<Self> {
+        let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
+        let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
+        Ok(LigatureComponent { anchor_offsets: anchor_offsets, anchors: anchors })
     }
 }
 

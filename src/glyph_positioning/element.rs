@@ -139,6 +139,21 @@ table! {
     }
 }
 
+flags! {
+    #[doc = "Single-value flags."]
+    pub SingleFlags(u16) {
+        0b0000_0000_0000_0001 => has_x_placement,
+        0b0000_0000_0000_0010 => has_y_placement,
+        0b0000_0000_0000_0100 => has_x_advance,
+        0b0000_0000_0000_1000 => has_y_advance,
+        0b0000_0000_0001_0000 => has_device_x_placement,
+        0b0000_0000_0010_0000 => has_device_y_placement,
+        0b0000_0000_0100_0000 => has_device_x_advance,
+        0b0000_0000_1000_0000 => has_device_y_advance,
+        0b1111_1111_0000_0000 => is_invalid,
+    }
+}
+
 table! {
     @define
     #[doc = "A value pair."]
@@ -154,21 +169,6 @@ table! {
     pub PairSet { // PairSet
         count   (u16      ), // PairValueCount
         records (Vec<Pair>), // PairValueRecord
-    }
-}
-
-flags! {
-    #[doc = "Value flags."]
-    pub ValueFlags(u16) {
-        0b0000_0000_0000_0001 => has_x_placement,
-        0b0000_0000_0000_0010 => has_y_placement,
-        0b0000_0000_0000_0100 => has_x_advance,
-        0b0000_0000_0000_1000 => has_y_advance,
-        0b0000_0000_0001_0000 => has_device_x_placement,
-        0b0000_0000_0010_0000 => has_device_y_placement,
-        0b0000_0000_0100_0000 => has_device_x_advance,
-        0b0000_0000_1000_0000 => has_device_y_advance,
-        0b1111_1111_0000_0000 => is_invalid,
     }
 }
 
@@ -251,9 +251,9 @@ impl Walue<u64> for Passage {
     }
 }
 
-impl Walue<(u64, ValueFlags, ValueFlags)> for Pair {
+impl Walue<(u64, SingleFlags, SingleFlags)> for Pair {
     #[inline]
-    fn read<T: Tape>(tape: &mut T, (position, flags1, flags2): (u64, ValueFlags, ValueFlags))
+    fn read<T: Tape>(tape: &mut T, (position, flags1, flags2): (u64, SingleFlags, SingleFlags))
                      -> Result<Self> {
 
         Ok(Pair {
@@ -263,8 +263,8 @@ impl Walue<(u64, ValueFlags, ValueFlags)> for Pair {
     }
 }
 
-impl Walue<(u64, ValueFlags, ValueFlags)> for PairSet {
-    fn read<T: Tape>(tape: &mut T, parameter: (u64, ValueFlags, ValueFlags)) -> Result<Self> {
+impl Walue<(u64, SingleFlags, SingleFlags)> for PairSet {
+    fn read<T: Tape>(tape: &mut T, parameter: (u64, SingleFlags, SingleFlags)) -> Result<Self> {
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
@@ -274,8 +274,8 @@ impl Walue<(u64, ValueFlags, ValueFlags)> for PairSet {
     }
 }
 
-impl Walue<(u64, ValueFlags)> for Single {
-    fn read<T: Tape>(tape: &mut T, (position, flags): (u64, ValueFlags)) -> Result<Self> {
+impl Walue<(u64, SingleFlags)> for Single {
+    fn read<T: Tape>(tape: &mut T, (position, flags): (u64, SingleFlags)) -> Result<Self> {
         macro_rules! take(
             ($flag:ident) => (if flags.$flag() { Some(try!(tape.take())) } else { None });
         );

@@ -1,7 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
 use {Result, Tape, Value, Walue};
-use glyph_positioning::{BaseArray, MarkArray, Pair, PairSet, Passage, Single, ValueFlags};
+use glyph_positioning::{BaseArray, MarkArray, Pair, PairSet, Passage, Single, SingleFlags};
 use layout::{Class, Coverage};
 
 /// A table.
@@ -31,9 +31,9 @@ table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 1."]
     pub SingleAdjustment1 { // SinglePosFormat1
-        format          (u16       ) = { 1 }, // PosFormat
-        coverage_offset (u16       ), // Coverage
-        value_flags     (ValueFlags), // ValueFormat
+        format          (u16        ) = { 1 }, // PosFormat
+        coverage_offset (u16        ), // Coverage
+        value_flags     (SingleFlags), // ValueFormat
 
         value (Single) |this, tape, position| { // Value
             tape.take_given((position, this.value_flags))
@@ -49,10 +49,10 @@ table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 2."]
     pub SingleAdjustment2 { // SinglePosFormat2
-        format          (u16       ) = { 2 }, // PosFormat
-        coverage_offset (u16       ), // Coverage
-        value_flags     (ValueFlags), // ValueFormat
-        value_count     (u16       ), // ValueCount
+        format          (u16        ) = { 2 }, // PosFormat
+        coverage_offset (u16        ), // Coverage
+        value_flags     (SingleFlags), // ValueFormat
+        value_count     (u16        ), // ValueCount
 
         values (Vec<Single>) |this, tape, position| { // Value
             let mut values = Vec::with_capacity(this.value_count as usize);
@@ -81,11 +81,11 @@ table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 1."]
     pub PairAdjustment1 { // PairPosFormat1
-        format          (u16       ) = { 1 }, // PosFormat
-        coverage_offset (u16       ), // Coverage
-        value1_flags    (ValueFlags), // ValueFormat1
-        value2_flags    (ValueFlags), // ValueFormat2
-        pair_set_count  (u16       ), // PairSetCount
+        format          (u16        ) = { 1 }, // PosFormat
+        coverage_offset (u16        ), // Coverage
+        value1_flags    (SingleFlags), // ValueFormat1
+        value2_flags    (SingleFlags), // ValueFormat2
+        pair_set_count  (u16        ), // PairSetCount
 
         pair_set_offsets (Vec<u16>) |this, tape, position| { // PairSetOffset
             tape.take_given(this.pair_set_count as usize)
@@ -106,14 +106,14 @@ table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 2."]
     pub PairAdjustment2 { // PairPosFormat2
-        format          (u16       ) = { 2 }, // PosFormat
-        coverage_offset (u16       ), // Coverage
-        value1_flags    (ValueFlags), // ValueFormat1
-        value2_flags    (ValueFlags), // ValueFormat2
-        class1_offset   (u16       ), // ClassDef1
-        class2_offset   (u16       ), // ClassDef2
-        class1_count    (u16       ), // Class1Count
-        class2_count    (u16       ), // Class2Count
+        format          (u16        ) = { 2 }, // PosFormat
+        coverage_offset (u16        ), // Coverage
+        value1_flags    (SingleFlags), // ValueFormat1
+        value2_flags    (SingleFlags), // ValueFormat2
+        class1_offset   (u16        ), // ClassDef1
+        class2_offset   (u16        ), // ClassDef2
+        class1_count    (u16        ), // Class1Count
+        class2_count    (u16        ), // Class2Count
 
         pair_sets (Vec<Vec<Pair>>) |this, tape, position| { // Class1Record
             let mut values = Vec::with_capacity(this.class1_count as usize);

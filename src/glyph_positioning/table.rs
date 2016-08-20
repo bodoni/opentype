@@ -2,9 +2,9 @@
 
 use {Result, Tape, Value, Walue};
 use glyph_positioning::{
-    BaseArray,
-    LigatureArray,
-    MarkArray,
+    BaseSet,
+    LigatureSet,
+    MarkSet,
     Pair,
     PairSet,
     Passage,
@@ -181,8 +181,8 @@ table! {
         mark_coverage_offset (u16), // MarkCoverage
         base_coverage_offset (u16), // BaseCoverage
         class_count          (u16), // ClassCount
-        mark_array_offset    (u16), // MarkArray
-        base_array_offset    (u16), // BaseArray
+        mark_set_offset      (u16), // MarkArray
+        base_set_offset      (u16), // BaseArray
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -192,12 +192,12 @@ table! {
             jump_take!(tape, position, this.base_coverage_offset)
         },
 
-        mark_array (MarkArray) |this, tape, position| {
-            jump_take!(tape, position, this.mark_array_offset)
+        mark_set (MarkSet) |this, tape, position| {
+            jump_take!(tape, position, this.mark_set_offset)
         },
 
-        base_array (BaseArray) |this, tape, position| {
-            jump_take_given!(tape, position, this.base_array_offset, this.class_count)
+        base_set (BaseSet) |this, tape, position| {
+            jump_take_given!(tape, position, this.base_set_offset, this.class_count)
         },
     }
 }
@@ -210,8 +210,8 @@ table! {
         mark_coverage_offset     (u16), // MarkCoverage
         ligature_coverage_offset (u16), // LigatureCoverage
         class_count              (u16), // ClassCount
-        mark_array_offset        (u16), // MarkArray
-        ligature_array_offset    (u16), // LigatureArray
+        mark_set_offset          (u16), // MarkArray
+        ligature_set_offset      (u16), // LigatureArray
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -221,12 +221,12 @@ table! {
             jump_take!(tape, position, this.ligature_coverage_offset)
         },
 
-        mark_array (MarkArray) |this, tape, position| {
-            jump_take!(tape, position, this.mark_array_offset)
+        mark_set (MarkSet) |this, tape, position| {
+            jump_take!(tape, position, this.mark_set_offset)
         },
 
-        ligature_array (LigatureArray) |this, tape, position| {
-            jump_take_given!(tape, position, this.ligature_array_offset, this.class_count)
+        ligature_set (LigatureSet) |this, tape, position| {
+            jump_take_given!(tape, position, this.ligature_set_offset, this.class_count)
         },
     }
 }

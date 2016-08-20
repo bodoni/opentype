@@ -56,7 +56,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A base-attachment record."]
+    #[doc = "A base attachment."]
     pub Base { // BaseRecord
         anchor_offsets (Vec<u16>   ), // BaseAnchor
         anchors        (Vec<Anchor>),
@@ -65,8 +65,8 @@ table! {
 
 table! {
     @define
-    #[doc = "A base-attachment array."]
-    pub BaseArray { // BaseArray
+    #[doc = "A set of base attachments."]
+    pub BaseSet { // BaseArray
         count   (u16      ), // BaseCount
         records (Vec<Base>), // BaseRecord
     }
@@ -85,17 +85,26 @@ table! {
 
 table! {
     @define
-    #[doc = "A ligature-attachment record."]
-    pub Ligature { // LigatureAttach
-        component_count (u16                   ), // ComponentCount
-        components      (Vec<LigatureComponent>), // ComponentRecord
+    #[doc = "A component."]
+    pub Component { // ComponentRecord
+        anchor_offsets (Vec<u16>   ),
+        anchors        (Vec<Anchor>),
     }
 }
 
 table! {
     @define
-    #[doc = "A ligature-attachment array."]
-    pub LigatureArray { // LigatureArray
+    #[doc = "A ligature attachment."]
+    pub Ligature { // LigatureAttach
+        component_count (u16           ), // ComponentCount
+        components      (Vec<Component>), // ComponentRecord
+    }
+}
+
+table! {
+    @define
+    #[doc = "A set of ligature attachments."]
+    pub LigatureSet { // LigatureArray
         count   (u16          ), // LigatureCount
         offsets (Vec<u16>     ), // LigatureAttach
         records (Vec<Ligature>),
@@ -103,18 +112,9 @@ table! {
 }
 
 table! {
-    @define
-    #[doc = "A ligature-attachment component."]
-    pub LigatureComponent { // ComponentRecord
-        anchor_offsets (Vec<u16>   ),
-        anchors        (Vec<Anchor>),
-    }
-}
-
-table! {
     @position
-    #[doc = "A mark-attachment array."]
-    pub MarkArray { // MarkArray
+    #[doc = "A set of mark attachments."]
+    pub MarkSet { // MarkArray
         count (u16), // MarkCount
 
         records (Vec<Mark>) |this, tape, position| { // MarkRecord
@@ -129,7 +129,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A mark-attachment record."]
+    #[doc = "A mark attachment."]
     pub Mark { // MarkRecord
         class_id      (u16   ), // Class
         anchor_offset (u16   ), // MarkAnchor
@@ -219,7 +219,7 @@ impl Walue<(u64, u16)> for Base {
     }
 }
 
-impl Walue<u16> for BaseArray {
+impl Walue<u16> for BaseSet {
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
         let position = try!(tape.position());
         let count = try!(tape.take());
@@ -227,7 +227,15 @@ impl Walue<u16> for BaseArray {
         for i in 0..(count as usize) {
             records.push(try!(tape.take_given((position, class_count))));
         }
-        Ok(BaseArray { count: count, records: records })
+        Ok(BaseSet { count: count, records: records })
+    }
+}
+
+impl Walue<(u64, u16)> for Component {
+    fn read<T: Tape>(tape: &mut T, (position, class_count): (u64, u16)) -> Result<Self> {
+        let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
+        let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
+        Ok(Component { anchor_offsets: anchor_offsets, anchors: anchors })
     }
 }
 
@@ -267,21 +275,13 @@ impl Walue<u16> for Ligature {
     }
 }
 
-impl Walue<u16> for LigatureArray {
+impl Walue<u16> for LigatureSet {
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
         let position = try!(tape.position());
         let count = try!(tape.take());
         let offsets: Vec<u16> = try!(tape.take_given(count as usize));
         let records = jump_take_given!(@unwrap tape, position, count, offsets, class_count);
-        Ok(LigatureArray { count: count, offsets: offsets, records: records })
-    }
-}
-
-impl Walue<(u64, u16)> for LigatureComponent {
-    fn read<T: Tape>(tape: &mut T, (position, class_count): (u64, u16)) -> Result<Self> {
-        let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
-        let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(LigatureComponent { anchor_offsets: anchor_offsets, anchors: anchors })
+        Ok(LigatureSet { count: count, offsets: offsets, records: records })
     }
 }
 

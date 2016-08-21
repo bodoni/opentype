@@ -3,6 +3,7 @@
 use {Result, Tape, Value, Walue};
 use glyph_positioning::{
     BaseSet,
+    ChainRuleSet,
     ClassRuleSet,
     LigatureSet,
     Mark1Set,
@@ -354,9 +355,24 @@ pub enum ChainContextPositioning {
 }
 
 table! {
+    @position
     #[doc = "A table for positioning glyphs in a chaining context in format 1."]
     pub ChainContextPositioning1 {
-        format (u16) = { 1 }, // PosFormat
+        format          (u16) = { 1 }, // PosFormat
+        coverage_offset (u16), // Coverage
+        set_count       (u16), // ChainPosRuleSetCount
+
+        set_offsets (Vec<u16>) |this, tape, _| { // ChainPosRuleSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.coverage_offset)
+        },
+
+        sets (Vec<ChainRuleSet>) |this, tape, position| {
+            jump_take!(tape, position, this.set_count, this.set_offsets)
+        },
     }
 }
 

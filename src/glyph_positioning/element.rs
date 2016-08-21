@@ -75,6 +75,54 @@ table! {
 }
 
 table! {
+    #[doc = "A chaining positioning rule."]
+    pub ChainRule { // ChainPosRule
+        backward_glyph_count (u16), // BacktrackGlyphCount
+
+        backward_glyph_ids (Vec<GlyphID>) |this, tape| { // Backtrack
+            tape.take_given(this.backward_glyph_count as usize)
+        },
+
+        input_glyph_count (u16), // InputGlyphCount
+
+        input_glyph_ids (Vec<GlyphID>) |this, tape| { // Input
+            if this.input_glyph_count == 0 {
+                raise!("found a malformed chaining positioning rule");
+            }
+            tape.take_given(this.input_glyph_count as usize - 1)
+        },
+
+        forward_glyph_count (u16), // LookaheadGlyphCount
+
+        forward_glyph_ids (Vec<GlyphID>) |this, tape| { // LookAhead
+            tape.take_given(this.forward_glyph_count as usize)
+        },
+
+        operation_count (u16), // PosCount
+
+        operations (Vec<Positioning>) |this, tape| { // PosLookupRecord
+            tape.take_given(this.operation_count as usize)
+        },
+    }
+}
+
+table! {
+    @position
+    #[doc = "A set of chaining positioning rules."]
+    pub ChainRuleSet { // ChainPosRuleSet
+        count (u16), // ChainPosRuleCount
+
+        offsets (Vec<u16>) |this, tape, _| { // ChainPosRule
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<ChainRule>) |this, tape, position| {
+            jump_take!(tape, position, this.count, this.offsets)
+        },
+    }
+}
+
+table! {
     #[doc = "A class positioning rule."]
     pub ClassRule { // PosClassRule
         input_glyph_count (u16), // GlyphCount

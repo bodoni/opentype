@@ -9,8 +9,8 @@ use glyph_positioning::{
     LigatureSet,
     Mark1Set,
     Mark2Set,
-    Pair,
-    PairSet,
+    Pair1Set,
+    Pair2Set,
     Passage,
     Positioning,
     RuleSet,
@@ -110,7 +110,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        pair_sets (Vec<PairSet>) |this, tape, position| {
+        pair_sets (Vec<Pair1Set>) |this, tape, position| {
             jump_take_given!(tape, position, this.pair_set_count, this.pair_set_offsets,
                              (position, this.value1_flags, this.value2_flags))
         },
@@ -130,15 +130,11 @@ table! {
         class1_count    (u16        ), // Class1Count
         class2_count    (u16        ), // Class2Count
 
-        pair_sets (Vec<Vec<Pair>>) |this, tape, position| { // Class1Record
+        pair_sets (Vec<Pair2Set>) |this, tape, position| { // Class1Record
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for i in 0..(this.class1_count as usize) {
-                let mut records = Vec::with_capacity(this.class2_count as usize);
-                for j in 0..(this.class2_count as usize) {
-                    records.push(try!(tape.take_given((position, this.value1_flags,
-                                                       this.value2_flags))));
-                }
-                values.push(records);
+                values.push(try!(tape.take_given((position, this.class2_count,
+                                                  this.value1_flags, this.value2_flags))));
             }
             Ok(values)
         },

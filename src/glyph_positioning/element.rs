@@ -290,53 +290,27 @@ table! {
 
 table! {
     @define
-    #[doc = "An entry-exit record."]
-    pub Passage { // EntryExitRecord
-        entry_offset (u16   ), // EntryAnchor
-        exit_offset  (u16   ), // ExitAnchor
-        entry        (Anchor),
-        exit         (Anchor),
+    #[doc = "A pair adjustment in format 1."]
+    pub Pair1 { // PairValueRecord
+        glyph2_id (GlyphID), // SecondGlyph
+        value1    (Single ), // Value1
+        value2    (Single ), // Value2
     }
 }
 
 table! {
     @define
-    #[doc = "A single adjustment."]
-    pub Single { // ValueRecord
-        x_placement               (Option<i16>   ), // XPlacement
-        y_placement               (Option<i16>   ), // YPlacement
-        x_advance                 (Option<i16>   ), // XAdvance
-        y_advance                 (Option<i16>   ), // YAdvance
-        device_x_placement_offset (Option<u16>   ), // XPlaDevice
-        device_y_placement_offset (Option<u16>   ), // YPlaDevice
-        device_x_advance_offset   (Option<u16>   ), // XAdvDevice
-        device_y_advance_offset   (Option<u16>   ), // YAdvDevice
-        device_x_placement        (Option<Device>),
-        device_y_placement        (Option<Device>),
-        device_x_advance          (Option<Device>),
-        device_y_advance          (Option<Device>),
-    }
-}
-
-flags! {
-    #[doc = "Single-adjustment flags."]
-    pub SingleFlags(u16) {
-        0b0000_0000_0000_0001 => has_x_placement,
-        0b0000_0000_0000_0010 => has_y_placement,
-        0b0000_0000_0000_0100 => has_x_advance,
-        0b0000_0000_0000_1000 => has_y_advance,
-        0b0000_0000_0001_0000 => has_device_x_placement,
-        0b0000_0000_0010_0000 => has_device_y_placement,
-        0b0000_0000_0100_0000 => has_device_x_advance,
-        0b0000_0000_1000_0000 => has_device_y_advance,
-        0b1111_1111_0000_0000 => is_invalid,
+    #[doc = "A set of pair adjustments in format 1."]
+    pub Pair1Set { // PairSet
+        count   (u16       ), // PairValueCount
+        records (Vec<Pair1>), // PairValueRecord
     }
 }
 
 table! {
     @define
-    #[doc = "A pair adjustment."]
-    pub Pair { // PairValueRecord
+    #[doc = "A pair adjustment in format 2."]
+    pub Pair2 { // Class2Record
         value1 (Single), // Value1
         value2 (Single), // Value2
     }
@@ -344,10 +318,20 @@ table! {
 
 table! {
     @define
-    #[doc = "A set of pair adjustments."]
-    pub PairSet { // PairSet
-        count   (u16      ), // PairValueCount
-        records (Vec<Pair>), // PairValueRecord
+    #[doc = "A set of pair adjustments in format 2."]
+    pub Pair2Set { // Class1Record
+        records (Vec<Pair2>), // Class2Record
+    }
+}
+
+table! {
+    @define
+    #[doc = "An entry-exit record."]
+    pub Passage { // EntryExitRecord
+        entry_offset (u16   ), // EntryAnchor
+        exit_offset  (u16   ), // ExitAnchor
+        entry        (Anchor),
+        exit         (Anchor),
     }
 }
 
@@ -392,6 +376,40 @@ table! {
         records (Vec<Rule>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
+    }
+}
+
+table! {
+    @define
+    #[doc = "A single adjustment."]
+    pub Single { // ValueRecord
+        x_placement               (Option<i16>   ), // XPlacement
+        y_placement               (Option<i16>   ), // YPlacement
+        x_advance                 (Option<i16>   ), // XAdvance
+        y_advance                 (Option<i16>   ), // YAdvance
+        device_x_placement_offset (Option<u16>   ), // XPlaDevice
+        device_y_placement_offset (Option<u16>   ), // YPlaDevice
+        device_x_advance_offset   (Option<u16>   ), // XAdvDevice
+        device_y_advance_offset   (Option<u16>   ), // YAdvDevice
+        device_x_placement        (Option<Device>),
+        device_y_placement        (Option<Device>),
+        device_x_advance          (Option<Device>),
+        device_y_advance          (Option<Device>),
+    }
+}
+
+flags! {
+    #[doc = "Single-adjustment flags."]
+    pub SingleFlags(u16) {
+        0b0000_0000_0000_0001 => has_x_placement,
+        0b0000_0000_0000_0010 => has_y_placement,
+        0b0000_0000_0000_0100 => has_x_advance,
+        0b0000_0000_0000_1000 => has_y_advance,
+        0b0000_0000_0001_0000 => has_device_x_placement,
+        0b0000_0000_0010_0000 => has_device_y_placement,
+        0b0000_0000_0100_0000 => has_device_x_advance,
+        0b0000_0000_1000_0000 => has_device_y_advance,
+        0b1111_1111_0000_0000 => is_invalid,
     }
 }
 
@@ -509,6 +527,58 @@ impl Walue<u16> for Mark2Set {
     }
 }
 
+impl Walue<(u64, SingleFlags, SingleFlags)> for Pair1 {
+    fn read<T: Tape>(tape: &mut T, (position, value1_flags, value2_flags): (u64, SingleFlags, SingleFlags)) -> Result<Self> {
+        Ok(Pair1 {
+            glyph2_id: try!(tape.take()),
+            value1: try!(tape.take_given((position, value1_flags))),
+            value2: try!(tape.take_given((position, value2_flags))),
+        })
+    }
+}
+
+impl Walue<(u64, SingleFlags, SingleFlags)> for Pair1Set {
+    fn read<T: Tape>(tape: &mut T, parameter: (u64, SingleFlags, SingleFlags)) -> Result<Self> {
+        let count = try!(tape.take());
+        let mut records = Vec::with_capacity(count as usize);
+        for _ in 0..(count as usize) {
+            records.push(try!(tape.take_given(parameter)));
+        }
+        Ok(Pair1Set { count: count, records: records })
+    }
+}
+
+impl Walue<(u64, SingleFlags, SingleFlags)> for Pair2 {
+    fn read<T: Tape>(tape: &mut T, (position,
+                                    value1_flags,
+                                    value2_flags): (u64,
+                                                    SingleFlags,
+                                                    SingleFlags)) -> Result<Self> {
+
+        Ok(Pair2 {
+            value1: try!(tape.take_given((position, value1_flags))),
+            value2: try!(tape.take_given((position, value2_flags))),
+        })
+    }
+}
+
+impl Walue<(u64, u16, SingleFlags, SingleFlags)> for Pair2Set {
+    fn read<T: Tape>(tape: &mut T, (position,
+                                    class2_count,
+                                    value1_flags,
+                                    value2_flags): (u64,
+                                                    u16,
+                                                    SingleFlags,
+                                                    SingleFlags)) -> Result<Self> {
+
+        let mut records = Vec::with_capacity(class2_count as usize);
+        for j in 0..(class2_count as usize) {
+            records.push(try!(tape.take_given((position, value1_flags, value2_flags))));
+        }
+        Ok(Pair2Set { records: records })
+    }
+}
+
 impl Walue<u64> for Passage {
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
         let entry_offset = try!(tape.take());
@@ -521,29 +591,6 @@ impl Walue<u64> for Passage {
             entry: entry,
             exit: exit,
         })
-    }
-}
-
-impl Walue<(u64, SingleFlags, SingleFlags)> for Pair {
-    #[inline]
-    fn read<T: Tape>(tape: &mut T, (position, flags1, flags2): (u64, SingleFlags, SingleFlags))
-                     -> Result<Self> {
-
-        Ok(Pair {
-            value1: try!(tape.take_given((position, flags1))),
-            value2: try!(tape.take_given((position, flags2))),
-        })
-    }
-}
-
-impl Walue<(u64, SingleFlags, SingleFlags)> for PairSet {
-    fn read<T: Tape>(tape: &mut T, parameter: (u64, SingleFlags, SingleFlags)) -> Result<Self> {
-        let count = try!(tape.take());
-        let mut records = Vec::with_capacity(count as usize);
-        for _ in 0..(count as usize) {
-            records.push(try!(tape.take_given(parameter)));
-        }
-        Ok(PairSet { count: count, records: records })
     }
 }
 

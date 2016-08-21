@@ -33,7 +33,7 @@ flags! {
     }
 }
 
-impl<U> Value for Lookups<U> where U: Walue<u16> {
+impl<U> Value for Lookups<U> where U: Walue<'static, Parameter=u16> {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
         let count = try!(tape.take::<u16>());
@@ -43,7 +43,7 @@ impl<U> Value for Lookups<U> where U: Walue<u16> {
     }
 }
 
-impl<U> Value for Record<U> where U: Walue<u16> {
+impl<U> Value for Record<U> where U: Walue<'static, Parameter=u16> {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
         let kind = try!(tape.take());

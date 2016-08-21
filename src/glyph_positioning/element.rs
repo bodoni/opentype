@@ -424,15 +424,19 @@ impl Value for Anchor {
     }
 }
 
-impl Walue<(u64, u16)> for Base {
-    fn read<T: Tape>(tape: &mut T, (position, class_count): (u64, u16)) -> Result<Self> {
+impl Walue<'static> for Base {
+    type Parameter = (u64, u16);
+
+    fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Base { anchor_offsets: anchor_offsets, anchors: anchors })
     }
 }
 
-impl Walue<u16> for BaseSet {
+impl Walue<'static> for BaseSet {
+    type Parameter = u16;
+
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
         let position = try!(tape.position());
         let count = try!(tape.take());
@@ -444,8 +448,10 @@ impl Walue<u16> for BaseSet {
     }
 }
 
-impl Walue<(u64, u16)> for Component {
-    fn read<T: Tape>(tape: &mut T, (position, class_count): (u64, u16)) -> Result<Self> {
+impl Walue<'static> for Component {
+    type Parameter = (u64, u16);
+
+    fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Component { anchor_offsets: anchor_offsets, anchors: anchors })
@@ -476,7 +482,9 @@ impl Value for Device {
     }
 }
 
-impl Walue<u16> for Ligature {
+impl Walue<'static> for Ligature {
+    type Parameter = u16;
+
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
         let position = try!(tape.position());
         let component_count = try!(tape.take());
@@ -488,7 +496,9 @@ impl Walue<u16> for Ligature {
     }
 }
 
-impl Walue<u16> for LigatureSet {
+impl Walue<'static> for LigatureSet {
+    type Parameter = u16;
+
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
         let position = try!(tape.position());
         let count = try!(tape.take());
@@ -498,7 +508,9 @@ impl Walue<u16> for LigatureSet {
     }
 }
 
-impl Walue<u64> for Mark1 {
+impl Walue<'static> for Mark1 {
+    type Parameter = u64;
+
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
         let class_id = try!(tape.take());
         let anchor_offset = try!(tape.take());
@@ -507,15 +519,19 @@ impl Walue<u64> for Mark1 {
     }
 }
 
-impl Walue<(u64, u16)> for Mark2 {
-    fn read<T: Tape>(tape: &mut T, (position, class_count): (u64, u16)) -> Result<Self> {
+impl Walue<'static> for Mark2 {
+    type Parameter = (u64, u16);
+
+    fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Mark2 { anchor_offsets: anchor_offsets, anchors: anchors })
     }
 }
 
-impl Walue<u16> for Mark2Set {
+impl Walue<'static> for Mark2Set {
+    type Parameter = u16;
+
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
         let position = try!(tape.position());
         let count = try!(tape.take());
@@ -527,8 +543,12 @@ impl Walue<u16> for Mark2Set {
     }
 }
 
-impl Walue<(u64, SingleFlags, SingleFlags)> for Pair1 {
-    fn read<T: Tape>(tape: &mut T, (position, value1_flags, value2_flags): (u64, SingleFlags, SingleFlags)) -> Result<Self> {
+impl Walue<'static> for Pair1 {
+    type Parameter = (u64, SingleFlags, SingleFlags);
+
+    fn read<T: Tape>(tape: &mut T, (position, value1_flags, value2_flags): Self::Parameter)
+                     -> Result<Self> {
+
         Ok(Pair1 {
             glyph2_id: try!(tape.take()),
             value1: try!(tape.take_given((position, value1_flags))),
@@ -537,8 +557,10 @@ impl Walue<(u64, SingleFlags, SingleFlags)> for Pair1 {
     }
 }
 
-impl Walue<(u64, SingleFlags, SingleFlags)> for Pair1Set {
-    fn read<T: Tape>(tape: &mut T, parameter: (u64, SingleFlags, SingleFlags)) -> Result<Self> {
+impl Walue<'static> for Pair1Set {
+    type Parameter = (u64, SingleFlags, SingleFlags);
+
+    fn read<T: Tape>(tape: &mut T, parameter: Self::Parameter) -> Result<Self> {
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
@@ -548,12 +570,11 @@ impl Walue<(u64, SingleFlags, SingleFlags)> for Pair1Set {
     }
 }
 
-impl Walue<(u64, SingleFlags, SingleFlags)> for Pair2 {
-    fn read<T: Tape>(tape: &mut T, (position,
-                                    value1_flags,
-                                    value2_flags): (u64,
-                                                    SingleFlags,
-                                                    SingleFlags)) -> Result<Self> {
+impl Walue<'static> for Pair2 {
+    type Parameter = (u64, SingleFlags, SingleFlags);
+
+    fn read<T: Tape>(tape: &mut T, (position, value1_flags, value2_flags): Self::Parameter)
+                     -> Result<Self> {
 
         Ok(Pair2 {
             value1: try!(tape.take_given((position, value1_flags))),
@@ -562,14 +583,13 @@ impl Walue<(u64, SingleFlags, SingleFlags)> for Pair2 {
     }
 }
 
-impl Walue<(u64, u16, SingleFlags, SingleFlags)> for Pair2Set {
+impl Walue<'static> for Pair2Set {
+    type Parameter = (u64, u16, SingleFlags, SingleFlags);
+
     fn read<T: Tape>(tape: &mut T, (position,
                                     class2_count,
                                     value1_flags,
-                                    value2_flags): (u64,
-                                                    u16,
-                                                    SingleFlags,
-                                                    SingleFlags)) -> Result<Self> {
+                                    value2_flags): Self::Parameter) -> Result<Self> {
 
         let mut records = Vec::with_capacity(class2_count as usize);
         for j in 0..(class2_count as usize) {
@@ -579,7 +599,9 @@ impl Walue<(u64, u16, SingleFlags, SingleFlags)> for Pair2Set {
     }
 }
 
-impl Walue<u64> for Passage {
+impl Walue<'static> for Passage {
+    type Parameter = u64;
+
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
         let entry_offset = try!(tape.take());
         let exit_offset = try!(tape.take());
@@ -594,8 +616,10 @@ impl Walue<u64> for Passage {
     }
 }
 
-impl Walue<(u64, SingleFlags)> for Single {
-    fn read<T: Tape>(tape: &mut T, (position, flags): (u64, SingleFlags)) -> Result<Self> {
+impl Walue<'static> for Single {
+    type Parameter = (u64, SingleFlags);
+
+    fn read<T: Tape>(tape: &mut T, (position, flags): Self::Parameter) -> Result<Self> {
         macro_rules! take(
             ($flag:ident) => (if flags.$flag() { Some(try!(tape.take())) } else { None });
         );

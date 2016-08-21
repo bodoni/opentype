@@ -462,7 +462,9 @@ table! {
     }
 }
 
-impl Walue<u16> for Table {
+impl Walue<'static> for Table {
+    type Parameter = u16;
+
     fn read<T: Tape>(tape: &mut T, kind: u16) -> Result<Self> {
         Ok(match kind {
             1 => Table::SingleAdjustment(try!(tape.take())),

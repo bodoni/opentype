@@ -23,7 +23,7 @@ table! {
     }
 }
 
-impl<U> Value for Directory<U> where U: Walue<u16> {
+impl<U> Value for Directory<U> where U: Walue<'static, Parameter=u16> {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = try!(tape.position());
         let header = try!(tape.take::<Header>());

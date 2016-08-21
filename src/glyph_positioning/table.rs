@@ -261,9 +261,35 @@ table! {
     }
 }
 
+/// A table for positioning glyphs in a context.
+#[derive(Clone, Debug)]
+pub enum ContextPositioning {
+    /// Format 1.
+    Format1(ContextPositioning1),
+    /// Format 2.
+    Format2(ContextPositioning2),
+    /// Format 3.
+    Format3(ContextPositioning3),
+}
+
 table! {
-    #[doc = "A table for positioning glyphs in a context."]
-    pub ContextPositioning {
+    #[doc = "A table for positioning glyphs in a context in format 1."]
+    pub ContextPositioning1 {
+        format (u16) = { 1 }, // PosFormat
+    }
+}
+
+table! {
+    #[doc = "A table for positioning glyphs in a context in format 2."]
+    pub ContextPositioning2 {
+        format (u16) = { 2 }, // PosFormat
+    }
+}
+
+table! {
+    #[doc = "A table for positioning glyphs in a context in format 3."]
+    pub ContextPositioning3 {
+        format (u16) = { 3 }, // PosFormat
     }
 }
 
@@ -312,6 +338,17 @@ impl Value for PairAdjustment {
             1 => PairAdjustment::Format1(try!(tape.take())),
             2 => PairAdjustment::Format2(try!(tape.take())),
             _ => raise!("found an unknown format of the pair-adjustment table"),
+        })
+    }
+}
+
+impl Value for ContextPositioning {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        Ok(match try!(tape.peek::<u16>()) {
+            1 => ContextPositioning::Format1(try!(tape.take())),
+            2 => ContextPositioning::Format2(try!(tape.take())),
+            3 => ContextPositioning::Format3(try!(tape.take())),
+            _ => raise!("found an unknown format of the context-positioning table"),
         })
     }
 }

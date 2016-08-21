@@ -78,7 +78,7 @@ table! {
     #[doc = "A class positioning rule."]
     pub ClassRule { // PosClassRule
         input_glyph_count (u16), // GlyphCount
-        positioning_count (u16), // PosCount
+        operation_count   (u16), // PosCount
 
         input_class_ids (Vec<u16>) |this, tape| { // Class
             if this.input_glyph_count == 0 {
@@ -87,8 +87,8 @@ table! {
             tape.take_given(this.input_glyph_count as usize - 1)
         },
 
-        positionings (Vec<Positioning>) |this, tape| { // PosLookupRecord
-            tape.take_given(this.positioning_count as usize)
+        operations (Vec<Positioning>) |this, tape| { // PosLookupRecord
+            tape.take_given(this.operation_count as usize)
         },
     }
 }
@@ -268,7 +268,7 @@ table! {
     #[doc = "A positioning rule."]
     pub Rule { // PosRule
         input_glyph_count (u16), // GlyphCount
-        positioning_count (u16), // PosCount
+        operation_count   (u16), // PosCount
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // Input
             if this.input_glyph_count == 0 {
@@ -277,8 +277,8 @@ table! {
             tape.take_given(this.input_glyph_count as usize - 1)
         },
 
-        positionings (Vec<Positioning>) |this, tape| { // PosLookupRecord
-            tape.take_given(this.positioning_count as usize)
+        operations (Vec<Positioning>) |this, tape| { // PosLookupRecord
+            tape.take_given(this.operation_count as usize)
         },
     }
 }

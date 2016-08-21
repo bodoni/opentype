@@ -35,10 +35,10 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        substitution_count (u16), // SubstCount
+        operation_count (u16), // SubstCount
 
-        substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
-            tape.take_given(this.substitution_count as usize)
+        operations (Vec<Substitution>) |this, tape| { // SubstLookupRecord
+            tape.take_given(this.operation_count as usize)
         },
     }
 }
@@ -67,10 +67,10 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        substitution_count (u16), // SubstCount
+        operation_count (u16), // SubstCount
 
-        substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
-            tape.take_given(this.substitution_count as usize)
+        operations (Vec<Substitution>) |this, tape| { // SubstLookupRecord
+            tape.take_given(this.operation_count as usize)
         },
     }
 }
@@ -110,8 +110,8 @@ table! {
 table! {
     #[doc = "A class substitution rule."]
     pub ClassRule { // SubClassRule
-        input_glyph_count  (u16), // GlyphCount
-        substitution_count (u16), // SubstCount
+        input_glyph_count (u16), // GlyphCount
+        operation_count   (u16), // SubstCount
 
         input_class_ids (Vec<u16>) |this, tape| { // Class
             if this.input_glyph_count == 0 {
@@ -120,8 +120,8 @@ table! {
             tape.take_given(this.input_glyph_count as usize - 1)
         },
 
-        substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
-            tape.take_given(this.substitution_count as usize)
+        operations (Vec<Substitution>) |this, tape| { // SubstLookupRecord
+            tape.take_given(this.operation_count as usize)
         },
     }
 }
@@ -176,8 +176,8 @@ table! {
 table! {
     #[doc = "A substitution rule."]
     pub Rule { // SubRule
-        input_glyph_count  (u16), // GlyphCount
-        substitution_count (u16), // SubstCount
+        input_glyph_count (u16), // GlyphCount
+        operation_count   (u16), // SubstCount
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // Input
             if this.input_glyph_count == 0 {
@@ -186,8 +186,8 @@ table! {
             tape.take_given(this.input_glyph_count as usize - 1)
         },
 
-        substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
-            tape.take_given(this.substitution_count as usize)
+        operations (Vec<Substitution>) |this, tape| { // SubstLookupRecord
+            tape.take_given(this.operation_count as usize)
         },
     }
 }

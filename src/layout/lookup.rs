@@ -1,6 +1,6 @@
 //! The lookup list.
 
-use {Result, Tape, Value, Walue};
+use truetype::{Result, Tape, Value, Walue};
 
 /// A lookup list.
 #[derive(Clone, Debug)]

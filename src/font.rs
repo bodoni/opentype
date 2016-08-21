@@ -1,9 +1,7 @@
-use std::io::{Read, Seek};
-use std::mem;
-
 use postscript;
 use postscript::compact::FontSet;
-use truetype::{self, Tag};
+use std::io::{Read, Seek};
+use truetype::{self, Result, Tag, Tape};
 use truetype::{
     CharMapping,
     FontHeader,
@@ -13,174 +11,96 @@ use truetype::{
     HorizontalMetrics,
     MaximumProfile,
     NamingTable,
-    OffsetTable,
     PostScript,
     WindowsMetrics,
 };
+use truetype::offset_table::{OffsetTable, Record};
 
-use Result;
-use glyph_positioning::GlyphPositioning;
-use glyph_substitution::GlyphSubstitution;
+use {GlyphPositioning, GlyphSubstitution};
 
 /// A font.
 pub struct Font {
     /// The offset table.
     pub offset_table: OffsetTable,
-
-    /// The char-to-glyph mapping (`cmap`).
-    pub char_mapping: Option<CharMapping>,
-    /// The compact font set (`CFF `).
-    pub compact_font_set: Option<FontSet>,
-    /// The font header (`head`).
-    pub font_header: Option<FontHeader>,
-    /// The glyph data (`glyf`).
-    pub glyph_data: Option<GlyphData>,
-    /// The glyph-to-location mapping (`loca`).
-    pub glyph_mapping: Option<GlyphMapping>,
-    /// The glyph-positioning table (`GPOS`).
-    pub glyph_positioning: Option<GlyphPositioning>,
-    /// The glyph-substitution table (`GSUB`).
-    pub glyph_substitution: Option<GlyphSubstitution>,
-    /// The horizontal header (`hhea`).
-    pub horizontal_header: Option<HorizontalHeader>,
-    /// The horizontal metrics (`hmtx`).
-    pub horizontal_metrics: Option<HorizontalMetrics>,
-    /// The maximum profile (`maxp`).
-    pub maximum_profile: Option<MaximumProfile>,
-    /// The naming table (`name`).
-    pub naming_table: Option<NamingTable>,
-    /// The PostScript information (`post`).
-    pub postscript: Option<PostScript>,
-    /// The OS/2 and Windows information (`OS/2`).
-    pub windows_metrics: Option<WindowsMetrics>,
 }
 
-macro_rules! check_jump(
-    ($record:ident, $tape:ident, $process:expr) => ({
-        if !try!($record.checksum($tape, $process)) {
-            raise!("found a malformed font table");
+macro_rules! find_check_jump(
+    ($this:ident, $tape:ident, $tag:expr, $process:expr) => (
+        match $this.find(Tag(*$tag)) {
+            Some(record) => {
+                if !try!(record.checksum($tape, $process)) {
+                    raise!("found a malformed font table");
+                }
+                try!(Tape::jump($tape, record.offset as u64));
+            },
+            _ => return Ok(None),
         }
-        try!(truetype::Tape::jump($tape, $record.offset as u64));
-    });
-    ($record:ident, $tape:ident) => (
-        check_jump!($record, $tape, |_, word| word);
+    );
+    ($record:ident, $tape:ident, $tag:expr) => (
+        find_check_jump!($record, $tape, $tag, |_, word| word);
     );
 );
 
+macro_rules! read {
+    ($($tag:expr => $method:ident => $kind:ident($($dependency:ident),+),)+) => (
+        $(
+            pub fn $method<'l, T>(&self, tape: &mut T, dependency: ($(&'l $dependency),+))
+                                  -> Result<Option<$kind>> where T: Read + Seek {
+
+                find_check_jump!(self, tape, $tag);
+                Ok(Some(try!(Tape::take_given(tape, dependency))))
+            }
+        )+
+    );
+    ($($tag:expr => $method:ident => $kind:ident,)+) => (
+        $(
+            pub fn $method<T>(&self, tape: &mut T) -> Result<Option<$kind>> where T: Read + Seek {
+                find_check_jump!(self, tape, $tag);
+                Ok(Some(try!(Tape::take(tape))))
+            }
+        )+
+    );
+}
+
 impl Font {
     /// Read a font.
-    pub fn read<T: Read + Seek>(tape: &mut T) -> Result<Font> {
-        macro_rules! sort(
-            ($records:expr) => ({
-                let mut records = $records.iter().collect::<Vec<_>>();
-                records.sort_by(|one, another| priority(one.tag).cmp(&priority(another.tag)));
-                records
-            });
-        );
+    pub fn read<T>(tape: &mut T) -> Result<Font> where T: Read + Seek {
+        Ok(Font { offset_table: try!(truetype::Value::read(tape)) })
+    }
 
-        let mut font = Font {
-            offset_table: try!(truetype::Value::read(tape)),
+    pub fn font_header<T>(&self, tape: &mut T) -> Result<Option<FontHeader>> where T: Read + Seek {
+        find_check_jump!(self, tape, b"head", |i, word| if i == 2 { 0 } else { word });
+        Ok(Some(try!(Tape::take(tape))))
+    }
 
-            char_mapping: None,
-            compact_font_set: None,
-            font_header: None,
-            glyph_data: None,
-            glyph_mapping: None,
-            glyph_positioning: None,
-            glyph_substitution: None,
-            horizontal_header: None,
-            horizontal_metrics: None,
-            maximum_profile: None,
-            naming_table: None,
-            postscript: None,
-            windows_metrics: None,
-        };
-        for record in sort!(font.offset_table.records) {
-            macro_rules! set(
-                ($field:ident, $value:expr) => ({
-                    check_jump!(record, tape);
-                    font.$field = Some(try!($value));
-                });
-                ($field:ident) => (set!($field, truetype::Value::read(tape)));
-            );
-            macro_rules! get(
-                ($field:ident) => ({
-                    match font.$field {
-                        Some(ref table) => table,
-                        _ => continue,
-                    }
-                });
-            );
-            match &*record.tag {
-                b"CFF " => set!(compact_font_set, postscript::Value::read(tape)),
-                b"GPOS" => set!(glyph_positioning),
-                b"GSUB" => set!(glyph_substitution),
-                b"OS/2" => set!(windows_metrics),
-                b"cmap" => set!(char_mapping),
-                b"glyf" => {
-                    let mapping = get!(glyph_mapping);
-                    set!(glyph_data, truetype::Walue::read(tape, mapping));
-                },
-                b"head" => {
-                    check_jump!(record, tape, |i, word| if i == 2 { 0 } else { word });
-                    font.font_header = Some(try!(truetype::Value::read(tape)));
-                },
-                b"hhea" => set!(horizontal_header),
-                b"hmtx" => {
-                    let header = get!(horizontal_header);
-                    let profile = get!(maximum_profile);
-                    set!(horizontal_metrics, truetype::Walue::read(tape, (header, profile)));
-                },
-                b"loca" => {
-                    let header = get!(font_header);
-                    let profile = get!(maximum_profile);
-                    set!(glyph_mapping, truetype::Walue::read(tape, (header, profile)));
-                },
-                b"maxp" => set!(maximum_profile),
-                b"name" => set!(naming_table),
-                b"post" => set!(postscript),
-                _ => {},
+    pub fn font_set<T>(&self, tape: &mut T) -> Result<Option<FontSet>> where T: Read + Seek {
+        find_check_jump!(self, tape, b"CFF ");
+        Ok(Some(try!(postscript::Tape::take(tape))))
+    }
+
+    read! {
+        b"GPOS" => glyph_positioning => GlyphPositioning,
+        b"GSUB" => glyph_substitution => GlyphSubstitution,
+        b"OS/2" => windows_metrics => WindowsMetrics,
+        b"cmap" => char_mapping => CharMapping,
+        b"hhea" => horizontal_header => HorizontalHeader,
+        b"maxp" => maximum_profile => MaximumProfile,
+        b"name" => naming_table => NamingTable,
+        b"post" => postscript => PostScript,
+    }
+
+    read! {
+        b"glyf" => glyph_data => GlyphData(GlyphMapping),
+        b"hmtx" => horizontal_metrics => HorizontalMetrics(HorizontalHeader, MaximumProfile),
+        b"loca" => glyph_mapping => GlyphMapping(FontHeader, MaximumProfile),
+    }
+
+    fn find(&self, tag: Tag) -> Option<&Record> {
+        for record in &self.offset_table.records {
+            if record.tag == tag {
+                return Some(record);
             }
         }
-
-        Ok(font)
-    }
-}
-
-fn priority(tag: Tag) -> usize {
-    use std::collections::HashMap;
-    use std::sync::{Once, ONCE_INIT};
-
-    unsafe {
-        static mut PRIORITY: *const HashMap<Tag, usize> = 0 as *const _;
-        static ONCE: Once = ONCE_INIT;
-        ONCE.call_once(|| {
-            let mut map: HashMap<Tag, usize> = HashMap::new();
-            map.insert(Tag(*b"glyf"), 43);
-            map.insert(Tag(*b"hmtx"), 42);
-            map.insert(Tag(*b"loca"), 41);
-            PRIORITY = mem::transmute(Box::new(map));
-        });
-        *(&*PRIORITY).get(&tag).unwrap_or(&0)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use File;
-
-    const CFF: &'static str = "tests/fixtures/SourceSerifPro-Regular.otf";
-    const TTF: &'static str = "tests/fixtures/OpenSans-Italic.ttf";
-
-    #[test]
-    fn cff() {
-        let file = File::open(CFF).unwrap();
-        assert!(file[0].compact_font_set.is_some());
-    }
-
-    #[test]
-    fn ttf() {
-        let file = File::open(TTF).unwrap();
-        assert!(file[0].glyph_data.is_some());
+        None
     }
 }

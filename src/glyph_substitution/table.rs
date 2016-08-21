@@ -1,6 +1,5 @@
-use truetype::GlyphID;
+use truetype::{GlyphID, Result, Tape, Value, Walue};
 
-use {Result, Tape, Value, Walue};
 use glyph_substitution::{
     AlternateSet,
     ChainClassRuleSet,

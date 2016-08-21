@@ -12,16 +12,14 @@ this package.
 extern crate opentype;
 extern crate truetype;
 
-use opentype::File;
-use truetype::NamingTable;
-
 let path = "SourceSerifPro-Regular.otf";
-let File { fonts, .. } = File::open(path).unwrap();
+let mut file = std::fs::File::open(path).unwrap();
+let opentype::File { fonts, .. } = opentype::File::read(&mut file).unwrap();
 
-assert_eq!(fonts[0].font_header.as_ref().unwrap().units_per_em, 1000);
-assert_eq!(fonts[0].horizontal_header.as_ref().unwrap().ascender, 918);
-let strings = match fonts[0].naming_table {
-    Some(NamingTable::Format0(ref table)) => table.strings().unwrap(),
+assert_eq!(fonts[0].font_header(&mut file).unwrap().unwrap().units_per_em, 1000);
+assert_eq!(fonts[0].horizontal_header(&mut file).unwrap().unwrap().ascender, 918);
+let strings = match fonts[0].naming_table(&mut file).unwrap().unwrap() {
+    truetype::NamingTable::Format0(ref table) => table.strings().unwrap(),
     _ => unreachable!(),
 };
 assert_eq!(&strings[1], "Source Serif Pro");

@@ -80,7 +80,7 @@ macro_rules! jump_take_maybe(
 );
 
 macro_rules! raise(
-    ($message:expr) => (return Err(::Error::new(::std::io::ErrorKind::Other, $message)));
+    ($message:expr) => (return Err(::truetype::Error::new(::std::io::ErrorKind::Other, $message)));
 );
 
 macro_rules! table {
@@ -110,8 +110,8 @@ macro_rules! table {
     (@implement pub $name:ident {
         $($field:ident ($($kind:tt)+) [$($value:block)*] $(|$($argument:tt),+| $body:block)*,)*
     }) => (
-        impl $crate::Value for $name {
-            fn read<T: $crate::Tape>(tape: &mut T) -> $crate::Result<Self> {
+        impl ::truetype::Value for $name {
+            fn read<T: ::truetype::Tape>(tape: &mut T) -> ::truetype::Result<Self> {
                 let mut table: $name = unsafe { ::std::mem::zeroed() };
                 $({
                     let value = table!(@read $name, table, tape [] [$($kind)+] [$($value)*]
@@ -125,8 +125,8 @@ macro_rules! table {
     (@implement @position pub $name:ident {
         $($field:ident ($($kind:tt)+) [$($value:block)*] $(|$($argument:tt),+| $body:block)*,)*
     }) => (
-        impl $crate::Value for $name {
-            fn read<T: $crate::Tape>(tape: &mut T) -> $crate::Result<Self> {
+        impl ::truetype::Value for $name {
+            fn read<T: ::truetype::Tape>(tape: &mut T) -> ::truetype::Result<Self> {
                 let position = try!(tape.position());
                 let mut table: $name = unsafe { ::std::mem::zeroed() };
                 $({
@@ -152,14 +152,16 @@ macro_rules! table {
     (@read $name:ident, $this:ident, $tape:ident [] [$kind:ty] []
      |$this_:pat, $tape_:pat| $body:block) => ({
         #[inline(always)]
-        fn read<T: $crate::Tape>($this_: &$name, $tape_: &mut T) -> $crate::Result<$kind> $body
+        fn read<T: ::truetype::Tape>($this_: &$name, $tape_: &mut T)
+                                     -> ::truetype::Result<$kind> $body
+
         try!(read(&$this, $tape))
     });
     (@read $name:ident, $this:ident, $tape:ident [$position:ident] [$kind:ty] []
      |$this_:pat, $tape_:pat, $position_:pat| $body:block) => ({
         #[inline(always)]
-        fn read<T: $crate::Tape>($this_: &$name, $tape_: &mut T, $position_: u64)
-                                 -> $crate::Result<$kind> $body
+        fn read<T: ::truetype::Tape>($this_: &$name, $tape_: &mut T, $position_: u64)
+                                     -> ::truetype::Result<$kind> $body
         try!(read(&$this, $tape, $position))
     });
 }

@@ -44,6 +44,22 @@ table! {
 }
 
 table! {
+    @position
+    #[doc = "A set of chaining class substitution rules."]
+    pub ChainClassRuleSet { // ChainSubClassSet
+        count (u16), // ChainSubClassRuleCnt
+
+        offsets (Vec<u16>) |this, tape, _| { // ChainSubClassRule
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<ChainClassRule>) |this, tape, position| {
+            jump_take!(tape, position, this.count, this.offsets)
+        },
+    }
+}
+
+table! {
     #[doc = "A chaining substitution rule."]
     pub ChainRule { // ChainSubRule
         backward_glyph_count (u16), // BacktrackGlyphCount
@@ -71,22 +87,6 @@ table! {
 
         operations (Vec<Substitution>) |this, tape| { // SubstLookupRecord
             tape.take_given(this.operation_count as usize)
-        },
-    }
-}
-
-table! {
-    @position
-    #[doc = "A set of chaining class substitution rules."]
-    pub ChainClassRuleSet { // ChainSubClassSet
-        count (u16), // ChainSubClassRuleCnt
-
-        offsets (Vec<u16>) |this, tape, _| { // ChainSubClassRule
-            tape.take_given(this.count as usize)
-        },
-
-        records (Vec<ChainClassRule>) |this, tape, position| {
-            jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }

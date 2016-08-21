@@ -3,7 +3,7 @@ use std::mem;
 
 use postscript;
 use postscript::compact::FontSet;
-use truetype::{self, Tag, q32};
+use truetype::{self, Tag};
 use truetype::{
     CharMapping,
     FontHeader,
@@ -77,15 +77,6 @@ impl Font {
                 records
             });
         );
-
-        match try!(truetype::Tape::peek::<q32>(tape)) {
-            q32(0x00010000) => {},
-            version => match &*Tag::from(version) {
-                b"OTTO" => {},
-                b"ttcf" => raise!("TrueType collections are not supported yet"),
-                _ => raise!("found an unknown font format"),
-            },
-        }
 
         let mut font = Font {
             offset_table: try!(truetype::Value::read(tape)),

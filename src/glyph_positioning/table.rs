@@ -342,9 +342,35 @@ table! {
     }
 }
 
+/// A table for positioning glyphs in a chaining context.
+#[derive(Clone, Debug)]
+pub enum ChainContextPositioning {
+    /// Format 1.
+    Format1(ChainContextPositioning1),
+    /// Format 2.
+    Format2(ChainContextPositioning2),
+    /// Format 3.
+    Format3(ChainContextPositioning3),
+}
+
 table! {
-    #[doc = "A table for positioning glyphs in a chaining context."]
-    pub ChainContextPositioning {
+    #[doc = "A table for positioning glyphs in a chaining context in format 1."]
+    pub ChainContextPositioning1 {
+        format (u16) = { 1 }, // PosFormat
+    }
+}
+
+table! {
+    #[doc = "A table for positioning glyphs in a chaining context in format 2."]
+    pub ChainContextPositioning2 {
+        format (u16) = { 2 }, // PosFormat
+    }
+}
+
+table! {
+    #[doc = "A table for positioning glyphs in a chaining context in format 3."]
+    pub ChainContextPositioning3 {
+        format (u16) = { 3 }, // PosFormat
     }
 }
 
@@ -398,6 +424,17 @@ impl Value for ContextPositioning {
             2 => ContextPositioning::Format2(try!(tape.take())),
             3 => ContextPositioning::Format3(try!(tape.take())),
             _ => raise!("found an unknown format of the context-positioning table"),
+        })
+    }
+}
+
+impl Value for ChainContextPositioning {
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        Ok(match try!(tape.peek::<u16>()) {
+            1 => ChainContextPositioning::Format1(try!(tape.take())),
+            2 => ChainContextPositioning::Format2(try!(tape.take())),
+            3 => ChainContextPositioning::Format3(try!(tape.take())),
+            _ => raise!("found an unknown format of the chaining-context-positioning table"),
         })
     }
 }

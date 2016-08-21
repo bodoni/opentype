@@ -415,9 +415,45 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for positioning glyphs in a chaining context in format 3."]
     pub ChainContextPositioning3 {
-        format (u16) = { 3 }, // PosFormat
+        format               (u16) = { 3 }, // PosFormat
+        backward_glyph_count (u16), // BacktrackGlyphCount
+
+        backward_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+            tape.take_given(this.backward_glyph_count as usize)
+        },
+
+        input_glyph_count (u16), // InputGlyphCount
+
+        input_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+            tape.take_given(this.input_glyph_count as usize)
+        },
+
+        forward_glyph_count (u16), // LookaheadGlyphCount
+
+        forward_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+            tape.take_given(this.forward_glyph_count as usize)
+        },
+
+        operation_count (u16), // PosCount
+
+        operations (Vec<Positioning>) |this, tape, _| { // PosLookupRecord
+            tape.take_given(this.operation_count as usize)
+        },
+
+        backward_coverages (Vec<Coverage>) |this, tape, position| {
+            jump_take!(tape, position, this.backward_glyph_count, this.backward_coverage_offsets)
+        },
+
+        input_coverages (Vec<Coverage>) |this, tape, position| {
+            jump_take!(tape, position, this.input_glyph_count, this.input_coverage_offsets)
+        },
+
+        forward_coverages (Vec<Coverage>) |this, tape, position| {
+            jump_take!(tape, position, this.forward_glyph_count, this.forward_coverage_offsets)
+        },
     }
 }
 

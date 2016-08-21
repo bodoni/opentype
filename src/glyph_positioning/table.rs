@@ -10,6 +10,7 @@ use glyph_positioning::{
     Pair,
     PairSet,
     Passage,
+    Positioning,
     RuleSet,
     Single,
     SingleFlags,
@@ -320,9 +321,24 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for positioning glyphs in a context in format 3."]
     pub ContextPositioning3 { // ContextPosFormat3
-        format (u16) = { 3 }, // PosFormat
+        format          (u16) = { 3 }, // PosFormat
+        glyph_count     (u16), // GlyphCount
+        operation_count (u16), // PosCount
+
+        coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+            tape.take_given(this.glyph_count as usize)
+        },
+
+        operations (Vec<Positioning>) |this, tape, _| { // PosLookupRecord
+            tape.take_given(this.operation_count as usize)
+        },
+
+        coverages (Vec<Coverage>) |this, tape, position| {
+            jump_take!(tape, position, this.glyph_count, this.coverage_offsets)
+        },
     }
 }
 

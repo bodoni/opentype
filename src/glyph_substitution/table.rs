@@ -193,16 +193,16 @@ table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 3."]
     pub ContextSubstitution3 { // ContextSubstFormat3
-        format             (u16) = { 3 }, // SubstFormat
-        glyph_count        (u16), // GlyphCount
-        substitution_count (u16), // SubstCount
+        format          (u16) = { 3 }, // SubstFormat
+        glyph_count     (u16), // GlyphCount
+        operation_count (u16), // SubstCount
 
         coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
             tape.take_given(this.glyph_count as usize)
         },
 
-        substitutions (Vec<Substitution>) |this, tape, _| { // SubstLookupRecord
-            tape.take_given(this.substitution_count as usize)
+        operations (Vec<Substitution>) |this, tape, _| { // SubstLookupRecord
+            tape.take_given(this.operation_count as usize)
         },
 
         coverages (Vec<Coverage>) |this, tape, position| {
@@ -304,10 +304,10 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        substitution_count (u16), // SubstCount
+        operation_count (u16), // SubstCount
 
-        substitutions (Vec<Substitution>) |this, tape, _| { // SubstLookupRecord
-            tape.take_given(this.substitution_count as usize)
+        operations (Vec<Substitution>) |this, tape, _| { // SubstLookupRecord
+            tape.take_given(this.operation_count as usize)
         },
 
         backward_coverages (Vec<Coverage>) |this, tape, position| {

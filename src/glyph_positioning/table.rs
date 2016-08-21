@@ -459,7 +459,10 @@ table! {
 
 table! {
     #[doc = "A table for other types of positioning."]
-    pub ExtensionPositioning {
+    pub ExtensionPositioning { // ExtensionPosFormat1
+        format (u16) = { 1 }, // PosFormat
+        kind   (u16), // ExtensionLookupType
+        offset (u32), // ExtensionOffset
     }
 }
 

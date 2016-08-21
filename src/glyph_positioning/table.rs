@@ -9,6 +9,7 @@ use glyph_positioning::{
     Pair,
     PairSet,
     Passage,
+    RuleSet,
     Single,
     SingleFlags,
 };
@@ -273,22 +274,37 @@ pub enum ContextPositioning {
 }
 
 table! {
+    @position
     #[doc = "A table for positioning glyphs in a context in format 1."]
-    pub ContextPositioning1 {
-        format (u16) = { 1 }, // PosFormat
+    pub ContextPositioning1 { // ContextPosFormat1
+        format          (u16) = { 1 }, // PosFormat
+        coverage_offset (u16), // Coverage
+        set_count       (u16), // PosRuleSetCount
+
+        set_offsets (Vec<u16>) |this, tape, position| { // PosRuleSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.coverage_offset)
+        },
+
+        sets (Vec<RuleSet>) |this, tape, position| {
+            jump_take!(tape, position, this.set_count, this.set_offsets)
+        },
     }
 }
 
 table! {
     #[doc = "A table for positioning glyphs in a context in format 2."]
-    pub ContextPositioning2 {
+    pub ContextPositioning2 { // ContextPosFormat2
         format (u16) = { 2 }, // PosFormat
     }
 }
 
 table! {
     #[doc = "A table for positioning glyphs in a context in format 3."]
-    pub ContextPositioning3 {
+    pub ContextPositioning3 { // ContextPosFormat3
         format (u16) = { 3 }, // PosFormat
     }
 }

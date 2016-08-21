@@ -1,5 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
+use truetype::GlyphID;
+
 use {Result, Tape, Value, Walue};
 
 /// An anchor.
@@ -74,7 +76,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A device table."]
+    #[doc = "A device adjustment."]
     pub Device { // Device
         start_size   (u16     ), // StartSize
         end_size     (u16     ), // EndSize
@@ -85,7 +87,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A component."]
+    #[doc = "A component attachment."]
     pub Component { // ComponentRecord
         anchor_offsets (Vec<u16>   ),
         anchors        (Vec<Anchor>),
@@ -168,7 +170,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A single value."]
+    #[doc = "A single adjustment."]
     pub Single { // ValueRecord
         x_placement               (Option<i16>   ), // XPlacement
         y_placement               (Option<i16>   ), // YPlacement
@@ -186,7 +188,7 @@ table! {
 }
 
 flags! {
-    #[doc = "Single-value flags."]
+    #[doc = "Single-adjustment flags."]
     pub SingleFlags(u16) {
         0b0000_0000_0000_0001 => has_x_placement,
         0b0000_0000_0000_0010 => has_y_placement,
@@ -202,7 +204,7 @@ flags! {
 
 table! {
     @define
-    #[doc = "A value pair."]
+    #[doc = "A pair adjustment."]
     pub Pair { // PairValueRecord
         value1 (Single), // Value1
         value2 (Single), // Value2
@@ -211,10 +213,54 @@ table! {
 
 table! {
     @define
-    #[doc = "A set of value pairs."]
+    #[doc = "A set of pair adjustments."]
     pub PairSet { // PairSet
         count   (u16      ), // PairValueCount
         records (Vec<Pair>), // PairValueRecord
+    }
+}
+
+table! {
+    #[doc = "A positioning record."]
+    #[derive(Copy)]
+    pub Positioning { // PosLookupRecord
+        sequence_index (u16), // SequenceIndex
+        lookup_index   (u16), // LookupListIndex
+    }
+}
+
+table! {
+    #[doc = "A positioning rule."]
+    pub Rule { // PosRule
+        input_glyph_count (u16), // GlyphCount
+        positioning_count (u16), // PosCount
+
+        input_glyph_ids (Vec<GlyphID>) |this, tape| { // Input
+            if this.input_glyph_count == 0 {
+                raise!("found a malformed positioning rule");
+            }
+            tape.take_given(this.input_glyph_count as usize - 1)
+        },
+
+        positionings (Vec<Positioning>) |this, tape| { // PosLookupRecord
+            tape.take_given(this.positioning_count as usize)
+        },
+    }
+}
+
+table! {
+    @position
+    #[doc = "A set of positioning rules."]
+    pub RuleSet { // PosRuleSet
+        count (u16), // PosRuleCount
+
+        offsets (Vec<u16>) |this, tape, _| { // PosRule
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<Rule>) |this, tape, position| {
+            jump_take!(tape, position, this.count, this.offsets)
+        },
     }
 }
 

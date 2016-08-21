@@ -1,7 +1,7 @@
 use truetype::GlyphID;
 
 table! {
-    #[doc = "A set of alternate glyphs."]
+    #[doc = "A set of alternate substitutions."]
     pub AlternateSet { // AlternateSet
         count (u16), // GlyphCount
 
@@ -12,7 +12,7 @@ table! {
 }
 
 table! {
-    #[doc = "A chaining class rule."]
+    #[doc = "A chaining class substitution rule."]
     pub ChainClassRule { // ChainSubClassRule
         backward_glyph_count (u16), // BacktrackGlyphCount
 
@@ -24,7 +24,7 @@ table! {
 
         input_class_ids (Vec<u16>) |this, tape| { // Input
             if this.input_glyph_count == 0 {
-                raise!("found a malformed chaining class rule");
+                raise!("found a malformed chaining class substitution rule");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
@@ -44,7 +44,7 @@ table! {
 }
 
 table! {
-    #[doc = "A chaining rule."]
+    #[doc = "A chaining substitution rule."]
     pub ChainRule { // ChainSubRule
         backward_glyph_count (u16), // BacktrackGlyphCount
 
@@ -56,7 +56,7 @@ table! {
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // Input
             if this.input_glyph_count == 0 {
-                raise!("found a malformed chaining class rule");
+                raise!("found a malformed chaining substitution rule");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
@@ -77,7 +77,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of chaining class rules."]
+    #[doc = "A set of chaining class substitution rules."]
     pub ChainClassRuleSet { // ChainSubClassSet
         count (u16), // ChainSubClassRuleCnt
 
@@ -93,7 +93,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of chaining rules."]
+    #[doc = "A set of chaining substitution rules."]
     pub ChainRuleSet { // ChainSubRuleSet
         count (u16), // ChainSubRuleCount
 
@@ -108,16 +108,16 @@ table! {
 }
 
 table! {
-    #[doc = "A class rule."]
+    #[doc = "A class substitution rule."]
     pub ClassRule { // SubClassRule
-        glyph_count        (u16), // GlyphCount
+        input_glyph_count  (u16), // GlyphCount
         substitution_count (u16), // SubstCount
 
-        class_ids (Vec<u16>) |this, tape| { // Class
-            if this.glyph_count == 0 {
-                raise!("found a malformed class rule");
+        input_class_ids (Vec<u16>) |this, tape| { // Class
+            if this.input_glyph_count == 0 {
+                raise!("found a malformed class substitution rule");
             }
-            tape.take_given(this.glyph_count as usize - 1)
+            tape.take_given(this.input_glyph_count as usize - 1)
         },
 
         substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
@@ -128,7 +128,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of class rules."]
+    #[doc = "A set of class substitution rules."]
     pub ClassRuleSet {
         count (u16), // SubClassRuleCnt
 
@@ -143,14 +143,14 @@ table! {
 }
 
 table! {
-    #[doc = "A ligature."]
+    #[doc = "A ligature substitution."]
     pub Ligature { // Ligature
         glyph_id        (GlyphID), // LigGlyph
         component_count (u16    ), // CompCount
 
         component_ids (Vec<GlyphID>) |this, tape| { // Component
             if this.component_count == 0 {
-                raise!("found a malformed ligature record");
+                raise!("found a malformed ligature substitution");
             }
             tape.take_given(this.component_count as usize - 1)
         },
@@ -159,7 +159,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of ligatures."]
+    #[doc = "A set of ligature substitutions."]
     pub LigatureSet { // LigatureSet
         count (u16), // LigatureCount
 
@@ -174,16 +174,16 @@ table! {
 }
 
 table! {
-    #[doc = "A rule."]
+    #[doc = "A substitution rule."]
     pub Rule { // SubRule
-        glyph_count        (u16), // GlyphCount
+        input_glyph_count  (u16), // GlyphCount
         substitution_count (u16), // SubstCount
 
-        glyph_ids (Vec<GlyphID>) |this, tape| { // Input
-            if this.glyph_count == 0 {
-                raise!("found a malformed rule");
+        input_glyph_ids (Vec<GlyphID>) |this, tape| { // Input
+            if this.input_glyph_count == 0 {
+                raise!("found a malformed substitution rule");
             }
-            tape.take_given(this.glyph_count as usize - 1)
+            tape.take_given(this.input_glyph_count as usize - 1)
         },
 
         substitutions (Vec<Substitution>) |this, tape| { // SubstLookupRecord
@@ -194,8 +194,8 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of rules."]
-    pub RuleSet {
+    #[doc = "A set of substitution rules."]
+    pub RuleSet { // SubRuleSet
         count (u16), // SubRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // SubRule
@@ -209,7 +209,7 @@ table! {
 }
 
 table! {
-    #[doc = "A sequence of glyphs."]
+    #[doc = "A substitution sequence of glyphs."]
     pub Sequence { // Sequence
         count (u16), // GlyphCount
 
@@ -220,7 +220,7 @@ table! {
 }
 
 table! {
-    #[doc = "A substitution."]
+    #[doc = "A substitution record."]
     #[derive(Copy)]
     pub Substitution { // SubstLookupRecord
         sequence_index (u16), // SequenceIndex

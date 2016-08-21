@@ -75,13 +75,37 @@ table! {
 }
 
 table! {
-    @define
-    #[doc = "A device adjustment."]
-    pub Device { // Device
-        start_size   (u16     ), // StartSize
-        end_size     (u16     ), // EndSize
-        delta_format (u16     ), // DeltaFormat
-        delta_data   (Vec<u16>), // DeltaValue
+    #[doc = "A class positioning rule."]
+    pub ClassRule { // PosClassRule
+        input_glyph_count (u16), // GlyphCount
+        positioning_count (u16), // PosCount
+
+        input_class_ids (Vec<u16>) |this, tape| { // Class
+            if this.input_glyph_count == 0 {
+                raise!("found a malformed class positioning rule");
+            }
+            tape.take_given(this.input_glyph_count as usize - 1)
+        },
+
+        positionings (Vec<Positioning>) |this, tape| { // PosLookupRecord
+            tape.take_given(this.positioning_count as usize)
+        },
+    }
+}
+
+table! {
+    @position
+    #[doc = "A set of class positioning rules."]
+    pub ClassRuleSet { // PosClassSet
+        count (u16), // PosClassRuleCnt
+
+        offsets (Vec<u16>) |this, tape, _| { // PosClassRule
+            tape.take_given(this.count as usize)
+        },
+
+        records (Vec<ClassRule>) |this, tape, position| {
+            jump_take!(tape, position, this.count, this.offsets)
+        },
     }
 }
 
@@ -91,6 +115,17 @@ table! {
     pub Component { // ComponentRecord
         anchor_offsets (Vec<u16>   ),
         anchors        (Vec<Anchor>),
+    }
+}
+
+table! {
+    @define
+    #[doc = "A device adjustment."]
+    pub Device { // Device
+        start_size   (u16     ), // StartSize
+        end_size     (u16     ), // EndSize
+        delta_format (u16     ), // DeltaFormat
+        delta_data   (Vec<u16>), // DeltaValue
     }
 }
 

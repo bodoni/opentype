@@ -129,7 +129,7 @@ table! {
 table! {
     @position
     #[doc = "A set of class substitution rules."]
-    pub ClassRuleSet {
+    pub ClassRuleSet { // SubClassSet
         count (u16), // SubClassRuleCnt
 
         offsets (Vec<u16>) |this, tape, _| { // SubClassRule

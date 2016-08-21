@@ -3,6 +3,7 @@
 use {Result, Tape, Value, Walue};
 use glyph_positioning::{
     BaseSet,
+    ClassRuleSet,
     LigatureSet,
     Mark1Set,
     Mark2Set,
@@ -296,9 +297,25 @@ table! {
 }
 
 table! {
+    @position
     #[doc = "A table for positioning glyphs in a context in format 2."]
     pub ContextPositioning2 { // ContextPosFormat2
-        format (u16) = { 2 }, // PosFormat
+        format          (u16) = { 2 }, // PosFormat
+        coverage_offset (u16), // Coverage
+        class_offset    (u16), // ClassDef
+        set_count       (u16), // PosClassSetCnt
+
+        set_offsets (Vec<u16>) |this, tape, _| { // PosClassSet
+            tape.take_given(this.set_count as usize)
+        },
+
+        coverage (Coverage) |this, tape, position| {
+            jump_take!(tape, position, this.coverage_offset)
+        },
+
+        sets (Vec<Option<ClassRuleSet>>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.set_count, this.set_offsets)
+        },
     }
 }
 

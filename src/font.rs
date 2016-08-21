@@ -19,6 +19,8 @@ use truetype::{
 };
 
 use Result;
+use glyph_positioning::GlyphPositioning;
+use glyph_substitution::GlyphSubstitution;
 
 /// A font.
 pub struct Font {
@@ -35,6 +37,10 @@ pub struct Font {
     pub glyph_data: Option<GlyphData>,
     /// The glyph-to-location mapping (`loca`).
     pub glyph_mapping: Option<GlyphMapping>,
+    /// The glyph-positioning table (`GPOS`).
+    pub glyph_positioning: Option<GlyphPositioning>,
+    /// The glyph-substitution table (`GSUB`).
+    pub glyph_substitution: Option<GlyphSubstitution>,
     /// The horizontal header (`hhea`).
     pub horizontal_header: Option<HorizontalHeader>,
     /// The horizontal metrics (`hmtx`).
@@ -89,6 +95,8 @@ impl Font {
             font_header: None,
             glyph_data: None,
             glyph_mapping: None,
+            glyph_positioning: None,
+            glyph_substitution: None,
             horizontal_header: None,
             horizontal_metrics: None,
             maximum_profile: None,
@@ -114,6 +122,8 @@ impl Font {
             );
             match &*record.tag {
                 b"CFF " => set!(compact_font_set, postscript::Value::read(tape)),
+                b"GPOS" => set!(glyph_positioning),
+                b"GSUB" => set!(glyph_substitution),
                 b"OS/2" => set!(windows_metrics),
                 b"cmap" => set!(char_mapping),
                 b"glyf" => {

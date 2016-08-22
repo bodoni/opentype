@@ -40,19 +40,24 @@ mod tests {
 
     #[test]
     fn cff() {
-        let mut file = ok!(::std::fs::File::open(CFF));
-        let File { fonts, .. } = ok!(File::read(&mut file));
-        let _ = ok!(ok!(fonts[0].font_set(&mut file)));
+        use postscript::compact::FontSet;
+
+        let mut reader = ok!(::std::fs::File::open(CFF));
+        let file = ok!(File::read(&mut reader));
+        let _ = ok!(ok!(file[0].take::<_, FontSet>(&mut reader)));
     }
 
     #[test]
     fn ttf() {
-        let mut file = ok!(::std::fs::File::open(TTF));
-        let File { fonts, .. } = ok!(File::read(&mut file));
-        let font_header = ok!(ok!(fonts[0].font_header(&mut file)));
-        let maximum_profile = ok!(ok!(fonts[0].maximum_profile(&mut file)));
-        let glyph_mapping = ok!(ok!(fonts[0].glyph_mapping(&mut file,
-                                                           (&font_header, &maximum_profile))));
-        let _ = ok!(ok!(fonts[0].glyph_data(&mut file, &glyph_mapping)));
+        use truetype::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
+
+        let mut reader = ok!(::std::fs::File::open(TTF));
+        let file = ok!(File::read(&mut reader));
+        let font_header = ok!(ok!(file[0].take::<_, FontHeader>(&mut reader)));
+        let maximum_profile = ok!(ok!(file[0].take::<_, MaximumProfile>(&mut reader)));
+        let glyph_mapping = ok!(ok!(file[0].take_given::<_, GlyphMapping>(&mut reader,
+                                                                          (&font_header,
+                                                                           &maximum_profile))));
+        let _ = ok!(ok!(file[0].take_given::<_, GlyphData>(&mut reader, &glyph_mapping)));
     }
 }

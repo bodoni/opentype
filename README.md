@@ -12,14 +12,19 @@ this package.
 extern crate opentype;
 extern crate truetype;
 
-let path = "SourceSerifPro-Regular.otf";
-let mut file = std::fs::File::open(path).unwrap();
-let opentype::File { fonts, .. } = opentype::File::read(&mut file).unwrap();
+use opentype::File;
+use truetype::{FontHeader, HorizontalHeader, NamingTable};
 
-assert_eq!(fonts[0].font_header(&mut file).unwrap().unwrap().units_per_em, 1000);
-assert_eq!(fonts[0].horizontal_header(&mut file).unwrap().unwrap().ascender, 918);
-let strings = match fonts[0].naming_table(&mut file).unwrap().unwrap() {
-    truetype::NamingTable::Format0(ref table) => table.strings().unwrap(),
+macro_rules! ok(($result:expr) => ($result.unwrap()));
+
+let path = "SourceSerifPro-Regular.otf";
+let mut reader = ok!(std::fs::File::open(path));
+let file = ok!(File::read(&mut reader));
+
+assert_eq!(ok!(ok!(file[0].take::<_, FontHeader>(&mut reader))).units_per_em, 1000);
+assert_eq!(ok!(ok!(file[0].take::<_, HorizontalHeader>(&mut reader))).ascender, 918);
+let strings = match ok!(ok!(file[0].take::<_, NamingTable>(&mut reader))) {
+    NamingTable::Format0(ref table) => ok!(table.strings()),
     _ => unreachable!(),
 };
 assert_eq!(&strings[1], "Source Serif Pro");

@@ -1,6 +1,7 @@
 #![allow(unused_mut, unused_variables)]
 
-use {Result, Tape, Value, Walue};
+use truetype::{Result, Tape, Value, Walue};
+
 use glyph_positioning::{
     BaseSet,
     ChainClassRuleSet,

@@ -1,8 +1,6 @@
 #![allow(unused_mut, unused_variables)]
 
-use truetype::GlyphID;
-
-use {Result, Tape, Value, Walue};
+use truetype::{GlyphID, Result, Tape, Value, Walue};
 
 /// An anchor.
 #[derive(Clone, Debug)]

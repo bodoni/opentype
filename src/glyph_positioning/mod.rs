@@ -2,7 +2,7 @@
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/gpos.htm
 
-use layout::Directory;
+use glyph_transformation::Directory;
 
 mod element;
 mod table;

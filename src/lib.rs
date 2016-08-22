@@ -42,7 +42,7 @@ mod table;
 
 pub mod glyph_positioning;
 pub mod glyph_substitution;
-pub mod layout;
+pub mod glyph_transformation;
 
 pub use file::File;
 pub use font::Font;

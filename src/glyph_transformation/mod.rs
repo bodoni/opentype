@@ -1,4 +1,4 @@
-//! The [layout][1].
+//! The [common layout][1] of glyph transformations.
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/chapter2.htm
 

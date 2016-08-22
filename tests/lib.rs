@@ -1,7 +1,7 @@
 extern crate opentype;
 extern crate truetype;
 
-use opentype::layout::Scripts;
+use opentype::glyph_transformation::Scripts;
 use std::fs::File;
 use truetype::{Tag, Value};
 
@@ -120,7 +120,7 @@ fn glyph_substitution_scripts() {
 }
 
 fn scripts(scripts: &Scripts) {
-    use opentype::layout::script::{Language, Script};
+    use opentype::glyph_transformation::script::{Language, Script};
 
     let tags = scripts.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"DFLT", b"latn"]);

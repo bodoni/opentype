@@ -42,14 +42,14 @@ macro_rules! find_check_jump(
 );
 
 macro_rules! read {
-    ($(#[$doc:meta] $tag:expr => $method:ident => $kind:ident($($dependency:ident),+),)+) => (
+    ($(#[$doc:meta] $tag:expr => $method:ident => $kind:ident($($parameter:ident),+),)+) => (
         $(
             #[$doc]
-            pub fn $method<'l, T>(&self, tape: &mut T, dependency: ($(&'l $dependency),+))
+            pub fn $method<'l, T>(&self, tape: &mut T, parameter: ($(&'l $parameter),+))
                                   -> Result<Option<$kind>> where T: Read + Seek {
 
                 find_check_jump!(self, tape, $tag);
-                Ok(Some(try!(Tape::take_given(tape, dependency))))
+                Ok(Some(try!(Tape::take_given(tape, parameter))))
             }
         )+
     );

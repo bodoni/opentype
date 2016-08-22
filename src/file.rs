@@ -2,7 +2,7 @@ use std::io::{Read, Seek};
 use std::ops::Deref;
 use truetype::{Result, Tag, Tape, q32};
 
-use font::Font;
+use Font;
 
 /// A file.
 pub struct File {

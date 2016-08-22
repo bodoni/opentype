@@ -20,7 +20,7 @@ use glyph_positioning::{
 };
 use glyph_transformation::{Class, Coverage};
 
-/// A table.
+/// An inner table of a glyph-positioning table.
 #[derive(Clone, Debug)]
 pub enum Table {
     SingleAdjustment(SingleAdjustment),

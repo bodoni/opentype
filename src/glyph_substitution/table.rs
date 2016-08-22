@@ -12,7 +12,7 @@ use glyph_substitution::{
 };
 use glyph_transformation::{Class, Coverage};
 
-/// A table.
+/// An inner table of a glyph-substitution table.
 #[derive(Clone, Debug)]
 pub enum Table {
     SingleSubstitution(SingleSubstitution),

@@ -4,10 +4,15 @@
 
 use truetype::{Result, Tape, Value};
 
-/// A glyph-definition table.
-pub struct GlyphDefinition;
+table! {
+    #[doc = "A glyph-definition table."]
+    pub GlyphDefinition {
+        header (Header),
+    }
+}
 
-/// The reader of a glyph-definition table.
+/// The header of a glyph-definition table.
+#[derive(Clone, Debug)]
 pub enum Header {
     /// Version 0x00010000.
     Version1(Header1),
@@ -16,16 +21,25 @@ pub enum Header {
 }
 
 table! {
-    #[doc = "The reader of a glyph-definition table of version 0x00010000."]
+    #[doc = "The header of a glyph-definition table of version 0x00010000."]
     pub Header1 {
-        version (u32) = { 0x00010000 },
+        version                 (u32) = { 0x00010000 }, // Version
+        glyph_class_offset      (u16), // GlyphClassDef
+        attachment_point_offset (u16), // AttachList
+        ligature_caret_offset   (u16), // LigCaretList
+        mark_class_offset       (u16), // MarkAttachClassDef
     }
 }
 
 table! {
-    #[doc = "The reader of a glyph-definition table of version 0x00010002."]
+    #[doc = "The header of a glyph-definition table of version 0x00010002."]
     pub Header12 {
-        version (u32) = { 0x00010002 },
+        version                 (u32) = { 0x00010002 },
+        glyph_class_offset      (u16), // GlyphClassDef
+        attachment_point_offset (u16), // AttachList
+        ligature_caret_offset   (u16), // LigCaretList
+        mark_class_offset       (u16), // MarkAttachClassDef
+        mark_set_offset         (u16), // MarkGlyphSetsDef
     }
 }
 

@@ -1,5 +1,3 @@
-#![allow(unused_mut, unused_variables)]
-
 use truetype::{GlyphID, Result, Tape, Value, Walue};
 
 /// An anchor.
@@ -260,7 +258,7 @@ table! {
 
         records (Vec<Mark1>) |this, tape, position| { // MarkRecord
             let mut values = Vec::with_capacity(this.count as usize);
-            for i in 0..(this.count as usize) {
+            for _ in 0..(this.count as usize) {
                 values.push(try!(tape.take_given(position)));
             }
             Ok(values)
@@ -439,7 +437,7 @@ impl Walue<'static> for BaseSet {
         let position = try!(tape.position());
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
-        for i in 0..(count as usize) {
+        for _ in 0..(count as usize) {
             records.push(try!(tape.take_given((position, class_count))));
         }
         Ok(BaseSet { count: count, records: records })
@@ -487,7 +485,7 @@ impl Walue<'static> for Ligature {
         let position = try!(tape.position());
         let component_count = try!(tape.take());
         let mut components = Vec::with_capacity(component_count as usize);
-        for i in 0..(component_count as usize) {
+        for _ in 0..(component_count as usize) {
             components.push(try!(tape.take_given((position, class_count))));
         }
         Ok(Ligature { component_count: component_count, components: components })
@@ -534,7 +532,7 @@ impl Walue<'static> for Mark2Set {
         let position = try!(tape.position());
         let count = try!(tape.take());
         let mut records = Vec::with_capacity(count as usize);
-        for i in 0..(count as usize) {
+        for _ in 0..(count as usize) {
             records.push(try!(tape.take_given((position, class_count))));
         }
         Ok(Mark2Set { count: count, records: records })
@@ -590,7 +588,7 @@ impl Walue<'static> for Pair2Set {
                                     value2_flags): Self::Parameter) -> Result<Self> {
 
         let mut records = Vec::with_capacity(class2_count as usize);
-        for j in 0..(class2_count as usize) {
+        for _ in 0..(class2_count as usize) {
             records.push(try!(tape.take_given((position, value1_flags, value2_flags))));
         }
         Ok(Pair2Set { records: records })

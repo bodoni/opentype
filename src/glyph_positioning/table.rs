@@ -1,5 +1,3 @@
-#![allow(unused_mut, unused_variables)]
-
 use truetype::{Result, Tape, Value, Walue};
 
 use glyph_positioning::{
@@ -72,7 +70,7 @@ table! {
 
         values (Vec<Single>) |this, tape, position| { // Value
             let mut values = Vec::with_capacity(this.value_count as usize);
-            for i in 0..(this.value_count as usize) {
+            for _ in 0..(this.value_count as usize) {
                 values.push(try!(tape.take_given((position, this.value_flags))));
             }
             Ok(values)
@@ -103,7 +101,7 @@ table! {
         value2_flags    (SingleFlags), // ValueFormat2
         pair_set_count  (u16        ), // PairSetCount
 
-        pair_set_offsets (Vec<u16>) |this, tape, position| { // PairSetOffset
+        pair_set_offsets (Vec<u16>) |this, tape, _| { // PairSetOffset
             tape.take_given(this.pair_set_count as usize)
         },
 
@@ -133,7 +131,7 @@ table! {
 
         pair_sets (Vec<Pair2Set>) |this, tape, position| { // Class1Record
             let mut values = Vec::with_capacity(this.class1_count as usize);
-            for i in 0..(this.class1_count as usize) {
+            for _ in 0..(this.class1_count as usize) {
                 values.push(try!(tape.take_given((position, this.class2_count,
                                                   this.value1_flags, this.value2_flags))));
             }
@@ -164,7 +162,7 @@ table! {
 
         passages (Vec<Passage>) |this, tape, position| { // EntryExitRecord
             let mut values = Vec::with_capacity(this.passage_count as usize);
-            for i in 0..(this.passage_count as usize) {
+            for _ in 0..(this.passage_count as usize) {
                 values.push(try!(tape.take_given(position)));
             }
             Ok(values)
@@ -282,7 +280,7 @@ table! {
         coverage_offset (u16), // Coverage
         set_count       (u16), // PosRuleSetCount
 
-        set_offsets (Vec<u16>) |this, tape, position| { // PosRuleSet
+        set_offsets (Vec<u16>) |this, tape, _| { // PosRuleSet
             tape.take_given(this.set_count as usize)
         },
 

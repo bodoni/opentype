@@ -47,12 +47,14 @@ mod file;
 mod font;
 mod table;
 
+pub mod glyph_definition;
 pub mod glyph_positioning;
 pub mod glyph_substitution;
 pub mod glyph_transformation;
 
 pub use file::File;
 pub use font::Font;
+pub use glyph_definition::GlyphDefinition;
 pub use glyph_positioning::GlyphPositioning;
 pub use glyph_substitution::GlyphSubstitution;
 pub use table::Table;

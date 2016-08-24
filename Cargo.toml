@@ -1,6 +1,6 @@
 [package]
 name = "opentype"
-version = "0.17.0"
+version = "0.18.0"
 license = "Apache-2.0/MIT"
 authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
 description = "The package provides a parser for OpenType fonts."
@@ -11,4 +11,4 @@ exclude = ["tests/fixtures/*"]
 
 [dependencies]
 postscript = "0.11"
-truetype = "0.21"
+truetype = "0.22"

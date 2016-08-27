@@ -35,7 +35,7 @@ fn glyph_positioning_lookups() {
     assert_eq!(record.tables.len(), 2);
     match &record.tables[0] {
         &Table::PairAdjustment(PairAdjustment::Format1(ref table)) => {
-            assert_eq!(table.pair_set_count, 65);
+            assert_eq!(table.set_count, 65);
         },
         _ => unreachable!(),
     }

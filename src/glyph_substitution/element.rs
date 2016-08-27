@@ -2,7 +2,7 @@ use truetype::GlyphID;
 
 table! {
     #[doc = "A set of alternate substitutions."]
-    pub AlternateSet { // AlternateSet
+    pub Alternates { // AlternateSet
         count (u16), // GlyphCount
 
         glyph_ids (Vec<GlyphID>) |this, tape| { // Alternate
@@ -46,7 +46,7 @@ table! {
 table! {
     @position
     #[doc = "A set of chaining class substitution rules."]
-    pub ChainClassRuleSet { // ChainSubClassSet
+    pub ChainClassRules { // ChainSubClassSet
         count (u16), // ChainSubClassRuleCnt
 
         offsets (Vec<u16>) |this, tape, _| { // ChainSubClassRule
@@ -94,7 +94,7 @@ table! {
 table! {
     @position
     #[doc = "A set of chaining substitution rules."]
-    pub ChainRuleSet { // ChainSubRuleSet
+    pub ChainRules { // ChainSubRuleSet
         count (u16), // ChainSubRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // ChainSubRule
@@ -129,7 +129,7 @@ table! {
 table! {
     @position
     #[doc = "A set of class substitution rules."]
-    pub ClassRuleSet { // SubClassSet
+    pub ClassRules { // SubClassSet
         count (u16), // SubClassRuleCnt
 
         offsets (Vec<u16>) |this, tape, _| { // SubClassRule
@@ -160,7 +160,7 @@ table! {
 table! {
     @position
     #[doc = "A set of ligature substitutions."]
-    pub LigatureSet { // LigatureSet
+    pub Ligatures { // LigatureSet
         count (u16), // LigatureCount
 
         offsets (Vec<u16>) |this, tape, _| { // Ligature
@@ -195,7 +195,7 @@ table! {
 table! {
     @position
     #[doc = "A set of substitution rules."]
-    pub RuleSet { // SubRuleSet
+    pub Rules { // SubRuleSet
         count (u16), // SubRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // SubRule
@@ -220,7 +220,7 @@ table! {
 }
 
 table! {
-    #[doc = "A substitution record."]
+    #[doc = "A substitution operation."]
     #[derive(Copy)]
     pub Substitution { // SubstLookupRecord
         sequence_index (u16), // SequenceIndex

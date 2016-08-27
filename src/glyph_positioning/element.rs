@@ -64,7 +64,7 @@ table! {
 table! {
     @define
     #[doc = "A set of base attachments."]
-    pub BaseSet { // BaseArray
+    pub Bases { // BaseArray
         count   (u16      ), // BaseCount
         records (Vec<Base>), // BaseRecord
     }
@@ -105,7 +105,7 @@ table! {
 table! {
     @position
     #[doc = "A set of chaining class positioning rules."]
-    pub ChainClassRuleSet { // ChainPosClassSet
+    pub ChainClassRules { // ChainPosClassSet
         count (u16), // ChainPosClassRuleCnt
 
         offsets (Vec<u16>) |this, tape, _| { // ChainPosClassRule
@@ -153,7 +153,7 @@ table! {
 table! {
     @position
     #[doc = "A set of chaining positioning rules."]
-    pub ChainRuleSet { // ChainPosRuleSet
+    pub ChainRules { // ChainPosRuleSet
         count (u16), // ChainPosRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // ChainPosRule
@@ -188,7 +188,7 @@ table! {
 table! {
     @position
     #[doc = "A set of class positioning rules."]
-    pub ClassRuleSet { // PosClassSet
+    pub ClassRules { // PosClassSet
         count (u16), // PosClassRuleCnt
 
         offsets (Vec<u16>) |this, tape, _| { // PosClassRule
@@ -233,7 +233,7 @@ table! {
 table! {
     @define
     #[doc = "A set of ligature attachments."]
-    pub LigatureSet { // LigatureArray
+    pub Ligatures { // LigatureArray
         count   (u16          ), // LigatureCount
         offsets (Vec<u16>     ), // LigatureAttach
         records (Vec<Ligature>),
@@ -253,7 +253,7 @@ table! {
 table! {
     @position
     #[doc = "A set of mark attachments in format 1."]
-    pub Mark1Set { // MarkArray
+    pub Mark1s { // MarkArray
         count (u16), // MarkCount
 
         records (Vec<Mark1>) |this, tape, position| { // MarkRecord
@@ -278,7 +278,7 @@ table! {
 table! {
     @define
     #[doc = "A set of mark attachments in format 2."]
-    pub Mark2Set { // Mark2Array
+    pub Mark2s { // Mark2Array
         count   (u16       ), // Mark2Count
         records (Vec<Mark2>), // Mark2Record
     }
@@ -297,7 +297,7 @@ table! {
 table! {
     @define
     #[doc = "A set of pair adjustments in format 1."]
-    pub Pair1Set { // PairSet
+    pub Pair1s { // PairSet
         count   (u16       ), // PairValueCount
         records (Vec<Pair1>), // PairValueRecord
     }
@@ -315,7 +315,7 @@ table! {
 table! {
     @define
     #[doc = "A set of pair adjustments in format 2."]
-    pub Pair2Set { // Class1Record
+    pub Pair2s { // Class1Record
         records (Vec<Pair2>), // Class2Record
     }
 }
@@ -362,7 +362,7 @@ table! {
 table! {
     @position
     #[doc = "A set of positioning rules."]
-    pub RuleSet { // PosRuleSet
+    pub Rules { // PosRuleSet
         count (u16), // PosRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // PosRule
@@ -430,7 +430,7 @@ impl Walue<'static> for Base {
     }
 }
 
-impl Walue<'static> for BaseSet {
+impl Walue<'static> for Bases {
     type Parameter = u16;
 
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
@@ -440,7 +440,7 @@ impl Walue<'static> for BaseSet {
         for _ in 0..(count as usize) {
             records.push(try!(tape.take_given((position, class_count))));
         }
-        Ok(BaseSet { count: count, records: records })
+        Ok(Bases { count: count, records: records })
     }
 }
 
@@ -492,7 +492,7 @@ impl Walue<'static> for Ligature {
     }
 }
 
-impl Walue<'static> for LigatureSet {
+impl Walue<'static> for Ligatures {
     type Parameter = u16;
 
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
@@ -500,7 +500,7 @@ impl Walue<'static> for LigatureSet {
         let count = try!(tape.take());
         let offsets: Vec<u16> = try!(tape.take_given(count as usize));
         let records = jump_take_given!(@unwrap tape, position, count, offsets, class_count);
-        Ok(LigatureSet { count: count, offsets: offsets, records: records })
+        Ok(Ligatures { count: count, offsets: offsets, records: records })
     }
 }
 
@@ -525,7 +525,7 @@ impl Walue<'static> for Mark2 {
     }
 }
 
-impl Walue<'static> for Mark2Set {
+impl Walue<'static> for Mark2s {
     type Parameter = u16;
 
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
@@ -535,7 +535,7 @@ impl Walue<'static> for Mark2Set {
         for _ in 0..(count as usize) {
             records.push(try!(tape.take_given((position, class_count))));
         }
-        Ok(Mark2Set { count: count, records: records })
+        Ok(Mark2s { count: count, records: records })
     }
 }
 
@@ -553,7 +553,7 @@ impl Walue<'static> for Pair1 {
     }
 }
 
-impl Walue<'static> for Pair1Set {
+impl Walue<'static> for Pair1s {
     type Parameter = (u64, SingleFlags, SingleFlags);
 
     fn read<T: Tape>(tape: &mut T, parameter: Self::Parameter) -> Result<Self> {
@@ -562,7 +562,7 @@ impl Walue<'static> for Pair1Set {
         for _ in 0..(count as usize) {
             records.push(try!(tape.take_given(parameter)));
         }
-        Ok(Pair1Set { count: count, records: records })
+        Ok(Pair1s { count: count, records: records })
     }
 }
 
@@ -579,7 +579,7 @@ impl Walue<'static> for Pair2 {
     }
 }
 
-impl Walue<'static> for Pair2Set {
+impl Walue<'static> for Pair2s {
     type Parameter = (u64, u16, SingleFlags, SingleFlags);
 
     fn read<T: Tape>(tape: &mut T, (position,
@@ -591,7 +591,7 @@ impl Walue<'static> for Pair2Set {
         for _ in 0..(class2_count as usize) {
             records.push(try!(tape.take_given((position, value1_flags, value2_flags))));
         }
-        Ok(Pair2Set { records: records })
+        Ok(Pair2s { records: records })
     }
 }
 

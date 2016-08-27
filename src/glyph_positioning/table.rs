@@ -1,18 +1,18 @@
 use truetype::{Result, Tape, Value, Walue};
 
 use glyph_positioning::{
-    BaseSet,
-    ChainClassRuleSet,
-    ChainRuleSet,
-    ClassRuleSet,
-    LigatureSet,
-    Mark1Set,
-    Mark2Set,
-    Pair1Set,
-    Pair2Set,
+    Bases,
+    ChainClassRules,
+    ChainRules,
+    ClassRules,
+    Ligatures,
+    Mark1s,
+    Mark2s,
+    Pair1s,
+    Pair2s,
     Passage,
     Positioning,
-    RuleSet,
+    Rules,
     Single,
     SingleFlags,
 };
@@ -99,18 +99,18 @@ table! {
         coverage_offset (u16        ), // Coverage
         value1_flags    (SingleFlags), // ValueFormat1
         value2_flags    (SingleFlags), // ValueFormat2
-        pair_set_count  (u16        ), // PairSetCount
+        set_count       (u16        ), // PairSetCount
 
-        pair_set_offsets (Vec<u16>) |this, tape, _| { // PairSetOffset
-            tape.take_given(this.pair_set_count as usize)
+        set_offsets (Vec<u16>) |this, tape, _| { // PairSetOffset
+            tape.take_given(this.set_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        pair_sets (Vec<Pair1Set>) |this, tape, position| {
-            jump_take_given!(tape, position, this.pair_set_count, this.pair_set_offsets,
+        sets (Vec<Pair1s>) |this, tape, position| {
+            jump_take_given!(tape, position, this.set_count, this.set_offsets,
                              (position, this.value1_flags, this.value2_flags))
         },
     }
@@ -129,7 +129,7 @@ table! {
         class1_count    (u16        ), // Class1Count
         class2_count    (u16        ), // Class2Count
 
-        pair_sets (Vec<Pair2Set>) |this, tape, position| { // Class1Record
+        sets (Vec<Pair2s>) |this, tape, position| { // Class1Record
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for _ in 0..(this.class1_count as usize) {
                 values.push(try!(tape.take_given((position, this.class2_count,
@@ -182,8 +182,8 @@ table! {
         mark_coverage_offset (u16), // MarkCoverage
         base_coverage_offset (u16), // BaseCoverage
         class_count          (u16), // ClassCount
-        mark_set_offset      (u16), // MarkArray
-        base_set_offset      (u16), // BaseArray
+        marks_offset         (u16), // MarkArray
+        bases_offset         (u16), // BaseArray
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -193,12 +193,12 @@ table! {
             jump_take!(tape, position, this.base_coverage_offset)
         },
 
-        mark_set (Mark1Set) |this, tape, position| {
-            jump_take!(tape, position, this.mark_set_offset)
+        marks (Mark1s) |this, tape, position| {
+            jump_take!(tape, position, this.marks_offset)
         },
 
-        base_set (BaseSet) |this, tape, position| {
-            jump_take_given!(tape, position, this.base_set_offset, this.class_count)
+        bases (Bases) |this, tape, position| {
+            jump_take_given!(tape, position, this.bases_offset, this.class_count)
         },
     }
 }
@@ -211,8 +211,8 @@ table! {
         mark_coverage_offset     (u16), // MarkCoverage
         ligature_coverage_offset (u16), // LigatureCoverage
         class_count              (u16), // ClassCount
-        mark_set_offset          (u16), // MarkArray
-        ligature_set_offset      (u16), // LigatureArray
+        marks_offset             (u16), // MarkArray
+        ligatures_offset         (u16), // LigatureArray
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -222,12 +222,12 @@ table! {
             jump_take!(tape, position, this.ligature_coverage_offset)
         },
 
-        mark_set (Mark1Set) |this, tape, position| {
-            jump_take!(tape, position, this.mark_set_offset)
+        marks (Mark1s) |this, tape, position| {
+            jump_take!(tape, position, this.marks_offset)
         },
 
-        ligature_set (LigatureSet) |this, tape, position| {
-            jump_take_given!(tape, position, this.ligature_set_offset, this.class_count)
+        ligatures (Ligatures) |this, tape, position| {
+            jump_take_given!(tape, position, this.ligatures_offset, this.class_count)
         },
     }
 }
@@ -240,8 +240,8 @@ table! {
         mark1_coverage_offset (u16), // Mark1Coverage
         mark2_coverage_offset (u16), // Mark2Coverage
         class_count           (u16), // ClassCount
-        mark1_set_offset      (u16), // Mark1Array
-        mark2_set_offset      (u16), // Mark2Array
+        mark1s_offset         (u16), // Mark1Array
+        mark2s_offset         (u16), // Mark2Array
 
         mark1_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark1_coverage_offset)
@@ -251,12 +251,12 @@ table! {
             jump_take!(tape, position, this.mark2_coverage_offset)
         },
 
-        mark1_set (Mark1Set) |this, tape, position| {
-            jump_take!(tape, position, this.mark1_set_offset)
+        mark1s (Mark1s) |this, tape, position| {
+            jump_take!(tape, position, this.mark1s_offset)
         },
 
-        mark2_set (Mark2Set) |this, tape, position| {
-            jump_take_given!(tape, position, this.mark2_set_offset, this.class_count)
+        mark2s (Mark2s) |this, tape, position| {
+            jump_take_given!(tape, position, this.mark2s_offset, this.class_count)
         },
     }
 }
@@ -288,7 +288,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<RuleSet>) |this, tape, position| {
+        sets (Vec<Rules>) |this, tape, position| {
             jump_take!(tape, position, this.set_count, this.set_offsets)
         },
     }
@@ -311,7 +311,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<Option<ClassRuleSet>>) |this, tape, position| {
+        sets (Vec<Option<ClassRules>>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.set_count, this.set_offsets)
         },
     }
@@ -366,7 +366,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<ChainRuleSet>) |this, tape, position| {
+        sets (Vec<ChainRules>) |this, tape, position| {
             jump_take!(tape, position, this.set_count, this.set_offsets)
         },
     }
@@ -403,7 +403,7 @@ table! {
             jump_take!(tape, position, this.forward_class_offset)
         },
 
-        sets (Vec<Option<ChainClassRuleSet>>) |this, tape, position| {
+        sets (Vec<Option<ChainClassRules>>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.set_count, this.set_offsets)
         },
     }

@@ -1,12 +1,12 @@
 use truetype::{GlyphID, Result, Tape, Value, Walue};
 
 use glyph_substitution::{
-    AlternateSet,
-    ChainClassRuleSet,
-    ChainRuleSet,
-    ClassRuleSet,
-    LigatureSet,
-    RuleSet,
+    Alternates,
+    ChainClassRules,
+    ChainRules,
+    ClassRules,
+    Ligatures,
+    Rules,
     Sequence,
     Substitution,
 };
@@ -104,7 +104,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<AlternateSet>) |this, tape, position| {
+        sets (Vec<Alternates>) |this, tape, position| {
             jump_take!(tape, position, this.set_count, this.set_offsets)
         },
     }
@@ -126,7 +126,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<LigatureSet>) |this, tape, position| {
+        sets (Vec<Ligatures>) |this, tape, position| {
             jump_take!(tape, position, this.set_count, this.set_offsets)
         },
     }
@@ -159,7 +159,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<RuleSet>) |this, tape, position| {
+        sets (Vec<Rules>) |this, tape, position| {
             jump_take!(tape, position, this.set_count, this.set_offsets)
         },
     }
@@ -182,7 +182,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<Option<ClassRuleSet>>) |this, tape, position| {
+        sets (Vec<Option<ClassRules>>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.set_count, this.set_offsets)
         },
     }
@@ -237,7 +237,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<ChainRuleSet>) |this, tape, position| {
+        sets (Vec<ChainRules>) |this, tape, position| {
             jump_take!(tape, position, this.set_count, this.set_offsets)
         },
     }
@@ -274,7 +274,7 @@ table! {
             jump_take!(tape, position, this.forward_class_offset)
         },
 
-        sets (Vec<Option<ChainClassRuleSet>>) |this, tape, position| {
+        sets (Vec<Option<ChainClassRules>>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.set_count, this.set_offsets)
         },
     }

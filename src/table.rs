@@ -15,7 +15,7 @@ use truetype::{
     WindowsMetrics,
 };
 
-use {GlyphPositioning, GlyphSubstitution};
+use {GlyphDefinition, GlyphPositioning, GlyphSubstitution};
 
 /// A font table.
 pub trait Table<'l>: Sized {
@@ -70,6 +70,7 @@ macro_rules! table {
 
 table! {
     b"CFF " => postscript::FontSet(),
+    b"GDEF" => opentype::GlyphDefinition(),
     b"GPOS" => opentype::GlyphPositioning(),
     b"GSUB" => opentype::GlyphSubstitution(),
     b"OS/2" => truetype::WindowsMetrics(),

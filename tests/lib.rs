@@ -5,17 +5,31 @@ use opentype::glyph_transformation::Scripts;
 use std::fs::File;
 use truetype::{Tag, Value};
 
-const GPOS: u64 = 60412;
-const GSUB: u64 = 57648;
+mod fixture;
+
+use fixture::Fixture;
 
 macro_rules! ok(($result:expr) => ($result.unwrap()));
+
+macro_rules! setup(
+    ($table:expr) => (setup(Fixture::CFF, Some($table)));
+    ($fixture:ident, $table:expr) => (setup(Fixture::$fixture, Some($table)));
+);
+
 macro_rules! tags(($($name:expr),*) => (vec![$(Tag(*$name)),*]));
+
+#[test]
+fn glyph_definition() {
+    use opentype::GlyphDefinition;
+
+    let GlyphDefinition { .. } = ok!(Value::read(&mut setup!(TTF, "GDEF")));
+}
 
 #[test]
 fn glyph_positioning_features() {
     use opentype::GlyphPositioning;
 
-    let GlyphPositioning { features, .. } = ok!(Value::read(&mut setup(GPOS)));
+    let GlyphPositioning { features, .. } = ok!(Value::read(&mut setup!("GPOS")));
     let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"kern", b"kern", b"kern", b"kern", b"kern",
                            b"size", b"size", b"size", b"size", b"size"]);
@@ -28,7 +42,7 @@ fn glyph_positioning_lookups() {
     use opentype::GlyphPositioning;
     use opentype::glyph_positioning::{PairAdjustment, Table};
 
-    let GlyphPositioning { lookups, .. } = ok!(Value::read(&mut setup(GPOS)));
+    let GlyphPositioning { lookups, .. } = ok!(Value::read(&mut setup!("GPOS")));
     assert_eq!(lookups.records.len(), 1);
     let record = &lookups.records[0];
     assert!(record.mark_filtering_set.is_none());
@@ -51,14 +65,14 @@ fn glyph_positioning_lookups() {
 #[test]
 fn glyph_positioning_scripts() {
     use opentype::GlyphPositioning;
-    scripts(&ok!(GlyphPositioning::read(&mut setup(GPOS))).scripts);
+    scripts(&ok!(GlyphPositioning::read(&mut setup!("GPOS"))).scripts);
 }
 
 #[test]
 fn glyph_substitution_features() {
     use opentype::GlyphSubstitution;
 
-    let GlyphSubstitution { features, .. } = ok!(Value::read(&mut setup(GSUB)));
+    let GlyphSubstitution { features, .. } = ok!(Value::read(&mut setup!("GSUB")));
     let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"aalt", b"aalt", b"aalt", b"aalt", b"aalt",
                            b"case", b"case", b"case", b"case", b"case",
@@ -88,7 +102,7 @@ fn glyph_substitution_lookups() {
     use opentype::GlyphSubstitution;
     use opentype::glyph_substitution::{SingleSubstitution, Table};
 
-    let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup(GSUB)));
+    let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup!("GSUB")));
     let kinds = lookups.records.iter().map(|record| record.kind).collect::<Vec<_>>();
     assert_eq!(kinds, &[1, 3, 1, 1, 1, 1, 1, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1]);
     let record = &lookups.records[0];
@@ -116,7 +130,7 @@ fn glyph_substitution_lookups() {
 #[test]
 fn glyph_substitution_scripts() {
     use opentype::GlyphSubstitution;
-    scripts(&ok!(GlyphSubstitution::read(&mut setup(GSUB))).scripts);
+    scripts(&ok!(GlyphSubstitution::read(&mut setup!("GSUB"))).scripts);
 }
 
 fn scripts(scripts: &Scripts) {
@@ -140,10 +154,10 @@ fn scripts(scripts: &Scripts) {
     assert!(record.get(Language::Turkish).is_some());
 }
 
-fn setup(seek: u64) -> File {
+fn setup(fixture: Fixture, table: Option<&str>) -> File {
     use std::io::{Seek, SeekFrom};
 
-    let mut file = ok!(File::open("tests/fixtures/SourceSerifPro-Regular.otf"));
-    ok!(file.seek(SeekFrom::Start(seek)));
+    let mut file = ok!(File::open(fixture.path()));
+    ok!(file.seek(SeekFrom::Start(table.map(|table| fixture.offset(table)).unwrap_or(0))));
     file
 }

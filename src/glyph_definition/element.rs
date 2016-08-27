@@ -34,7 +34,7 @@ table! {
     }
 }
 
-/// A ligature-caret value.
+/// A ligature caret.
 #[derive(Clone, Debug)]
 pub enum Caret {
     /// Format 1.

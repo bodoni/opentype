@@ -20,9 +20,27 @@ macro_rules! tags(($($name:expr),*) => (vec![$(Tag(*$name)),*]));
 
 #[test]
 fn glyph_definition() {
-    use opentype::GlyphDefinition;
+    use opentype::glyph_definition::{GlyphDefinition, Header};
+    use opentype::glyph_transformation::Class;
 
-    let GlyphDefinition { .. } = ok!(Value::read(&mut setup!(TTF, "GDEF")));
+    let table: GlyphDefinition = ok!(Value::read(&mut setup!(TTF, "GDEF")));
+    match &table.header {
+        &Header::Version1(..) => {},
+        _ => unreachable!(),
+    }
+    match &table.glyph_class {
+        &Some(Class::Format2(ref table)) => {
+            assert_eq!(table.range_count, 1);
+            assert_eq!(table.ranges[0].start, 0);
+            assert_eq!(table.ranges[0].end, 937);
+        },
+        _ => unreachable!(),
+    }
+    assert!(table.attachments.is_none());
+    match &table.ligatures {
+        &Some(ref table) => assert_eq!(table.count, 0),
+        _ => unreachable!(),
+    }
 }
 
 #[test]

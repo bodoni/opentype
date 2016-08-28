@@ -3,11 +3,6 @@ extern crate postscript;
 extern crate truetype;
 
 use std::fs::File;
-use std::io::{Seek, SeekFrom};
-
-mod fixture;
-
-use fixture::Fixture;
 
 macro_rules! ok(($result:expr) => ($result.unwrap()));
 
@@ -19,11 +14,16 @@ macro_rules! setup(
 macro_rules! tags(($($name:expr),*) => (vec![$(::truetype::Tag(*$name)),*]));
 
 mod file;
+mod fixture;
 mod glyph_definition;
 mod glyph_positioning;
 mod glyph_substitution;
 
+use fixture::Fixture;
+
 fn setup(fixture: Fixture, table: Option<&str>) -> File {
+    use std::io::{Seek, SeekFrom};
+
     let mut file = ok!(File::open(fixture.path()));
     ok!(file.seek(SeekFrom::Start(table.map(|table| fixture.offset(table)).unwrap_or(0))));
     file

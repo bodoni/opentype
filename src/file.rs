@@ -28,36 +28,3 @@ impl Deref for File {
         &self.fonts
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use File;
-
-    const CFF: &'static str = "tests/fixtures/SourceSerifPro-Regular.otf";
-    const TTF: &'static str = "tests/fixtures/OpenSans-Italic.ttf";
-
-    macro_rules! ok(($result:expr) => ($result.unwrap()));
-
-    #[test]
-    fn cff() {
-        use postscript::compact::FontSet;
-
-        let mut reader = ok!(::std::fs::File::open(CFF));
-        let file = ok!(File::read(&mut reader));
-        let _ = ok!(ok!(file[0].take::<_, FontSet>(&mut reader)));
-    }
-
-    #[test]
-    fn ttf() {
-        use truetype::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
-
-        let mut reader = ok!(::std::fs::File::open(TTF));
-        let file = ok!(File::read(&mut reader));
-        let font_header = ok!(ok!(file[0].take::<_, FontHeader>(&mut reader)));
-        let maximum_profile = ok!(ok!(file[0].take::<_, MaximumProfile>(&mut reader)));
-        let glyph_mapping = ok!(ok!(file[0].take_given::<_, GlyphMapping>(&mut reader,
-                                                                          (&font_header,
-                                                                           &maximum_profile))));
-        let _ = ok!(ok!(file[0].take_given::<_, GlyphData>(&mut reader, &glyph_mapping)));
-    }
-}

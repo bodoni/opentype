@@ -51,6 +51,7 @@ pub mod glyph_definition;
 pub mod glyph_positioning;
 pub mod glyph_substitution;
 pub mod layout;
+pub mod variation;
 
 pub use file::File;
 pub use font::Font;

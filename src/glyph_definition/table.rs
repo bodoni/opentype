@@ -49,17 +49,18 @@ table! {
 /// The header of a glyph-definition table.
 #[derive(Clone, Debug)]
 pub enum Header {
-    /// Version 0x00010000.
+    /// Version 1.0.
     Version1(Header1),
-    /// Version 0x00010002.
+    /// Version 1.2.
     Version12(Header12),
 }
 
 table! {
-    #[doc = "The header of a glyph-definition table of version 0x00010000."]
+    #[doc = "The header of a glyph-definition table of version 1.0."]
     #[derive(Copy)]
     pub Header1 {
-        version            (u32) = { 0x00010000 }, // Version
+        major_version      (u16) = { 1 }, // MajorVersion
+        minor_version      (u16) = { 0 }, // MinorVersion
         glyph_class_offset (u16), // GlyphClassDef
         attachments_offset (u16), // AttachList
         ligatures_offset   (u16), // LigCaretList
@@ -68,10 +69,11 @@ table! {
 }
 
 table! {
-    #[doc = "The header of a glyph-definition table of version 0x00010002."]
+    #[doc = "The header of a glyph-definition table of version 1.2."]
     #[derive(Copy)]
     pub Header12 {
-        version            (u32) = { 0x00010002 },
+        major_version      (u16) = { 1 }, // MajorVersion
+        minor_version      (u16) = { 2 }, // MinorVersion
         glyph_class_offset (u16), // GlyphClassDef
         attachments_offset (u16), // AttachList
         ligatures_offset   (u16), // LigCaretList

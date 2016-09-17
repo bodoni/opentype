@@ -45,7 +45,7 @@ table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 1."]
     pub SingleAdjustment1 { // SinglePosFormat1
-        format          (u16        ) = { 1 }, // PosFormat
+        format          (u16        ), // PosFormat
         coverage_offset (u16        ), // Coverage
         value_flags     (SingleFlags), // ValueFormat
 
@@ -63,7 +63,7 @@ table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 2."]
     pub SingleAdjustment2 { // SinglePosFormat2
-        format          (u16        ) = { 2 }, // PosFormat
+        format          (u16        ), // PosFormat
         coverage_offset (u16        ), // Coverage
         value_flags     (SingleFlags), // ValueFormat
         value_count     (u16        ), // ValueCount
@@ -95,7 +95,7 @@ table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 1."]
     pub PairAdjustment1 { // PairPosFormat1
-        format          (u16        ) = { 1 }, // PosFormat
+        format          (u16        ), // PosFormat
         coverage_offset (u16        ), // Coverage
         value1_flags    (SingleFlags), // ValueFormat1
         value2_flags    (SingleFlags), // ValueFormat2
@@ -120,7 +120,7 @@ table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 2."]
     pub PairAdjustment2 { // PairPosFormat2
-        format          (u16        ) = { 2 }, // PosFormat
+        format          (u16        ), // PosFormat
         coverage_offset (u16        ), // Coverage
         value1_flags    (SingleFlags), // ValueFormat1
         value2_flags    (SingleFlags), // ValueFormat2
@@ -276,7 +276,7 @@ table! {
     @position
     #[doc = "A table for positioning glyphs in a context in format 1."]
     pub ContextPositioning1 { // ContextPosFormat1
-        format          (u16) = { 1 }, // PosFormat
+        format          (u16), // PosFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // PosRuleSetCount
 
@@ -298,7 +298,7 @@ table! {
     @position
     #[doc = "A table for positioning glyphs in a context in format 2."]
     pub ContextPositioning2 { // ContextPosFormat2
-        format          (u16) = { 2 }, // PosFormat
+        format          (u16), // PosFormat
         coverage_offset (u16), // Coverage
         class_offset    (u16), // ClassDef
         set_count       (u16), // PosClassSetCnt
@@ -321,7 +321,7 @@ table! {
     @position
     #[doc = "A table for positioning glyphs in a context in format 3."]
     pub ContextPositioning3 { // ContextPosFormat3
-        format          (u16) = { 3 }, // PosFormat
+        format          (u16), // PosFormat
         glyph_count     (u16), // GlyphCount
         operation_count (u16), // PosCount
 
@@ -354,7 +354,7 @@ table! {
     @position
     #[doc = "A table for positioning glyphs in a chaining context in format 1."]
     pub ChainContextPositioning1 {
-        format          (u16) = { 1 }, // PosFormat
+        format          (u16), // PosFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // ChainPosRuleSetCount
 
@@ -376,7 +376,7 @@ table! {
     @position
     #[doc = "A table for positioning glyphs in a chaining context in format 2."]
     pub ChainContextPositioning2 {
-        format                (u16) = { 2 }, // PosFormat
+        format                (u16), // PosFormat
         coverage_offset       (u16), // Coverage
         backward_class_offset (u16), // BacktrackClassDef
         input_class_offset    (u16), // InputClassDef
@@ -413,7 +413,7 @@ table! {
     @position
     #[doc = "A table for positioning glyphs in a chaining context in format 3."]
     pub ChainContextPositioning3 {
-        format               (u16) = { 3 }, // PosFormat
+        format               (u16), // PosFormat
         backward_glyph_count (u16), // BacktrackGlyphCount
 
         backward_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage

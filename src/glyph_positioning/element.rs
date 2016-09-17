@@ -17,7 +17,7 @@ table! {
     #[doc = "An anchor in format 1."]
     #[derive(Copy)]
     pub Anchor1 { // AnchorFormat1
-        format (u16) = { 1 }, // AnchorFormat
+        format (u16), // AnchorFormat
         x      (i16), // XCoordinate
         y      (i16), // YCoordinate
     }
@@ -27,7 +27,7 @@ table! {
     #[doc = "An anchor in format 2."]
     #[derive(Copy)]
     pub Anchor2 { // AnchorFormat2
-        format (u16) = { 2 }, // AnchorFormat
+        format (u16), // AnchorFormat
         x      (i16), // XCoordinate
         y      (i16), // YCoordinate
         index  (u16), // AnchorPoint
@@ -38,7 +38,7 @@ table! {
     @position
     #[doc = "An anchor in format 3."]
     pub Anchor3 { // AnchorFormat3
-        format          (u16) = { 3 }, // AnchorFormat
+        format          (u16), // AnchorFormat
         x               (i16), // XCoordinate
         y               (i16), // YCoordinate
         device_x_offset (u16), // XDeviceTable

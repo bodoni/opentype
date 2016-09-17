@@ -49,7 +49,7 @@ table! {
     /// A ligature caret in format 1.
     #[derive(Copy)]
     pub Caret1 {
-        format     (u16) = { 1 }, // CaretValueFormat
+        format     (u16), // CaretValueFormat
         coordinate (i16), // Coordinate
     }
 }
@@ -58,7 +58,7 @@ table! {
     /// A ligature caret in format 2.
     #[derive(Copy)]
     pub Caret2 {
-        format (u16) = { 2 }, // CaretValueFormat
+        format (u16), // CaretValueFormat
         index  (u16), // CaretValuePoint
     }
 }
@@ -67,7 +67,7 @@ table! {
     @position
     /// A ligature caret in format 3.
     pub Caret3 {
-        format        (u16) = { 3 }, // CaretValueFormat
+        format        (u16), // CaretValueFormat
         coordinate    (i16), // Coordinate
         device_offset (u16), // DeviceTable
 

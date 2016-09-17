@@ -38,7 +38,7 @@ table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 1."]
     pub SingleSubstitution1 { // SingleSubstFormat1
-        format          (u16) = { 1 }, // SubstFormat
+        format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         delta_glyph_id  (i16), // DeltaGlyphID
 
@@ -52,7 +52,7 @@ table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 2."]
     pub SingleSubstitution2 { // SingleSubstFormat2
-        format          (u16) = { 2 }, // SubstFormat
+        format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         glyph_count     (u16), // GlyphCount
 
@@ -147,7 +147,7 @@ table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 1."]
     pub ContextSubstitution1 { // ContextSubstFormat1
-        format          (u16) = { 1 }, // SubstFormat
+        format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // SubRuleSetCount
 
@@ -169,7 +169,7 @@ table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 2."]
     pub ContextSubstitution2 { // ContextSubstFormat2
-        format          (u16) = { 2 }, // SubstFormat
+        format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         class_offset    (u16), // ClassDef
         set_count       (u16), // SubClassSetCnt
@@ -192,7 +192,7 @@ table! {
     @position
     #[doc = "A table for substituting glyphs in a context in format 3."]
     pub ContextSubstitution3 { // ContextSubstFormat3
-        format          (u16) = { 3 }, // SubstFormat
+        format          (u16), // SubstFormat
         glyph_count     (u16), // GlyphCount
         operation_count (u16), // SubstCount
 
@@ -225,7 +225,7 @@ table! {
     @position
     #[doc = "A table for substituting glyphs in a chaining context in format 1."]
     pub ChainContextSubstitution1 { // ChainContextSubstFormat1
-        format          (u16) = { 1 }, // SubstFormat
+        format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         set_count       (u16), // ChainSubRuleSetCount
 
@@ -247,7 +247,7 @@ table! {
     @position
     #[doc = "A table for substituting glyphs in a chaining context in format 2."]
     pub ChainContextSubstitution2 { // ChainContextSubstFormat2
-        format                (u16) = { 2 }, // SubstFormat
+        format                (u16), // SubstFormat
         coverage_offset       (u16), // Coverage
         backward_class_offset (u16), // BacktrackClassDef
         input_class_offset    (u16), // InputClassDef
@@ -284,7 +284,7 @@ table! {
     @position
     #[doc = "A table for substituting glyphs in a chaining context in format 3."]
     pub ChainContextSubstitution3 { // ChainContextSubstFormat3
-        format               (u16) = { 3 }, // SubstFormat
+        format               (u16), // SubstFormat
         backward_glyph_count (u16), // BacktrackGlyphCount
 
         backward_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage

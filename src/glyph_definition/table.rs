@@ -1,7 +1,7 @@
 use truetype::{Result, Tape, Value};
 
 use glyph_definition::{Attachments, Ligatures, Marks};
-use glyph_transformation::Class;
+use layout::Class;
 
 table! {
     @position

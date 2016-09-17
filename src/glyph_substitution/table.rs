@@ -10,7 +10,7 @@ use glyph_substitution::{
     Sequence,
     Substitution,
 };
-use glyph_transformation::{Class, Coverage};
+use layout::{Class, Coverage};
 
 /// An inner table of a glyph-substitution table.
 #[derive(Clone, Debug)]

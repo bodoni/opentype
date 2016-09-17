@@ -1,6 +1,6 @@
 use truetype::{Result, Tape, Value};
 
-use glyph_transformation::{Coverage, Device};
+use layout::{Coverage, Device};
 
 table! {
     #[doc = "A glyph attachment."]

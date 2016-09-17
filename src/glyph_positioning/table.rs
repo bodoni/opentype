@@ -16,7 +16,7 @@ use glyph_positioning::{
     Single,
     SingleFlags,
 };
-use glyph_transformation::{Class, Coverage};
+use layout::{Class, Coverage};
 
 /// An inner table of a glyph-positioning table.
 #[derive(Clone, Debug)]

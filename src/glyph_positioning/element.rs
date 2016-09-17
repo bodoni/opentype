@@ -1,6 +1,6 @@
 use truetype::{GlyphID, Result, Tape, Value, Walue};
 
-use glyph_transformation::Device;
+use layout::Device;
 
 /// An anchor.
 #[derive(Clone, Debug)]

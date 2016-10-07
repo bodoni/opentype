@@ -15,7 +15,7 @@ use truetype::{
     WindowsMetrics,
 };
 
-use {GlyphDefinition, GlyphPositioning, GlyphSubstitution};
+use {GlyphDefinition, GlyphPositioning, GlyphSubstitution, MathHeader};
 
 /// A font table.
 pub trait Table<'l>: Sized {
@@ -73,6 +73,7 @@ table! {
     b"GDEF" => opentype::GlyphDefinition(),
     b"GPOS" => opentype::GlyphPositioning(),
     b"GSUB" => opentype::GlyphSubstitution(),
+    b"MATH" => opentype::MathHeader(),
     b"OS/2" => truetype::WindowsMetrics(),
     b"cmap" => truetype::CharMapping(),
     b"glyf" => truetype::GlyphData(..),

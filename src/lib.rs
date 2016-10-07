@@ -52,10 +52,13 @@ pub mod glyph_positioning;
 pub mod glyph_substitution;
 pub mod layout;
 pub mod variation;
+pub mod math_table;
 
 pub use file::File;
 pub use font::Font;
 pub use glyph_definition::GlyphDefinition;
 pub use glyph_positioning::GlyphPositioning;
 pub use glyph_substitution::GlyphSubstitution;
+pub use math_table::{ MathHeader };
+pub use math_table::constants::Constants;
 pub use table::Table;

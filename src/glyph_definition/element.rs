@@ -96,7 +96,7 @@ table! {
 table! {
     @position
     #[doc = "A set of ligatures."]
-    pub Ligatures { // LigatureCaretList
+    pub Ligatures { // LigCaretList
         coverage_offset (u16), // Coverage
         count           (u16), // LigGlyphCount
 

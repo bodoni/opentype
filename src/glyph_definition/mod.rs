@@ -10,6 +10,20 @@ mod element;
 
 pub use self::element::*;
 
+macro_rules! field(
+    ($table:expr => $field:ident, $enumeration:ident::{$($variant:ident),*}) => (
+        match $table {
+            $($enumeration::$variant(ref table) => table.$field,)*
+        }
+    );
+    ($table:expr => $field:ident($default:expr), $enumeration:ident::{$($variant:ident),*}) => (
+        match $table {
+            $($enumeration::$variant(ref table) => table.$field,)*
+            _ => $default,
+        }
+    );
+);
+
 table! {
     @position
     #[doc = "A glyph-definition table."]
@@ -17,43 +31,28 @@ table! {
         header (Header),
 
         glyph_class (Option<Class>) |this, tape, position| {
-            jump_take_maybe!(tape, position, match this.header {
-                Header::Version1(ref header) => header.glyph_class_offset,
-                Header::Version12(ref header) => header.glyph_class_offset,
-                Header::Version13(ref header) => header.glyph_class_offset,
-            })
+            jump_take_maybe!(tape, position, field!(this.header => glyph_class_offset,
+                                                    Header::{Version1, Version12, Version13}))
         },
 
         attachments (Option<Attachments>) |this, tape, position| {
-            jump_take_maybe!(tape, position, match this.header {
-                Header::Version1(ref header) => header.attachments_offset,
-                Header::Version12(ref header) => header.attachments_offset,
-                Header::Version13(ref header) => header.attachments_offset,
-            })
+            jump_take_maybe!(tape, position, field!(this.header => attachments_offset,
+                                                    Header::{Version1, Version12, Version13}))
         },
 
         ligatures (Option<Ligatures>) |this, tape, position| {
-            jump_take_maybe!(tape, position, match this.header {
-                Header::Version1(ref header) => header.ligatures_offset,
-                Header::Version12(ref header) => header.ligatures_offset,
-                Header::Version13(ref header) => header.ligatures_offset,
-            })
+            jump_take_maybe!(tape, position, field!(this.header => ligatures_offset,
+                                                    Header::{Version1, Version12, Version13}))
         },
 
         mark_class (Option<Class>) |this, tape, position| {
-            jump_take_maybe!(tape, position, match this.header {
-                Header::Version1(ref header) => header.mark_class_offset,
-                Header::Version12(ref header) => header.mark_class_offset,
-                Header::Version13(ref header) => header.mark_class_offset,
-            })
+            jump_take_maybe!(tape, position, field!(this.header => mark_class_offset,
+                                                    Header::{Version1, Version12, Version13}))
         },
 
         marks (Option<Marks>) |this, tape, position| {
-            jump_take_maybe!(tape, position, match this.header {
-                Header::Version12(ref header) => header.marks_offset,
-                Header::Version13(ref header) => header.marks_offset,
-                _ => 0,
-            })
+            jump_take_maybe!(tape, position, field!(this.header => marks_offset(0),
+                                                    Header::{Version12, Version13}))
         },
     }
 }

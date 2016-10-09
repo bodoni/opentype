@@ -48,3 +48,13 @@ table! {
         },
     }
 }
+
+table! {
+    #[doc = "A feature-variations table."]
+    #[derive(Copy)]
+    pub Variations {
+        major_version (u16) = { 1 }, // MajorVersion
+        minor_version (u16) = { 0 }, // MinorVersion
+        count         (u32), // FeatureVariationRecordsCount
+    }
+}

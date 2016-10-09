@@ -1,6 +1,6 @@
 use truetype::{Result, Tape, Value};
 
-/// A device or variation correction.
+/// A correction.
 #[derive(Clone, Debug)]
 pub enum Correction {
     /// A device correction.

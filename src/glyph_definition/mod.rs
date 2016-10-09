@@ -5,6 +5,7 @@
 use truetype::{Result, Tape, Value};
 
 use layout::Class;
+use variation::item::Variations;
 
 mod element;
 
@@ -53,6 +54,11 @@ table! {
         marks (Option<Marks>) |this, tape, position| {
             jump_take_maybe!(tape, position, field!(this.header => marks_offset(0),
                                                     Header::{Version12, Version13}))
+        },
+
+        variations (Option<Variations>) |this, tape, position| {
+            jump_take_maybe!(tape, position, field!(this.header => marks_offset(0),
+                                                    Header::{Version13}))
         },
     }
 }

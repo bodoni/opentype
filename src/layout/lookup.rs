@@ -4,7 +4,7 @@ use truetype::{Result, Tape, Value, Walue};
 
 /// A lookup list.
 #[derive(Clone, Debug)]
-pub struct Lookups<T> {
+pub struct Lookups<T> { // LookupList
     pub count:   (u16           ), // LookupCount
     pub offsets: (Vec<u16>      ), // Lookup
     pub records: (Vec<Record<T>>),
@@ -12,7 +12,7 @@ pub struct Lookups<T> {
 
 /// A lookup record.
 #[derive(Clone, Debug)]
-pub struct Record<T> {
+pub struct Record<T> { // Lookup
     pub kind:               (u16        ), // LookupType
     pub flags:              (Flags      ), // LookupFlag
     pub table_count:        (u16        ), // SubTableCount

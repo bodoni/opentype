@@ -13,19 +13,19 @@ table! {
     @define
     #[doc = "A device correction."]
     pub Device { // Device
-        start_size   (u16     ), // StartSize
-        end_size     (u16     ), // EndSize
-        delta_format (u16     ), // DeltaFormat
-        delta_data   (Vec<u16>), // DeltaValue
+        start_size (u16     ), // StartSize
+        end_size   (u16     ), // EndSize
+        format     (u16     ), // DeltaFormat
+        deltas     (Vec<u16>), // DeltaValue
     }
 }
 
 table! {
     #[doc = "A variation correction."]
     pub Variation { // VariationIndex
-        outer_index  (u16), // DeltaSetOuterIndex
-        inner_index  (u16), // DeltaSetInnerIndex
-        delta_format (u16), // DeltaFormat
+        outer_index (u16), // DeltaSetOuterIndex
+        inner_index (u16), // DeltaSetInnerIndex
+        format      (u16), // DeltaFormat
     }
 }
 
@@ -53,19 +53,19 @@ impl Value for Device {
         if start_size > end_size {
             raise!("found a malformed device table");
         }
-        let delta_format = try!(tape.take());
-        if delta_format == 0 || delta_format > 3 {
+        let format = try!(tape.take());
+        if format == 0 || format > 3 {
             raise!("found an unknown format of the device table");
         }
         let count = (end_size - start_size) as usize + 1;
-        let bit_count = (1 << delta_format as usize) * count;
+        let bit_count = (1 << format as usize) * count;
         let short_count = (bit_count + 16 - bit_count % 16) >> 4;
-        let delta_data = try!(tape.take_given(short_count));
+        let deltas = try!(tape.take_given(short_count));
         Ok(Device {
             start_size: start_size,
             end_size: end_size,
-            delta_format: delta_format,
-            delta_data: delta_data,
+            format: format,
+            deltas: deltas,
         })
     }
 }

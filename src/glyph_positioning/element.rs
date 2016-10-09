@@ -1,6 +1,6 @@
 use truetype::{GlyphID, Result, Tape, Value, Walue};
 
-use layout::Device;
+use layout::Correction;
 
 /// An anchor.
 #[derive(Clone, Debug)]
@@ -38,18 +38,18 @@ table! {
     @position
     #[doc = "An anchor in format 3."]
     pub Anchor3 { // AnchorFormat3
-        format          (u16), // AnchorFormat
-        x               (i16), // XCoordinate
-        y               (i16), // YCoordinate
-        device_x_offset (u16), // XDeviceTable
-        device_y_offset (u16), // YDeviceTable
+        format              (u16), // AnchorFormat
+        x                   (i16), // XCoordinate
+        y                   (i16), // YCoordinate
+        x_correction_offset (u16), // XDeviceTable
+        y_correction_offset (u16), // YDeviceTable
 
-        device_x (Option<Device>) |this, tape, position| {
-            jump_take_maybe!(tape, position, this.device_x_offset)
+        x_correction (Option<Correction>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.x_correction_offset)
         },
 
-        device_y (Option<Device>) |this, tape, position| {
-            jump_take_maybe!(tape, position, this.device_y_offset)
+        y_correction (Option<Correction>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.y_correction_offset)
         },
     }
 }
@@ -370,18 +370,19 @@ table! {
     @define
     #[doc = "A single adjustment."]
     pub Single { // ValueRecord
-        x_placement               (Option<i16>   ), // XPlacement
-        y_placement               (Option<i16>   ), // YPlacement
-        x_advance                 (Option<i16>   ), // XAdvance
-        y_advance                 (Option<i16>   ), // YAdvance
-        device_x_placement_offset (Option<u16>   ), // XPlaDevice
-        device_y_placement_offset (Option<u16>   ), // YPlaDevice
-        device_x_advance_offset   (Option<u16>   ), // XAdvDevice
-        device_y_advance_offset   (Option<u16>   ), // YAdvDevice
-        device_x_placement        (Option<Device>),
-        device_y_placement        (Option<Device>),
-        device_x_advance          (Option<Device>),
-        device_y_advance          (Option<Device>),
+        x_placement                   (Option<i16>), // XPlacement
+        y_placement                   (Option<i16>), // YPlacement
+        x_advance                     (Option<i16>), // XAdvance
+        y_advance                     (Option<i16>), // YAdvance
+        x_placement_correction_offset (Option<u16>), // XPlaDevice
+        y_placement_correction_offset (Option<u16>), // YPlaDevice
+        x_advance_correction_offset   (Option<u16>), // XAdvDevice
+        y_advance_correction_offset   (Option<u16>), // YAdvDevice
+
+        x_placement_correction (Option<Correction>),
+        y_placement_correction (Option<Correction>),
+        x_advance_correction   (Option<Correction>),
+        y_advance_correction   (Option<Correction>),
     }
 }
 
@@ -392,10 +393,10 @@ flags! {
         0b0000_0000_0000_0010 => has_y_placement,
         0b0000_0000_0000_0100 => has_x_advance,
         0b0000_0000_0000_1000 => has_y_advance,
-        0b0000_0000_0001_0000 => has_device_x_placement,
-        0b0000_0000_0010_0000 => has_device_y_placement,
-        0b0000_0000_0100_0000 => has_device_x_advance,
-        0b0000_0000_1000_0000 => has_device_y_advance,
+        0b0000_0000_0001_0000 => has_x_placement_correction,
+        0b0000_0000_0010_0000 => has_y_placement_correction,
+        0b0000_0000_0100_0000 => has_x_advance_correction,
+        0b0000_0000_1000_0000 => has_y_advance_correction,
         0b1111_1111_0000_0000 => is_invalid,
     }
 }
@@ -590,33 +591,33 @@ impl Walue<'static> for Single {
         let y_placement = take!(has_y_placement);
         let x_advance = take!(has_x_advance);
         let y_advance = take!(has_y_advance);
-        let device_x_placement_offset = take!(has_device_x_placement);
-        let device_y_placement_offset = take!(has_device_y_placement);
-        let device_x_advance_offset = take!(has_device_x_advance);
-        let device_y_advance_offset = take!(has_device_y_advance);
+        let x_placement_correction_offset = take!(has_x_placement_correction);
+        let y_placement_correction_offset = take!(has_y_placement_correction);
+        let x_advance_correction_offset = take!(has_x_advance_correction);
+        let y_advance_correction_offset = take!(has_y_advance_correction);
         macro_rules! take(
             ($offset:ident) => (match $offset {
                 Some(offset) => Some(jump_take!(@unwrap tape, position, offset)),
                 _ => None,
             });
         );
-        let device_x_placement = take!(device_x_placement_offset);
-        let device_y_placement = take!(device_y_placement_offset);
-        let device_x_advance = take!(device_x_advance_offset);
-        let device_y_advance = take!(device_y_advance_offset);
+        let x_placement_correction = take!(x_placement_correction_offset);
+        let y_placement_correction = take!(y_placement_correction_offset);
+        let x_advance_correction = take!(x_advance_correction_offset);
+        let y_advance_correction = take!(y_advance_correction_offset);
         Ok(Single {
             x_placement: x_placement,
             y_placement: y_placement,
             x_advance: x_advance,
             y_advance: y_advance,
-            device_x_placement_offset: device_x_placement_offset,
-            device_y_placement_offset: device_y_placement_offset,
-            device_x_advance_offset: device_x_advance_offset,
-            device_y_advance_offset: device_y_advance_offset,
-            device_x_placement: device_x_placement,
-            device_y_placement: device_y_placement,
-            device_x_advance: device_x_advance,
-            device_y_advance: device_y_advance,
+            x_placement_correction_offset: x_placement_correction_offset,
+            y_placement_correction_offset: y_placement_correction_offset,
+            x_advance_correction_offset: x_advance_correction_offset,
+            y_advance_correction_offset: y_advance_correction_offset,
+            x_placement_correction: x_placement_correction,
+            y_placement_correction: y_placement_correction,
+            x_advance_correction: x_advance_correction,
+            y_advance_correction: y_advance_correction,
         })
     }
 }

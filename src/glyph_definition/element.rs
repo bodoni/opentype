@@ -1,6 +1,6 @@
 use truetype::{Result, Tape, Value};
 
-use layout::{Coverage, Device};
+use layout::{Correction, Coverage};
 
 table! {
     #[doc = "A glyph attachment."]
@@ -67,12 +67,12 @@ table! {
     @position
     /// A ligature caret in format 3.
     pub Caret3 {
-        format        (u16), // CaretValueFormat
-        coordinate    (i16), // Coordinate
-        device_offset (u16), // DeviceTable
+        format            (u16), // CaretValueFormat
+        coordinate        (i16), // Coordinate
+        correction_offset (u16), // DeviceTable
 
-        device (Device) |this, tape, position| {
-            jump_take!(tape, position, this.device_offset)
+        correction (Correction) |this, tape, position| {
+            jump_take!(tape, position, this.correction_offset)
         },
     }
 }

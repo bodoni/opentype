@@ -12,7 +12,7 @@ pub enum Class {
 table! {
     #[doc = "A class definition in format 1."]
     pub Class1 { // ClassDefFormat1
-        format      (u16    ) = { 1 }, // ClassFormat
+        format      (u16    ), // ClassFormat
         start       (GlyphID), // StartGlyph
         value_count (u16    ), // GlyphCount
 
@@ -25,7 +25,7 @@ table! {
 table! {
     #[doc = "A class definition in format 2."]
     pub Class2 { // ClassDefFormat2
-        format      (u16) = { 2 }, // ClassFormat
+        format      (u16), // ClassFormat
         range_count (u16), // ClassRangeCount
 
         ranges (Vec<ClassRange>) |this, tape| { // ClassRangeRecord

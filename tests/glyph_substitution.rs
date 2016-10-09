@@ -1,5 +1,5 @@
 use opentype::glyph_substitution::{GlyphSubstitution, SingleSubstitution, Table};
-use opentype::glyph_transformation::script::{Language, Script};
+use opentype::layout::script::{Language, Script};
 use truetype::Value;
 
 #[test]

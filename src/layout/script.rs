@@ -5,7 +5,7 @@ use truetype::Tag;
 table! {
     @position
     #[doc = "A script list."]
-    pub Scripts {
+    pub Scripts { // ScriptList
         count (u16), // ScriptCount
 
         headers (Vec<Header>) |this, tape, _| { // ScriptRecord
@@ -21,7 +21,7 @@ table! {
 table! {
     #[doc = "A script header."]
     #[derive(Copy)]
-    pub Header {
+    pub Header { // ScriptRecord
         tag    (Tag), // ScriptTag
         offset (u16), // Script
     }
@@ -30,7 +30,7 @@ table! {
 table! {
     @position
     #[doc = "A script record."]
-    pub Record {
+    pub Record { // Script
         default_language_offset (u16), // DefaultLangSys
         language_count          (u16), // LangSysCount
 
@@ -54,7 +54,7 @@ table! {
 
 table! {
     #[doc = "A language-system header."]
-    pub LanguageHeader {
+    pub LanguageHeader { // LangSysRecord
         tag    (Tag), // LangSysTag
         offset (u16), // LangSys
     }
@@ -62,7 +62,7 @@ table! {
 
 table! {
     #[doc = "A language-system record."]
-    pub LanguageRecord {
+    pub LanguageRecord { // LangSys
         lookup_order           (u16) = { 0 }, // LookupOrder
         required_feature_index (u16), // ReqFeatureIndex
         feature_count          (u16), // FeatureCount

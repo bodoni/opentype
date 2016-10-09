@@ -1,4 +1,4 @@
-use truetype::{Result, Tape, Value, Walue, q32};
+use truetype::{Result, Tape, Value, Walue};
 
 use super::{Features, Lookups, Scripts};
 
@@ -15,7 +15,8 @@ table! {
     #[doc = "The header of a directory table."]
     #[derive(Copy)]
     pub Header {
-        version        (q32) = { q32(0x00010000) }, // Version
+        major_version  (u16) = { 1 }, // MajorVersion
+        minor_version  (u16) = { 0 }, // MinorVersion
         script_offset  (u16), // ScriptList
         feature_offset (u16), // FeatureList
         lookup_offset  (u16), // LookupList

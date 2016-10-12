@@ -1,5 +1,5 @@
 use opentype::glyph_positioning::{GlyphPositioning, PairAdjustment, Table};
-use opentype::glyph_transformation::script::{Language, Script};
+use opentype::layout::script::{Language, Script};
 use truetype::Value;
 
 #[test]

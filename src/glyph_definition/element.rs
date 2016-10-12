@@ -1,6 +1,6 @@
 use truetype::{Result, Tape, Value};
 
-use glyph_transformation::{Coverage, Device};
+use layout::{Correction, Coverage};
 
 table! {
     #[doc = "A glyph attachment."]
@@ -49,7 +49,7 @@ table! {
     /// A ligature caret in format 1.
     #[derive(Copy)]
     pub Caret1 {
-        format     (u16) = { 1 }, // CaretValueFormat
+        format     (u16), // CaretValueFormat
         coordinate (i16), // Coordinate
     }
 }
@@ -58,7 +58,7 @@ table! {
     /// A ligature caret in format 2.
     #[derive(Copy)]
     pub Caret2 {
-        format (u16) = { 2 }, // CaretValueFormat
+        format (u16), // CaretValueFormat
         index  (u16), // CaretValuePoint
     }
 }
@@ -67,12 +67,12 @@ table! {
     @position
     /// A ligature caret in format 3.
     pub Caret3 {
-        format        (u16) = { 3 }, // CaretValueFormat
-        coordinate    (i16), // Coordinate
-        device_offset (u16), // DeviceTable
+        format            (u16), // CaretValueFormat
+        coordinate        (i16), // Coordinate
+        correction_offset (u16), // DeviceTable
 
-        device (Device) |this, tape, position| {
-            jump_take!(tape, position, this.device_offset)
+        correction (Correction) |this, tape, position| {
+            jump_take!(tape, position, this.correction_offset)
         },
     }
 }
@@ -96,7 +96,7 @@ table! {
 table! {
     @position
     #[doc = "A set of ligatures."]
-    pub Ligatures { // LigatureCaretList
+    pub Ligatures { // LigCaretList
         coverage_offset (u16), // Coverage
         count           (u16), // LigGlyphCount
 

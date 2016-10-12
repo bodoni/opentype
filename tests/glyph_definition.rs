@@ -1,5 +1,5 @@
 use opentype::glyph_definition::{GlyphDefinition, Header};
-use opentype::glyph_transformation::Class;
+use opentype::layout::Class;
 use truetype::Value;
 
 #[test]

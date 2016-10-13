@@ -7,7 +7,7 @@ mod glyphinfo;
 mod variants;
 
 pub use self::constants::Constants;
-pub use self::glyphinfo::GlyphInfo;
+pub use self::glyphinfo::Glyphs;
 pub use self::variants::Variants;
 
 use layout::Device;
@@ -22,7 +22,7 @@ table! {
             jump_take!(tape, position, this.header.constants_offset)
         },
 
-        glyph_info (GlyphInfo) |this, tape, position| {
+        glyph_info (Glyphs) |this, tape, position| {
             jump_take!(tape, position, this.header.glyph_info_offset)
         },
 
@@ -46,8 +46,9 @@ table! {
 
 table! {
     @position
-    #[doc = "Math value record"]
-    pub ValueRecord { // MathValueRecord
+    #[doc = "A unit of measurement, in design units, along with an \
+             optional corrections for various device resolutions."]
+    pub Quantity { // MathValueRecord
         value         (i16),
         device_offset (u16), // DeviceTable
 

@@ -1,31 +1,33 @@
 use truetype::{Result, Tape, Value};
 
 use layout::Coverage;
-use super::ValueRecord;
+use super::Quantity;
 
 table! {
     @position
-    #[doc = "A table of positioning information defined on a per-glyph bases."]
-    pub GlyphInfo { // MathGlyphInfo
-        italics_correction_offset      (u16), // MathItalicsCorrectionInfo
-        top_accent_offset              (u16), // MathTopAccentAttachment
+    #[doc = "A table of positioning information defined on a per-glyph basis."]
+    pub Glyphs { // MathGlyphInfo
+        italics_corrections_offset     (u16), // MathItalicsCorrectionInfo
+        top_accent_attachments_offset  (u16), // MathTopAccentAttachment
         extended_shape_coverage_offset (u16), // ExtendedShapeCoverage
-        kern_info_offset               (u16), // MathKernInfo
+        kernings_offset                (u16), // MathKernInfo
 
-        italics_corrections (Option<ItalicsCorrections>) |this, tape, position| {
-            jump_take_maybe!(tape, position, this.italics_correction_offset)        
+        corrections (Corrections) |this, tape, position| {
+            jump_take!(tape, position, this.italics_corrections_offset)        
         },
 
-        top_accent_attachments (Option<TopAccentAttachments>) |this, tape, position| {
-            jump_take_maybe!(tape, position, this.top_accent_offset)
+        attachments (Attachments) |this, tape, position| {
+            jump_take!(tape, position, this.top_accent_attachments_offset)
         },
 
         extended_shape_coverage (Option<Coverage>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.extended_shape_coverage_offset)
         },
 
-        kern_info (Option<KernInfo>) |this, tape, position| {
-            jump_take_maybe!(tape, position, this.kern_info_offset)
+        // According to the specification, kernings are not optional.  However
+        // some popular OpenType fonts do not support kernings.
+        kernings (Option<Kernings>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.kernings_offset)
         },
     }
 }
@@ -33,12 +35,12 @@ table! {
 table! {
     @position
     #[doc = "A table of italics corrections."]
-    pub ItalicsCorrections { // MathItalicsCorrectionInfo
+    pub Corrections { // MathItalicsCorrectionInfo
         coverage_offset (u16), // Coverage
         count           (u16), // ItalicsCorrectionCount
 
-        corrections (Vec<ValueRecord>) |this, tape, _| { // ItalicsCorrection
-           tape.take_given(this.count as usize)
+        corrections (Vec<Quantity>) |this, tape, _| { // ItalicsCorrection
+            tape.take_given(this.count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
@@ -50,11 +52,11 @@ table! {
 table! {
     @position
     #[doc = "A table of horizontal positioning for top accents."]
-    pub TopAccentAttachments { // MathTopAccentAttachment
+    pub Attachments { // MathTopAccentAttachment
         coverage_offset (u16), // TopAccentCoverage
         count           (u16), // TopAccentAttachmentCount
 
-        attachments (Vec<ValueRecord>) |this, tape, _| {    
+        values (Vec<Quantity>) |this, tape, _| {    
            tape.take_given(this.count as usize)
         },
 
@@ -67,12 +69,14 @@ table! {
 table! {
     @position
     #[doc = "A table of kerning information for mathematical glyphs."]
-    pub KernInfo {
+    pub Kernings {
         coverage_offset (u16), // MathKernCoverage
         count           (u16), // MathKernCount
 
-        kernings (Vec<KernGlyph>) |this, tape, position| {
-            let mut kern_glyphs: Vec<KernGlyph> = Vec::with_capacity(this.count as usize);
+        // FIXME: Make this single pass, using Walue if possible.
+        // `- rename variables to be neutral.
+        records (Vec<Kerning>) |this, tape, position| {
+            let mut kern_glyphs: Vec<Kerning> = Vec::with_capacity(this.count as usize);
             for _ in 0..this.count {
                 kern_glyphs.push(try!(tape.take()));
             }
@@ -94,41 +98,42 @@ table! {
 table! {
     @define
     #[doc = "Kerning information for a mathematical glyph."]
-    pub KernGlyph { // MathKernInfoRecord
+    pub Kerning { // MathKernInfoRecord
         top_right_offset    (u16), // TopRightMathKern
         top_left_offset     (u16), // TopLeftMathKern
         bottom_right_offset (u16), // BottomRightMathKern
         bottom_left_offset  (u16), // BottomLeftMathKern
-        top_right           (Option<Kern>),
-        top_left            (Option<Kern>),
-        bottom_right        (Option<Kern>),
-        bottom_left         (Option<Kern>),
+
+        top_right           (Option<KerningValues>),
+        top_left            (Option<KerningValues>),
+        bottom_right        (Option<KerningValues>),
+        bottom_left         (Option<KerningValues>),
     }
 }
 
 table! {
     #[doc = "A table of kerning values for a various glyph heights."]
-    pub Kern {
+    pub KerningValues { // MathKern
         count (u16), // HeightCount
 
-        correction_heights (Vec<ValueRecord>) |this, tape| {
+        correction_heights (Vec<Quantity>) |this, tape| {
             tape.take_given(this.count as usize)
         },
 
-        kern_values (Vec<ValueRecord>) |this, tape| {
+        kern_values (Vec<Quantity>) |this, tape| {
             tape.take_given(this.count as usize + 1)
         },
     }
 }
 
-impl Value for KernGlyph {
+impl Value for Kerning {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let top_right_offset = try!(tape.take());
         let top_left_offset = try!(tape.take());
         let bottom_right_offset = try!(tape.take());
         let bottom_left_offset = try!(tape.take());
 
-        Ok(KernGlyph{
+        Ok(Kerning {
             top_right_offset: top_right_offset,
             top_left_offset: top_left_offset,
             bottom_right_offset: bottom_right_offset,

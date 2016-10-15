@@ -4,11 +4,9 @@
 
 mod constants;
 mod glyphinfo;
-mod variants;
 
 pub use self::constants::Constants;
 pub use self::glyphinfo::Glyphs;
-pub use self::variants::Variants;
 
 use layout::Device;
 
@@ -24,10 +22,6 @@ table! {
 
         glyph_info (Glyphs) |this, tape, position| {
             jump_take!(tape, position, this.header.glyph_info_offset)
-        },
-
-        variants (Variants) |this, tape, position| {
-            jump_take!(tape, position, this.header.variants_offset)
         },
     }
 }

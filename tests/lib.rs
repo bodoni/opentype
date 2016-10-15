@@ -18,7 +18,7 @@ mod fixture;
 mod glyph_definition;
 mod glyph_positioning;
 mod glyph_substitution;
-mod math;
+mod mathematics;
 
 use fixture::Fixture;
 

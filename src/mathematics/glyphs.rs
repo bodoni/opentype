@@ -11,7 +11,7 @@ table! {
         kernings_offset                (u16), // MathKernInfo
 
         corrections (Corrections) |this, tape, position| {
-            jump_take!(tape, position, this.italics_corrections_offset)        
+            jump_take!(tape, position, this.italics_corrections_offset)
         },
 
         attachments (Attachments) |this, tape, position| {
@@ -31,7 +31,7 @@ table! {
         coverage_offset (u16), // Coverage
         count           (u16), // ItalicsCorrectionCount
 
-        corrections (Vec<Quantity>) |this, tape, _| { // ItalicsCorrection
+        values (Vec<Quantity>) |this, tape, _| { // ItalicsCorrection
             tape.take_given(this.count as usize)
         },
 
@@ -48,7 +48,7 @@ table! {
         coverage_offset (u16), // TopAccentCoverage
         count           (u16), // TopAccentAttachmentCount
 
-        values (Vec<Quantity>) |this, tape, _| {    
+        values (Vec<Quantity>) |this, tape, _| {
            tape.take_given(this.count as usize)
         },
 

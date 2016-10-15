@@ -3,10 +3,10 @@
 //! [1]: https://www.microsoft.com/typography/otspec/math.htm
 
 mod constants;
-mod glyphinfo;
+mod glyphs;
 
 pub use self::constants::Constants;
-pub use self::glyphinfo::Glyphs;
+pub use self::glyphs::Glyphs;
 
 use layout::Device;
 
@@ -20,7 +20,7 @@ table! {
             jump_take!(tape, position, this.header.constants_offset)
         },
 
-        glyph_info (Glyphs) |this, tape, position| {
+        glyphs (Glyphs) |this, tape, position| {
             jump_take!(tape, position, this.header.glyph_info_offset)
         },
     }

@@ -4,7 +4,7 @@ The package provides a parser for OpenType fonts. It might be helpful to have a
 look at a higher-level parser called [`font`][font], which internally relies on
 this package.
 
-## [Documentation][doc]
+## [Documentation][documentation]
 
 ## Example
 
@@ -46,7 +46,7 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
 [font]: https://github.com/bodoni/font
 
-[doc]: https://bodoni.github.io/opentype
+[documentation]: https://docs.rs/opentype
 [status-img]: https://travis-ci.org/bodoni/opentype.svg?branch=master
 [status-url]: https://travis-ci.org/bodoni/opentype
 [version-img]: https://img.shields.io/crates/v/opentype.svg

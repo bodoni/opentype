@@ -6,12 +6,5 @@ rust:
   - beta
   - nightly
 
-after_success:
-  - curl https://bodoni.github.io/travis/documentation.sh | bash
-
-env:
-  global:
-    - secure: MPXnAwTagTjt37k3xfq+dCFllkqT7M8c+zRUrpZs6BRHmQMGTEtKYRrAt9ZsCSWixdJrCH9byUDGBDagHsCNYrT+oO6tN68CRPSixpk+4F+Y1/zIFa25uKETUmTVjPubDGx+ZnyrbVC3vw+eQF/R3GG4MtRi2KsjeW/geqY80WI=
-
 notifications:
   email: false

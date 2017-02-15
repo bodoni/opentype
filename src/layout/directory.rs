@@ -21,18 +21,18 @@ pub struct Directory<T> {
 
 impl<U> Value for Directory<U> where U: Walue<'static, Parameter=u16> {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let major_version = try!(tape.take());
-        let minor_version = try!(tape.take());
+        let position = tape.position()?;
+        let major_version = tape.take()?;
+        let minor_version = tape.take()?;
         match (major_version, minor_version) {
             (1, 0) => {},
             _ => raise!("found an unknown version of the directory table"),
         }
-        let scripts_offset = try!(tape.take());
-        let features_offset = try!(tape.take());
-        let lookups_offset = try!(tape.take());
+        let scripts_offset = tape.take()?;
+        let features_offset = tape.take()?;
+        let lookups_offset = tape.take()?;
         let variations_offset = match (major_version, minor_version) {
-            (1, 1) => try!(tape.take()),
+            (1, 1) => tape.take()?,
             _ => 0,
         };
         let scripts = jump_take!(@unwrap tape, position, scripts_offset);

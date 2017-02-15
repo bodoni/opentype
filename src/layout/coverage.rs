@@ -45,9 +45,9 @@ table! {
 
 impl Value for Coverage {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => Coverage::Format1(try!(tape.take())),
-            2 => Coverage::Format2(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => Coverage::Format1(tape.take()?),
+            2 => Coverage::Format2(tape.take()?),
             _ => raise!("found an unknown format of the coverage table"),
         })
     }

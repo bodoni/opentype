@@ -46,9 +46,9 @@ table! {
 
 impl Value for Class {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => Class::Format1(try!(tape.take())),
-            2 => Class::Format2(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => Class::Format1(tape.take()?),
+            2 => Class::Format2(tape.take()?),
             _ => raise!("found an unknown format of the class definition"),
         })
     }

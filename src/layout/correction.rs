@@ -38,9 +38,9 @@ table! {
 
 impl Value for Correction {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<Header>()).format {
-            1 | 2 | 3 => Correction::Device(try!(tape.take())),
-            0x8000 => Correction::Variation(try!(tape.take())),
+        Ok(match tape.peek::<Header>()?.format {
+            1 | 2 | 3 => Correction::Device(tape.take()?),
+            0x8000 => Correction::Variation(tape.take()?),
             _ => raise!("found an unknown format of the correction table"),
         })
     }
@@ -48,19 +48,19 @@ impl Value for Correction {
 
 impl Value for Device {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let start_size = try!(tape.take());
-        let end_size = try!(tape.take());
+        let start_size = tape.take()?;
+        let end_size = tape.take()?;
         if start_size > end_size {
             raise!("found a malformed device table");
         }
-        let format = try!(tape.take());
+        let format = tape.take()?;
         if format == 0 || format > 3 {
             raise!("found an unknown format of the device table");
         }
         let count = (end_size - start_size) as usize + 1;
         let bit_count = (1 << format as usize) * count;
         let short_count = (bit_count + 16 - bit_count % 16) >> 4;
-        let deltas = try!(tape.take_given(short_count));
+        let deltas = tape.take_given(short_count)?;
         Ok(Device {
             start_size: start_size,
             end_size: end_size,

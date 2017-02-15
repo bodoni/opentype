@@ -133,10 +133,10 @@ table! {
 
 impl Value for Caret {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u32>()) {
-            1 => Caret::Format1(try!(tape.take())),
-            2 => Caret::Format2(try!(tape.take())),
-            3 => Caret::Format3(try!(tape.take())),
+        Ok(match tape.peek::<u32>()? {
+            1 => Caret::Format1(tape.take()?),
+            2 => Caret::Format2(tape.take()?),
+            3 => Caret::Format3(tape.take()?),
             _ => raise!("found an unknown format of the caret-value table"),
         })
     }

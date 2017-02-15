@@ -66,7 +66,7 @@ table! {
         values (Vec<Single>) |this, tape, position| { // Value
             let mut values = Vec::with_capacity(this.value_count as usize);
             for _ in 0..(this.value_count as usize) {
-                values.push(try!(tape.take_given((position, this.value_flags))));
+                values.push(tape.take_given((position, this.value_flags))?);
             }
             Ok(values)
         },
@@ -127,8 +127,8 @@ table! {
         sets (Vec<Pair2s>) |this, tape, position| { // Class1Record
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for _ in 0..(this.class1_count as usize) {
-                values.push(try!(tape.take_given((position, this.class2_count,
-                                                  this.value1_flags, this.value2_flags))));
+                values.push(tape.take_given((position, this.class2_count,
+                                                  this.value1_flags, this.value2_flags))?);
             }
             Ok(values)
         },
@@ -158,7 +158,7 @@ table! {
         passages (Vec<Passage>) |this, tape, position| { // EntryExitRecord
             let mut values = Vec::with_capacity(this.passage_count as usize);
             for _ in 0..(this.passage_count as usize) {
-                values.push(try!(tape.take_given(position)));
+                values.push(tape.take_given(position)?);
             }
             Ok(values)
         },
@@ -461,15 +461,15 @@ impl Walue<'static> for Table {
 
     fn read<T: Tape>(tape: &mut T, kind: u16) -> Result<Self> {
         Ok(match kind {
-            1 => Table::SingleAdjustment(try!(tape.take())),
-            2 => Table::PairAdjustment(try!(tape.take())),
-            3 => Table::CursiveAttachment(try!(tape.take())),
-            4 => Table::MarkToBaseAttachment(try!(tape.take())),
-            5 => Table::MarkToLigatureAttachment(try!(tape.take())),
-            6 => Table::MarkToMarkAttachment(try!(tape.take())),
-            7 => Table::ContextPositioning(try!(tape.take())),
-            8 => Table::ChainContextPositioning(try!(tape.take())),
-            9 => Table::ExtensionPositioning(try!(tape.take())),
+            1 => Table::SingleAdjustment(tape.take()?),
+            2 => Table::PairAdjustment(tape.take()?),
+            3 => Table::CursiveAttachment(tape.take()?),
+            4 => Table::MarkToBaseAttachment(tape.take()?),
+            5 => Table::MarkToLigatureAttachment(tape.take()?),
+            6 => Table::MarkToMarkAttachment(tape.take()?),
+            7 => Table::ContextPositioning(tape.take()?),
+            8 => Table::ChainContextPositioning(tape.take()?),
+            9 => Table::ExtensionPositioning(tape.take()?),
             _ => raise!("found an unknown glyph-positioning type"),
         })
     }
@@ -477,9 +477,9 @@ impl Walue<'static> for Table {
 
 impl Value for SingleAdjustment {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => SingleAdjustment::Format1(try!(tape.take())),
-            2 => SingleAdjustment::Format2(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => SingleAdjustment::Format1(tape.take()?),
+            2 => SingleAdjustment::Format2(tape.take()?),
             _ => raise!("found an unknown format of the single-adjustment table"),
         })
     }
@@ -487,9 +487,9 @@ impl Value for SingleAdjustment {
 
 impl Value for PairAdjustment {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => PairAdjustment::Format1(try!(tape.take())),
-            2 => PairAdjustment::Format2(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => PairAdjustment::Format1(tape.take()?),
+            2 => PairAdjustment::Format2(tape.take()?),
             _ => raise!("found an unknown format of the pair-adjustment table"),
         })
     }
@@ -497,10 +497,10 @@ impl Value for PairAdjustment {
 
 impl Value for ContextPositioning {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => ContextPositioning::Format1(try!(tape.take())),
-            2 => ContextPositioning::Format2(try!(tape.take())),
-            3 => ContextPositioning::Format3(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => ContextPositioning::Format1(tape.take()?),
+            2 => ContextPositioning::Format2(tape.take()?),
+            3 => ContextPositioning::Format3(tape.take()?),
             _ => raise!("found an unknown format of the context-positioning table"),
         })
     }
@@ -508,10 +508,10 @@ impl Value for ContextPositioning {
 
 impl Value for ChainContextPositioning {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => ChainContextPositioning::Format1(try!(tape.take())),
-            2 => ChainContextPositioning::Format2(try!(tape.take())),
-            3 => ChainContextPositioning::Format3(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => ChainContextPositioning::Format1(tape.take()?),
+            2 => ChainContextPositioning::Format2(tape.take()?),
+            3 => ChainContextPositioning::Format3(tape.take()?),
             _ => raise!("found an unknown format of the chaining-context-positioning table"),
         })
     }

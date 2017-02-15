@@ -376,14 +376,14 @@ impl Walue<'static> for Table {
 
     fn read<T: Tape>(tape: &mut T, kind: u16) -> Result<Self> {
         Ok(match kind {
-            1 => Table::SingleSubstitution(try!(tape.take())),
-            2 => Table::MultipleSubstitution(try!(tape.take())),
-            3 => Table::AlternateSubstitution(try!(tape.take())),
-            4 => Table::LigatureSubstitution(try!(tape.take())),
-            5 => Table::ContextSubstitution(try!(tape.take())),
-            6 => Table::ChainContextSubstitution(try!(tape.take())),
-            7 => Table::ExtensionSubstitution(try!(tape.take())),
-            8 => Table::ReverseChainContextSubstitution(try!(tape.take())),
+            1 => Table::SingleSubstitution(tape.take()?),
+            2 => Table::MultipleSubstitution(tape.take()?),
+            3 => Table::AlternateSubstitution(tape.take()?),
+            4 => Table::LigatureSubstitution(tape.take()?),
+            5 => Table::ContextSubstitution(tape.take()?),
+            6 => Table::ChainContextSubstitution(tape.take()?),
+            7 => Table::ExtensionSubstitution(tape.take()?),
+            8 => Table::ReverseChainContextSubstitution(tape.take()?),
             _ => raise!("found an unknown glyph-substitution type"),
         })
     }
@@ -391,9 +391,9 @@ impl Walue<'static> for Table {
 
 impl Value for SingleSubstitution {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => SingleSubstitution::Format1(try!(tape.take())),
-            2 => SingleSubstitution::Format2(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => SingleSubstitution::Format1(tape.take()?),
+            2 => SingleSubstitution::Format2(tape.take()?),
             _ => raise!("found an unknown format of the single-substitution table"),
         })
     }
@@ -401,10 +401,10 @@ impl Value for SingleSubstitution {
 
 impl Value for ContextSubstitution {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => ContextSubstitution::Format1(try!(tape.take())),
-            2 => ContextSubstitution::Format2(try!(tape.take())),
-            3 => ContextSubstitution::Format3(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => ContextSubstitution::Format1(tape.take()?),
+            2 => ContextSubstitution::Format2(tape.take()?),
+            3 => ContextSubstitution::Format3(tape.take()?),
             _ => raise!("found an unknown format of the context-substitution table"),
         })
     }
@@ -412,10 +412,10 @@ impl Value for ContextSubstitution {
 
 impl Value for ChainContextSubstitution {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => ChainContextSubstitution::Format1(try!(tape.take())),
-            2 => ChainContextSubstitution::Format2(try!(tape.take())),
-            3 => ChainContextSubstitution::Format3(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => ChainContextSubstitution::Format1(tape.take()?),
+            2 => ChainContextSubstitution::Format2(tape.take()?),
+            3 => ChainContextSubstitution::Format3(tape.take()?),
             _ => raise!("found an unknown format of the chaining-context-substitution table"),
         })
     }

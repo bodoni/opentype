@@ -35,9 +35,9 @@ flags! {
 
 impl<U> Value for Lookups<U> where U: Walue<'static, Parameter=u16> {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let count = try!(tape.take::<u16>());
-        let offsets: Vec<u16> = try!(tape.take_given(count as usize));
+        let position = tape.position()?;
+        let count = tape.take::<u16>()?;
+        let offsets: Vec<u16> = tape.take_given(count as usize)?;
         let records = jump_take!(@unwrap tape, position, count, offsets);
         Ok(Lookups { count: count, offsets: offsets, records: records })
     }
@@ -45,13 +45,13 @@ impl<U> Value for Lookups<U> where U: Walue<'static, Parameter=u16> {
 
 impl<U> Value for Record<U> where U: Walue<'static, Parameter=u16> {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = try!(tape.position());
-        let kind = try!(tape.take());
-        let flags = try!(tape.take::<Flags>());
-        let table_count = try!(tape.take::<u16>());
-        let table_offsets: Vec<u16> = try!(tape.take_given(table_count as usize));
+        let position = tape.position()?;
+        let kind = tape.take()?;
+        let flags = tape.take::<Flags>()?;
+        let table_count = tape.take::<u16>()?;
+        let table_offsets: Vec<u16> = tape.take_given(table_count as usize)?;
         let mark_filtering_set = if flags.has_mark_filtering() {
-            Some(try!(tape.take()))
+            Some(tape.take()?)
         } else {
             None
         };

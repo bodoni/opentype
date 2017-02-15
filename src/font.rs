@@ -14,7 +14,7 @@ impl Font {
     /// Read a font.
     #[inline]
     pub fn read<T>(tape: &mut T) -> Result<Font> where T: Read + Seek {
-        Ok(Font { offset_table: try!(Tape::take(tape)) })
+        Ok(Font { offset_table: Tape::take(tape)? })
     }
 
     /// Find, verify, and read a table.
@@ -33,15 +33,15 @@ impl Font {
         for record in &self.offset_table.records {
             if record.tag == tag {
                 let check = if tag == Tag(*b"head") {
-                    try!(record.checksum(tape, |i, word| if i == 2 { 0 } else { word }))
+                    record.checksum(tape, |i, word| if i == 2 { 0 } else { word })?
                 } else {
-                    try!(record.checksum(tape, |_, word| word))
+                    record.checksum(tape, |_, word| word)?
                 };
                 if !check {
                     raise!("found a malformed font table");
                 }
-                try!(Tape::jump(tape, record.offset as u64));
-                return Ok(Some(try!(Table::take(tape, parameter))));
+                Tape::jump(tape, record.offset as u64)?;
+                return Ok(Some(Table::take(tape, parameter)?));
             }
         }
         Ok(None)

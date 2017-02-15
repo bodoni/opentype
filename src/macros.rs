@@ -1,7 +1,7 @@
 macro_rules! jump_take(
     (@unwrap $tape:ident, $position:ident, $offset:expr) => ({
-        try!($tape.jump($position + $offset as u64));
-        try!($tape.take())
+        $tape.jump($position + $offset as u64)?;
+        $tape.take()?
     });
     (@unwrap $tape:ident, $position:ident, $count:expr, $offsets:expr) => (
         jump_take!(@unwrap $tape, $position, $count, i => $offsets[i])
@@ -9,8 +9,8 @@ macro_rules! jump_take(
     (@unwrap $tape:ident, $position:ident, $count:expr, $i:ident => $iterator:expr) => ({
         let mut values = Vec::with_capacity($count as usize);
         for $i in 0..($count as usize) {
-            try!($tape.jump($position + $iterator as u64));
-            values.push(try!($tape.take()));
+            $tape.jump($position + $iterator as u64)?;
+            values.push($tape.take()?);
         }
         values
     });
@@ -27,8 +27,8 @@ macro_rules! jump_take(
 
 macro_rules! jump_take_given(
     (@unwrap $tape:ident, $position:ident, $offset:expr, $parameter:expr) => ({
-        try!($tape.jump($position + $offset as u64));
-        try!($tape.take_given($parameter))
+        $tape.jump($position + $offset as u64)?;
+        $tape.take_given($parameter)?
     });
     (@unwrap $tape:ident, $position:ident, $count:expr, $offsets:expr, $parameter:expr) => (
         jump_take_given!(@unwrap $tape, $position, $count, i => $offsets[i], $parameter)
@@ -37,8 +37,8 @@ macro_rules! jump_take_given(
      $parameter:expr) => ({
         let mut values = Vec::with_capacity($count as usize);
         for $i in 0..($count as usize) {
-            try!($tape.jump($position + $iterator as u64));
-            values.push(try!($tape.take_given($parameter)));
+            $tape.jump($position + $iterator as u64)?;
+            values.push($tape.take_given($parameter)?);
         }
         values
     });
@@ -53,8 +53,8 @@ macro_rules! jump_take_given(
 macro_rules! jump_take_maybe(
     (@unwrap $tape:ident, $position:ident, $offset:expr) => (
         if $offset > 0 {
-            try!($tape.jump($position + $offset as u64));
-            Some(try!($tape.take()))
+            $tape.jump($position + $offset as u64)?;
+            Some($tape.take()?)
         } else {
             None
         }
@@ -63,8 +63,8 @@ macro_rules! jump_take_maybe(
         let mut values = Vec::with_capacity($count as usize);
         for $i in 0..($count as usize) {
             if $iterator > 0 {
-                try!($tape.jump($position + $iterator as u64));
-                values.push(Some(try!($tape.take())));
+                $tape.jump($position + $iterator as u64)?;
+                values.push(Some($tape.take()?));
             } else {
                 values.push(None);
             }
@@ -127,7 +127,7 @@ macro_rules! table {
     }) => (
         impl ::truetype::Value for $name {
             fn read<T: ::truetype::Tape>(tape: &mut T) -> ::truetype::Result<Self> {
-                let position = try!(tape.position());
+                let position = tape.position()?;
                 let mut table: $name = unsafe { ::std::mem::zeroed() };
                 $({
                     let value = table!(@read $name, table, tape [position] [$($kind)+] [$($value)*]
@@ -139,11 +139,11 @@ macro_rules! table {
         }
     );
     (@read $name:ident, $this:ident, $tape:ident [$($position:tt)*] [$kind:ty] []) => (
-        try!($tape.take())
+        $tape.take()?
     );
     (@read $name:ident, $this:ident, $tape:ident [$($position:tt)*] [$kind:ty]
      [$value:block]) => ({
-        let value = try!($tape.take());
+        let value = $tape.take()?;
         if value != $value {
             raise!("found a malformed or unsupported table");
         }
@@ -155,13 +155,13 @@ macro_rules! table {
         fn read<T: ::truetype::Tape>($this_: &$name, $tape_: &mut T)
                                      -> ::truetype::Result<$kind> $body
 
-        try!(read(&$this, $tape))
+        read(&$this, $tape)?
     });
     (@read $name:ident, $this:ident, $tape:ident [$position:ident] [$kind:ty] []
      |$this_:pat, $tape_:pat, $position_:pat| $body:block) => ({
         #[inline(always)]
         fn read<T: ::truetype::Tape>($this_: &$name, $tape_: &mut T, $position_: u64)
                                      -> ::truetype::Result<$kind> $body
-        try!(read(&$this, $tape, $position))
+        read(&$this, $tape, $position)?
     });
 }

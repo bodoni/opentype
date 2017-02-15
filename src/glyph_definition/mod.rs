@@ -118,10 +118,10 @@ table! {
 
 impl Value for Header {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u32>()) {
-            0x00010000 => Header::Version1(try!(tape.take())),
-            0x00010002 => Header::Version12(try!(tape.take())),
-            0x00010003 => Header::Version13(try!(tape.take())),
+        Ok(match tape.peek::<u32>()? {
+            0x00010000 => Header::Version1(tape.take()?),
+            0x00010002 => Header::Version12(tape.take()?),
+            0x00010003 => Header::Version13(tape.take()?),
             _ => raise!("found an unknown format of the glyph-definition table"),
         })
     }

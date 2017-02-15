@@ -250,7 +250,7 @@ table! {
         records (Vec<Mark1>) |this, tape, position| { // MarkRecord
             let mut values = Vec::with_capacity(this.count as usize);
             for _ in 0..(this.count as usize) {
-                values.push(try!(tape.take_given(position)));
+                values.push(tape.take_given(position)?);
             }
             Ok(values)
         },
@@ -403,10 +403,10 @@ flags! {
 
 impl Value for Anchor {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match try!(tape.peek::<u16>()) {
-            1 => Anchor::Format1(try!(tape.take())),
-            2 => Anchor::Format2(try!(tape.take())),
-            3 => Anchor::Format3(try!(tape.take())),
+        Ok(match tape.peek::<u16>()? {
+            1 => Anchor::Format1(tape.take()?),
+            2 => Anchor::Format2(tape.take()?),
+            3 => Anchor::Format3(tape.take()?),
             _ => raise!("found an unknown format of the anchor table"),
         })
     }
@@ -416,7 +416,7 @@ impl Walue<'static> for Base {
     type Parameter = (u64, u16);
 
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
-        let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
+        let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Base { anchor_offsets: anchor_offsets, anchors: anchors })
     }
@@ -426,11 +426,11 @@ impl Walue<'static> for Bases {
     type Parameter = u16;
 
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
-        let position = try!(tape.position());
-        let count = try!(tape.take());
+        let position = tape.position()?;
+        let count = tape.take()?;
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
-            records.push(try!(tape.take_given((position, class_count))));
+            records.push(tape.take_given((position, class_count))?);
         }
         Ok(Bases { count: count, records: records })
     }
@@ -440,7 +440,7 @@ impl Walue<'static> for Component {
     type Parameter = (u64, u16);
 
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
-        let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
+        let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Component { anchor_offsets: anchor_offsets, anchors: anchors })
     }
@@ -450,11 +450,11 @@ impl Walue<'static> for Ligature {
     type Parameter = u16;
 
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
-        let position = try!(tape.position());
-        let component_count = try!(tape.take());
+        let position = tape.position()?;
+        let component_count = tape.take()?;
         let mut components = Vec::with_capacity(component_count as usize);
         for _ in 0..(component_count as usize) {
-            components.push(try!(tape.take_given((position, class_count))));
+            components.push(tape.take_given((position, class_count))?);
         }
         Ok(Ligature { component_count: component_count, components: components })
     }
@@ -464,9 +464,9 @@ impl Walue<'static> for Ligatures {
     type Parameter = u16;
 
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
-        let position = try!(tape.position());
-        let count = try!(tape.take());
-        let offsets: Vec<u16> = try!(tape.take_given(count as usize));
+        let position = tape.position()?;
+        let count = tape.take()?;
+        let offsets: Vec<u16> = tape.take_given(count as usize)?;
         let records = jump_take_given!(@unwrap tape, position, count, offsets, class_count);
         Ok(Ligatures { count: count, offsets: offsets, records: records })
     }
@@ -476,8 +476,8 @@ impl Walue<'static> for Mark1 {
     type Parameter = u64;
 
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
-        let class_id = try!(tape.take());
-        let anchor_offset = try!(tape.take());
+        let class_id = tape.take()?;
+        let anchor_offset = tape.take()?;
         let anchor = jump_take!(@unwrap tape, position, anchor_offset);
         Ok(Mark1 { class_id: class_id, anchor_offset: anchor_offset, anchor: anchor })
     }
@@ -487,7 +487,7 @@ impl Walue<'static> for Mark2 {
     type Parameter = (u64, u16);
 
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
-        let anchor_offsets: Vec<u16> = try!(tape.take_given(class_count as usize));
+        let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Mark2 { anchor_offsets: anchor_offsets, anchors: anchors })
     }
@@ -497,11 +497,11 @@ impl Walue<'static> for Mark2s {
     type Parameter = u16;
 
     fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
-        let position = try!(tape.position());
-        let count = try!(tape.take());
+        let position = tape.position()?;
+        let count = tape.take()?;
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
-            records.push(try!(tape.take_given((position, class_count))));
+            records.push(tape.take_given((position, class_count))?);
         }
         Ok(Mark2s { count: count, records: records })
     }
@@ -514,9 +514,9 @@ impl Walue<'static> for Pair1 {
                      -> Result<Self> {
 
         Ok(Pair1 {
-            glyph2_id: try!(tape.take()),
-            value1: try!(tape.take_given((position, value1_flags))),
-            value2: try!(tape.take_given((position, value2_flags))),
+            glyph2_id: tape.take()?,
+            value1: tape.take_given((position, value1_flags))?,
+            value2: tape.take_given((position, value2_flags))?,
         })
     }
 }
@@ -525,10 +525,10 @@ impl Walue<'static> for Pair1s {
     type Parameter = (u64, SingleFlags, SingleFlags);
 
     fn read<T: Tape>(tape: &mut T, parameter: Self::Parameter) -> Result<Self> {
-        let count = try!(tape.take());
+        let count = tape.take()?;
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
-            records.push(try!(tape.take_given(parameter)));
+            records.push(tape.take_given(parameter)?);
         }
         Ok(Pair1s { count: count, records: records })
     }
@@ -541,8 +541,8 @@ impl Walue<'static> for Pair2 {
                      -> Result<Self> {
 
         Ok(Pair2 {
-            value1: try!(tape.take_given((position, value1_flags))),
-            value2: try!(tape.take_given((position, value2_flags))),
+            value1: tape.take_given((position, value1_flags))?,
+            value2: tape.take_given((position, value2_flags))?,
         })
     }
 }
@@ -557,7 +557,7 @@ impl Walue<'static> for Pair2s {
 
         let mut records = Vec::with_capacity(class2_count as usize);
         for _ in 0..(class2_count as usize) {
-            records.push(try!(tape.take_given((position, value1_flags, value2_flags))));
+            records.push(tape.take_given((position, value1_flags, value2_flags))?);
         }
         Ok(Pair2s { records: records })
     }
@@ -567,8 +567,8 @@ impl Walue<'static> for Passage {
     type Parameter = u64;
 
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
-        let entry_offset = try!(tape.take());
-        let exit_offset = try!(tape.take());
+        let entry_offset = tape.take()?;
+        let exit_offset = tape.take()?;
         let entry = jump_take!(@unwrap tape, position, entry_offset);
         let exit = jump_take!(@unwrap tape, position, exit_offset);
         Ok(Passage {
@@ -585,7 +585,7 @@ impl Walue<'static> for Single {
 
     fn read<T: Tape>(tape: &mut T, (position, flags): Self::Parameter) -> Result<Self> {
         macro_rules! take(
-            ($flag:ident) => (if flags.$flag() { Some(try!(tape.take())) } else { None });
+            ($flag:ident) => (if flags.$flag() { Some(tape.take()?) } else { None });
         );
         let x_placement = take!(has_x_placement);
         let y_placement = take!(has_y_placement);

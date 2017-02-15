@@ -128,7 +128,7 @@ table! {
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for _ in 0..(this.class1_count as usize) {
                 values.push(tape.take_given((position, this.class2_count,
-                                                  this.value1_flags, this.value2_flags))?);
+                                             this.value1_flags, this.value2_flags))?);
             }
             Ok(values)
         },

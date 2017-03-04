@@ -3,6 +3,7 @@ use std::path::PathBuf;
 pub enum Fixture {
     CFF,
     TTF,
+    VariableCFF,
 }
 
 impl Fixture {
@@ -10,6 +11,7 @@ impl Fixture {
         match *self {
             Fixture::CFF => "tests/fixtures/SourceSerifPro-Regular.otf",
             Fixture::TTF => "tests/fixtures/OpenSans-Italic.ttf",
+            Fixture::VariableCFF => "tests/fixtures/AdobeVFPrototype.otf",
         }.into()
     }
 
@@ -22,6 +24,9 @@ impl Fixture {
             },
             Fixture::TTF => match table {
                 "GDEF" => 206348,
+                _ => unreachable!(),
+            },
+            Fixture::VariableCFF => match table {
                 _ => unreachable!(),
             },
         }

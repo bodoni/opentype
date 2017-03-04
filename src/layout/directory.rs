@@ -25,7 +25,7 @@ impl<U> Value for Directory<U> where U: Walue<'static, Parameter=u16> {
         let major_version = tape.take()?;
         let minor_version = tape.take()?;
         match (major_version, minor_version) {
-            (1, 0) => {},
+            (1, 0) | (1, 1) => {},
             _ => raise!("found an unknown version of the directory table"),
         }
         let scripts_offset = tape.take()?;

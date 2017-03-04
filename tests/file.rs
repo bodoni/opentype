@@ -21,3 +21,12 @@ fn ttf() {
                                                                        &maximum_profile))));
     let _ = ok!(ok!(file[0].take_given::<_, GlyphData>(&mut reader, &glyph_mapping)));
 }
+
+#[test]
+fn variable_cff() {
+    use opentype::GlyphSubstitution;
+
+    let mut reader = setup!(VariableCFF);
+    let file = ok!(File::read(&mut reader));
+    let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
+}

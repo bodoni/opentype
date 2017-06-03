@@ -4,6 +4,7 @@ pub enum Fixture {
     CFF,
     TTF,
     VariableCFF,
+    VariableTTF,
 }
 
 impl Fixture {
@@ -12,6 +13,7 @@ impl Fixture {
             Fixture::CFF => "tests/fixtures/SourceSerifPro-Regular.otf".into(),
             Fixture::TTF => "tests/fixtures/OpenSans-Italic.ttf".into(),
             Fixture::VariableCFF => "tests/fixtures/AdobeVFPrototype.otf".into(),
+            Fixture::VariableTTF => "tests/fixtures/Gingham.ttf".into(),
         }
     }
 
@@ -31,6 +33,11 @@ impl Fixture {
                 }
             },
             Fixture::VariableCFF => {
+                match table {
+                    _ => unreachable!(),
+                }
+            },
+            Fixture::VariableTTF => {
                 match table {
                     _ => unreachable!(),
                 }

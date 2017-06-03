@@ -31,3 +31,12 @@ fn variable_cff() {
     let file = ok!(File::read(&mut reader));
     let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
 }
+
+#[test]
+fn variable_ttf() {
+    use opentype::GlyphSubstitution;
+
+    let mut reader = setup!(VariableTTF);
+    let file = ok!(File::read(&mut reader));
+    let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
+}

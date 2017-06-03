@@ -59,3 +59,6 @@ pub use glyph_definition::GlyphDefinition;
 pub use glyph_positioning::GlyphPositioning;
 pub use glyph_substitution::GlyphSubstitution;
 pub use table::Table;
+
+/// A compact font set of version 1.0.
+pub type CompactFontSet1 = postscript::compact1::FontSet;

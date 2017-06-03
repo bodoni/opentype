@@ -2,7 +2,7 @@ use opentype::File;
 
 #[test]
 fn cff() {
-    use postscript::compact::FontSet;
+    use postscript::compact1::FontSet;
 
     let mut reader = setup!(CFF);
     let file = ok!(File::read(&mut reader));

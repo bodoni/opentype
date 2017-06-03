@@ -10,7 +10,7 @@ repository = "https://github.com/bodoni/opentype"
 exclude = ["tests/fixtures/*"]
 
 [dependencies]
-postscript = "0.12"
+postscript = "0.13"
 truetype = "0.26"
 
 [[test]]

@@ -1,5 +1,5 @@
 use postscript;
-use postscript::compact::FontSet;
+use postscript::compact1::FontSet;
 use std::io::{Read, Seek};
 use truetype::{self, Result, Tag};
 use truetype::{

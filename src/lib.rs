@@ -4,10 +4,9 @@
 //!
 //! ```
 //! extern crate opentype;
-//! extern crate truetype;
 //!
 //! use opentype::Font;
-//! use truetype::{FontHeader, HorizontalHeader, NamingTable};
+//! use opentype::truetype::{FontHeader, HorizontalHeader, NamingTable};
 //!
 //! macro_rules! ok(($result:expr) => ($result.unwrap()));
 //!
@@ -35,10 +34,10 @@
 //! # }
 //! ```
 
-extern crate postscript;
+pub extern crate postscript;
 
 #[macro_use(flags)]
-extern crate truetype;
+pub extern crate truetype;
 
 #[macro_use]
 mod macros;

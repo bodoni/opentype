@@ -145,7 +145,7 @@ macro_rules! table {
      [$value:block]) => ({
         let value = $tape.take()?;
         if value != $value {
-            raise!("found a malformed or unsupported table");
+            raise!("found a malformed or unknown table");
         }
         value
     });

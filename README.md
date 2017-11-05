@@ -10,10 +10,9 @@ this package.
 
 ```rust
 extern crate opentype;
-extern crate truetype;
 
 use opentype::Font;
-use truetype::{FontHeader, HorizontalHeader, NamingTable};
+use opentype::truetype::{FontHeader, HorizontalHeader, NamingTable};
 
 macro_rules! ok(($result:expr) => ($result.unwrap()));
 

@@ -1,10 +1,8 @@
-# OpenType [![Version][version-img]][version-url] [![Status][status-img]][status-url]
+# OpenType [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Build][build-img]][build-url]
 
 The package provides a parser for OpenType fonts. It might be helpful to have a
 look at a higher-level parser called [`font`][font], which internally relies on
 this package.
-
-## [Documentation][documentation]
 
 ## Example
 
@@ -45,8 +43,9 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
 [font]: https://github.com/bodoni/font
 
-[documentation]: https://docs.rs/opentype
-[status-img]: https://travis-ci.org/bodoni/opentype.svg?branch=master
-[status-url]: https://travis-ci.org/bodoni/opentype
-[version-img]: https://img.shields.io/crates/v/opentype.svg
-[version-url]: https://crates.io/crates/opentype
+[build-img]: https://travis-ci.org/bodoni/opentype.svg?branch=master
+[build-url]: https://travis-ci.org/bodoni/opentype
+[documentation-img]: https://docs.rs/opentype/badge.svg
+[documentation-url]: https://docs.rs/opentype
+[package-img]: https://img.shields.io/crates/v/opentype.svg
+[package-url]: https://crates.io/crates/opentype

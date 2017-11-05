@@ -2,7 +2,10 @@
 name = "opentype"
 version = "0.18.0"
 license = "Apache-2.0/MIT"
-authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
+authors = [
+    "Ivan Ukhov <ivan.ukhov@gmail.com>",
+    "Simon Sapin <simon.sapin@exyr.org>",
+]
 description = "The package provides a parser for OpenType fonts."
 documentation = "https://docs.rs/opentype"
 homepage = "https://github.com/bodoni/opentype"

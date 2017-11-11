@@ -4,7 +4,7 @@ use truetype::Value;
 
 #[test]
 fn features() {
-    let GlyphSubstitution { features, .. } = ok!(Value::read(&mut setup!(CFF, "GSUB")));
+    let GlyphSubstitution { features, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
     let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags,
                tags![b"aalt", b"aalt", b"aalt", b"aalt", b"aalt", b"case", b"case", b"case",
@@ -26,7 +26,7 @@ fn features() {
 
 #[test]
 fn lookups() {
-    let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup!(CFF, "GSUB")));
+    let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
     let kinds = lookups.records.iter().map(|record| record.kind).collect::<Vec<_>>();
     assert_eq!(kinds, &[1, 3, 1, 1, 1, 1, 1, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1]);
     let record = &lookups.records[0];
@@ -53,7 +53,7 @@ fn lookups() {
 
 #[test]
 fn scripts() {
-    let GlyphSubstitution { scripts, .. } = ok!(Value::read(&mut setup!(CFF, "GSUB")));
+    let GlyphSubstitution { scripts, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
     let tags = scripts.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"DFLT", b"latn"]);
     assert!(scripts.get(Script::Default).is_some());

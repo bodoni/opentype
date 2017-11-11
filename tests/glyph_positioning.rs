@@ -4,7 +4,7 @@ use truetype::Value;
 
 #[test]
 fn features() {
-    let GlyphPositioning { features, .. } = ok!(Value::read(&mut setup!(CFF, "GPOS")));
+    let GlyphPositioning { features, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
     let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags,
                tags![b"kern", b"kern", b"kern", b"kern", b"kern", b"size", b"size", b"size",
@@ -15,7 +15,7 @@ fn features() {
 
 #[test]
 fn lookups() {
-    let GlyphPositioning { lookups, .. } = ok!(Value::read(&mut setup!(CFF, "GPOS")));
+    let GlyphPositioning { lookups, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
     assert_eq!(lookups.records.len(), 1);
     let record = &lookups.records[0];
     assert!(record.mark_filtering_set.is_none());
@@ -37,7 +37,7 @@ fn lookups() {
 
 #[test]
 fn scripts() {
-    let GlyphPositioning { scripts, .. } = ok!(Value::read(&mut setup!(CFF, "GPOS")));
+    let GlyphPositioning { scripts, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
     let tags = scripts.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
     assert_eq!(tags, tags![b"DFLT", b"latn"]);
     assert!(scripts.get(Script::Default).is_some());

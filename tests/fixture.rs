@@ -1,44 +1,44 @@
 use std::path::PathBuf;
 
 pub enum Fixture {
-    CFF,
-    TTF,
-    VariableCFF,
-    VariableTTF,
+    AdobeVFPrototype,
+    Gingham,
+    OpenSans,
+    SourceSerifPro,
 }
 
 impl Fixture {
     pub fn path(&self) -> PathBuf {
         match *self {
-            Fixture::CFF => "tests/fixtures/SourceSerifPro-Regular.otf".into(),
-            Fixture::TTF => "tests/fixtures/OpenSans-Italic.ttf".into(),
-            Fixture::VariableCFF => "tests/fixtures/AdobeVFPrototype.otf".into(),
-            Fixture::VariableTTF => "tests/fixtures/Gingham.ttf".into(),
+            Fixture::AdobeVFPrototype => "tests/fixtures/AdobeVFPrototype.otf".into(),
+            Fixture::Gingham => "tests/fixtures/Gingham.ttf".into(),
+            Fixture::OpenSans => "tests/fixtures/OpenSans-Italic.ttf".into(),
+            Fixture::SourceSerifPro => "tests/fixtures/SourceSerifPro-Regular.otf".into(),
         }
     }
 
     pub fn offset(&self, table: &str) -> u64 {
         match *self {
-            Fixture::CFF => {
+            Fixture::AdobeVFPrototype => {
                 match table {
-                    "GPOS" => 60412,
-                    "GSUB" => 57648,
                     _ => unreachable!(),
                 }
             },
-            Fixture::TTF => {
+            Fixture::Gingham => {
+                match table {
+                    _ => unreachable!(),
+                }
+            },
+            Fixture::OpenSans => {
                 match table {
                     "GDEF" => 206348,
                     _ => unreachable!(),
                 }
             },
-            Fixture::VariableCFF => {
+            Fixture::SourceSerifPro => {
                 match table {
-                    _ => unreachable!(),
-                }
-            },
-            Fixture::VariableTTF => {
-                match table {
+                    "GPOS" => 60412,
+                    "GSUB" => 57648,
                     _ => unreachable!(),
                 }
             },

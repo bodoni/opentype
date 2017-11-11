@@ -4,7 +4,7 @@ use truetype::Value;
 
 #[test]
 fn table() {
-    let table: GlyphDefinition = ok!(Value::read(&mut setup!(TTF, "GDEF")));
+    let table: GlyphDefinition = ok!(Value::read(&mut setup!(OpenSans, "GDEF")));
     match &table.header {
         &Header::Version1(..) => {},
         _ => unreachable!(),

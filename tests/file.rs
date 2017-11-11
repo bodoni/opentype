@@ -4,7 +4,7 @@ use opentype::File;
 fn cff() {
     use postscript::compact1::FontSet;
 
-    let mut reader = setup!(CFF);
+    let mut reader = setup!(SourceSerifPro);
     let file = ok!(File::read(&mut reader));
     let _ = ok!(ok!(file[0].take::<_, FontSet>(&mut reader)));
 }
@@ -13,7 +13,7 @@ fn cff() {
 fn ttf() {
     use truetype::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
 
-    let mut reader = setup!(TTF);
+    let mut reader = setup!(OpenSans);
     let file = ok!(File::read(&mut reader));
     let font_header = ok!(ok!(file[0].take::<_, FontHeader>(&mut reader)));
     let maximum_profile = ok!(ok!(file[0].take::<_, MaximumProfile>(&mut reader)));
@@ -27,7 +27,7 @@ fn ttf() {
 fn variable_cff() {
     use opentype::GlyphSubstitution;
 
-    let mut reader = setup!(VariableCFF);
+    let mut reader = setup!(AdobeVFPrototype);
     let file = ok!(File::read(&mut reader));
     let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
 }
@@ -36,7 +36,7 @@ fn variable_cff() {
 fn variable_ttf() {
     use opentype::GlyphSubstitution;
 
-    let mut reader = setup!(VariableTTF);
+    let mut reader = setup!(Gingham);
     let file = ok!(File::read(&mut reader));
     let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
 }

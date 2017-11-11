@@ -19,17 +19,17 @@ let mut reader = ok!(std::fs::File::open(path));
 let font = ok!(Font::read(&mut reader));
 
 let font_header: FontHeader = ok!(ok!(font.take(&mut reader)));
-assert_eq!(font_header.units_per_em, 1000);
+assert!(font_header.units_per_em == 1000);
 
 let horizontal_header: HorizontalHeader = ok!(ok!(font.take(&mut reader)));
-assert_eq!(horizontal_header.ascender, 918);
+assert!(horizontal_header.ascender == 918);
 
 let naming_table: NamingTable = ok!(ok!(font.take(&mut reader)));
 match naming_table {
     NamingTable::Format0(ref table) => {
         let strings = ok!(table.strings());
-        assert_eq!(&strings[1], "Source Serif Pro");
-        assert_eq!(&strings[9], "Frank Grießhammer");
+        assert!(&strings[1] == "Source Serif Pro");
+        assert!(&strings[9] == "Frank Grießhammer");
     },
     _ => unreachable!(),
 }

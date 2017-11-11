@@ -15,7 +15,7 @@ exclude = ["tests/fixtures/*"]
 
 [dependencies]
 postscript = "0.13"
-truetype = "0.27"
+truetype = "0.28"
 
 [[test]]
 name = "opentype"

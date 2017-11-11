@@ -19,13 +19,16 @@ pub struct Directory<T> {
     pub variations: (Option<Variations>),
 }
 
-impl<U> Value for Directory<U> where U: Walue<'static, Parameter=u16> {
+impl<U> Value for Directory<U>
+where
+    U: Walue<'static, Parameter = u16>,
+{
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
         let major_version = tape.take()?;
         let minor_version = tape.take()?;
         match (major_version, minor_version) {
-            (1, 0) | (1, 1) => {},
+            (1, 0) | (1, 1) => {}
             _ => raise!("found an unknown version of the directory table"),
         }
         let scripts_offset = tape.take()?;

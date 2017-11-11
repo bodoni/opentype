@@ -17,10 +17,12 @@ fn ttf() {
     let file = ok!(File::read(&mut reader));
     let font_header = ok!(ok!(file[0].take::<_, FontHeader>(&mut reader)));
     let maximum_profile = ok!(ok!(file[0].take::<_, MaximumProfile>(&mut reader)));
-    let glyph_mapping = ok!(ok!(file[0].take_given::<_, GlyphMapping>(&mut reader,
-                                                                      (&font_header,
-                                                                       &maximum_profile))));
-    let _ = ok!(ok!(file[0].take_given::<_, GlyphData>(&mut reader, &glyph_mapping)));
+    let glyph_mapping = ok!(ok!(
+        file[0].take_given::<_, GlyphMapping>(&mut reader, (&font_header, &maximum_profile))
+    ));
+    let _ = ok!(ok!(
+        file[0].take_given::<_, GlyphData>(&mut reader, &glyph_mapping)
+    ));
 }
 
 #[test]

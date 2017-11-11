@@ -418,7 +418,10 @@ impl Walue<'static> for Base {
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Base { anchor_offsets: anchor_offsets, anchors: anchors })
+        Ok(Base {
+            anchor_offsets: anchor_offsets,
+            anchors: anchors,
+        })
     }
 }
 
@@ -432,7 +435,10 @@ impl Walue<'static> for Bases {
         for _ in 0..(count as usize) {
             records.push(tape.take_given((position, class_count))?);
         }
-        Ok(Bases { count: count, records: records })
+        Ok(Bases {
+            count: count,
+            records: records,
+        })
     }
 }
 
@@ -442,7 +448,10 @@ impl Walue<'static> for Component {
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Component { anchor_offsets: anchor_offsets, anchors: anchors })
+        Ok(Component {
+            anchor_offsets: anchor_offsets,
+            anchors: anchors,
+        })
     }
 }
 
@@ -456,7 +465,10 @@ impl Walue<'static> for Ligature {
         for _ in 0..(component_count as usize) {
             components.push(tape.take_given((position, class_count))?);
         }
-        Ok(Ligature { component_count: component_count, components: components })
+        Ok(Ligature {
+            component_count: component_count,
+            components: components,
+        })
     }
 }
 
@@ -468,7 +480,11 @@ impl Walue<'static> for Ligatures {
         let count = tape.take()?;
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
         let records = jump_take_given!(@unwrap tape, position, count, offsets, class_count);
-        Ok(Ligatures { count: count, offsets: offsets, records: records })
+        Ok(Ligatures {
+            count: count,
+            offsets: offsets,
+            records: records,
+        })
     }
 }
 
@@ -479,7 +495,11 @@ impl Walue<'static> for Mark1 {
         let class_id = tape.take()?;
         let anchor_offset = tape.take()?;
         let anchor = jump_take!(@unwrap tape, position, anchor_offset);
-        Ok(Mark1 { class_id: class_id, anchor_offset: anchor_offset, anchor: anchor })
+        Ok(Mark1 {
+            class_id: class_id,
+            anchor_offset: anchor_offset,
+            anchor: anchor,
+        })
     }
 }
 
@@ -489,7 +509,10 @@ impl Walue<'static> for Mark2 {
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Mark2 { anchor_offsets: anchor_offsets, anchors: anchors })
+        Ok(Mark2 {
+            anchor_offsets: anchor_offsets,
+            anchors: anchors,
+        })
     }
 }
 
@@ -503,16 +526,20 @@ impl Walue<'static> for Mark2s {
         for _ in 0..(count as usize) {
             records.push(tape.take_given((position, class_count))?);
         }
-        Ok(Mark2s { count: count, records: records })
+        Ok(Mark2s {
+            count: count,
+            records: records,
+        })
     }
 }
 
 impl Walue<'static> for Pair1 {
     type Parameter = (u64, SingleFlags, SingleFlags);
 
-    fn read<T: Tape>(tape: &mut T, (position, value1_flags, value2_flags): Self::Parameter)
-                     -> Result<Self> {
-
+    fn read<T: Tape>(
+        tape: &mut T,
+        (position, value1_flags, value2_flags): Self::Parameter,
+    ) -> Result<Self> {
         Ok(Pair1 {
             glyph2_id: tape.take()?,
             value1: tape.take_given((position, value1_flags))?,
@@ -530,16 +557,20 @@ impl Walue<'static> for Pair1s {
         for _ in 0..(count as usize) {
             records.push(tape.take_given(parameter)?);
         }
-        Ok(Pair1s { count: count, records: records })
+        Ok(Pair1s {
+            count: count,
+            records: records,
+        })
     }
 }
 
 impl Walue<'static> for Pair2 {
     type Parameter = (u64, SingleFlags, SingleFlags);
 
-    fn read<T: Tape>(tape: &mut T, (position, value1_flags, value2_flags): Self::Parameter)
-                     -> Result<Self> {
-
+    fn read<T: Tape>(
+        tape: &mut T,
+        (position, value1_flags, value2_flags): Self::Parameter,
+    ) -> Result<Self> {
         Ok(Pair2 {
             value1: tape.take_given((position, value1_flags))?,
             value2: tape.take_given((position, value2_flags))?,
@@ -550,11 +581,10 @@ impl Walue<'static> for Pair2 {
 impl Walue<'static> for Pair2s {
     type Parameter = (u64, u16, SingleFlags, SingleFlags);
 
-    fn read<T: Tape>(tape: &mut T, (position,
-                                    class2_count,
-                                    value1_flags,
-                                    value2_flags): Self::Parameter) -> Result<Self> {
-
+    fn read<T: Tape>(
+        tape: &mut T,
+        (position, class2_count, value1_flags, value2_flags): Self::Parameter,
+    ) -> Result<Self> {
         let mut records = Vec::with_capacity(class2_count as usize);
         for _ in 0..(class2_count as usize) {
             records.push(tape.take_given((position, value1_flags, value2_flags))?);

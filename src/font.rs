@@ -13,21 +13,30 @@ pub struct Font {
 impl Font {
     /// Read a font.
     #[inline]
-    pub fn read<T>(tape: &mut T) -> Result<Font> where T: Read + Seek {
-        Ok(Font { offset_table: Tape::take(tape)? })
+    pub fn read<T>(tape: &mut T) -> Result<Font>
+    where
+        T: Read + Seek,
+    {
+        Ok(Font {
+            offset_table: Tape::take(tape)?,
+        })
     }
 
     /// Find, verify, and read a table.
     #[inline]
     pub fn take<'l, T, U>(&self, tape: &mut T) -> Result<Option<U>>
-        where T: Read + Seek, U: Table<'l, Parameter=()>
+    where
+        T: Read + Seek,
+        U: Table<'l, Parameter = ()>,
     {
         self.take_given(tape, ())
     }
 
     /// Find, verify, and read a table given a parameter.
     pub fn take_given<'l, T, U>(&self, tape: &mut T, parameter: U::Parameter) -> Result<Option<U>>
-        where T: Read + Seek, U: Table<'l>
+    where
+        T: Read + Seek,
+        U: Table<'l>,
     {
         let tag = U::tag();
         for record in &self.offset_table.records {

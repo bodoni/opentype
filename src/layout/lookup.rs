@@ -33,17 +33,27 @@ flags! {
     }
 }
 
-impl<U> Value for Lookups<U> where U: Walue<'static, Parameter=u16> {
+impl<U> Value for Lookups<U>
+where
+    U: Walue<'static, Parameter = u16>,
+{
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take::<u16>()?;
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
         let records = jump_take!(@unwrap tape, position, count, offsets);
-        Ok(Lookups { count: count, offsets: offsets, records: records })
+        Ok(Lookups {
+            count: count,
+            offsets: offsets,
+            records: records,
+        })
     }
 }
 
-impl<U> Value for Record<U> where U: Walue<'static, Parameter=u16> {
+impl<U> Value for Record<U>
+where
+    U: Walue<'static, Parameter = u16>,
+{
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
         let kind = tape.take()?;

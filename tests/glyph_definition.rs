@@ -6,7 +6,7 @@ use truetype::Value;
 fn table() {
     let table: GlyphDefinition = ok!(Value::read(&mut setup!(OpenSans, "GDEF")));
     match &table.header {
-        &Header::Version1(..) => {},
+        &Header::Version1(..) => {}
         _ => unreachable!(),
     }
     match &table.glyph_class {
@@ -14,7 +14,7 @@ fn table() {
             assert_eq!(table.range_count, 1);
             assert_eq!(table.ranges[0].start, 0);
             assert_eq!(table.ranges[0].end, 937);
-        },
+        }
         _ => unreachable!(),
     }
     assert!(table.attachments.is_none());

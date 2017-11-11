@@ -11,7 +11,10 @@ macro_rules! setup(
     ($fixture:ident, $table:expr) => (::setup(::fixture::Fixture::$fixture, Some($table)));
 );
 
-macro_rules! tags(($($name:expr),*) => (vec![$(::truetype::Tag(*$name)),*]));
+macro_rules! tags(
+    ($($name:expr,)*) => (vec![$(::truetype::Tag(*$name),)*]);
+    ($($name:expr),*) => (tags!($($name,)*));
+);
 
 mod file;
 mod fixture;
@@ -25,6 +28,8 @@ fn setup(fixture: Fixture, table: Option<&str>) -> File {
     use std::io::{Seek, SeekFrom};
 
     let mut file = ok!(File::open(fixture.path()));
-    ok!(file.seek(SeekFrom::Start(table.map(|table| fixture.offset(table)).unwrap_or(0))));
+    ok!(file.seek(SeekFrom::Start(
+        table.map(|table| fixture.offset(table)).unwrap_or(0)
+    )));
     file
 }

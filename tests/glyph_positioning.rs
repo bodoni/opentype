@@ -5,11 +5,31 @@ use truetype::Value;
 #[test]
 fn features() {
     let GlyphPositioning { features, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
-    let tags = features.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
-    assert_eq!(tags,
-               tags![b"kern", b"kern", b"kern", b"kern", b"kern", b"size", b"size", b"size",
-                     b"size", b"size"]);
-    let lookups = features.records.iter().map(|record| record.lookup_count).collect::<Vec<_>>();
+    let tags = features
+        .headers
+        .iter()
+        .map(|header| header.tag)
+        .collect::<Vec<_>>();
+    assert_eq!(
+        tags,
+        tags![
+            b"kern",
+            b"kern",
+            b"kern",
+            b"kern",
+            b"kern",
+            b"size",
+            b"size",
+            b"size",
+            b"size",
+            b"size",
+        ]
+    );
+    let lookups = features
+        .records
+        .iter()
+        .map(|record| record.lookup_count)
+        .collect::<Vec<_>>();
     assert_eq!(lookups, &[1, 1, 1, 1, 1, 0, 0, 0, 0, 0]);
 }
 
@@ -23,14 +43,14 @@ fn lookups() {
     match &record.tables[0] {
         &Table::PairAdjustment(PairAdjustment::Format1(ref table)) => {
             assert_eq!(table.set_count, 65);
-        },
+        }
         _ => unreachable!(),
     }
     match &record.tables[1] {
         &Table::PairAdjustment(PairAdjustment::Format2(ref table)) => {
             assert_eq!(table.class1_count, 99);
             assert_eq!(table.class2_count, 95);
-        },
+        }
         _ => unreachable!(),
     }
 }
@@ -38,14 +58,24 @@ fn lookups() {
 #[test]
 fn scripts() {
     let GlyphPositioning { scripts, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
-    let tags = scripts.headers.iter().map(|header| header.tag).collect::<Vec<_>>();
+    let tags = scripts
+        .headers
+        .iter()
+        .map(|header| header.tag)
+        .collect::<Vec<_>>();
     assert_eq!(tags, tags![b"DFLT", b"latn"]);
     assert!(scripts.get(Script::Default).is_some());
     assert!(scripts.get(Script::Latin).is_some());
     let tags = scripts
         .records
         .iter()
-        .map(|record| record.language_headers.iter().map(|header| header.tag).collect::<Vec<_>>())
+        .map(|record| {
+            record
+                .language_headers
+                .iter()
+                .map(|header| header.tag)
+                .collect::<Vec<_>>()
+        })
         .collect::<Vec<_>>();
     assert_eq!(tags, &[vec![], tags![b"AZE ", b"CRT ", b"TRK "]]);
     let record = &scripts.records[0];

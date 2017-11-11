@@ -19,28 +19,20 @@ impl Fixture {
 
     pub fn offset(&self, table: &str) -> u64 {
         match *self {
-            Fixture::AdobeVFPrototype => {
-                match table {
-                    _ => unreachable!(),
-                }
+            Fixture::AdobeVFPrototype => match table {
+                _ => unreachable!(),
             },
-            Fixture::Gingham => {
-                match table {
-                    _ => unreachable!(),
-                }
+            Fixture::Gingham => match table {
+                _ => unreachable!(),
             },
-            Fixture::OpenSans => {
-                match table {
-                    "GDEF" => 206348,
-                    _ => unreachable!(),
-                }
+            Fixture::OpenSans => match table {
+                "GDEF" => 206348,
+                _ => unreachable!(),
             },
-            Fixture::SourceSerifPro => {
-                match table {
-                    "GPOS" => 60412,
-                    "GSUB" => 57648,
-                    _ => unreachable!(),
-                }
+            Fixture::SourceSerifPro => match table {
+                "GPOS" => 60412,
+                "GSUB" => 57648,
+                _ => unreachable!(),
             },
         }
     }

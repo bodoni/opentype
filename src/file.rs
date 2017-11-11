@@ -16,7 +16,9 @@ impl File {
         if Tag::from(Tape::peek::<u32>(tape)?) == Tag(*b"ttcf") {
             raise!("TrueType collections are not supported yet");
         }
-        Ok(File { fonts: vec![Font::read(tape)?] })
+        Ok(File {
+            fonts: vec![Font::read(tape)?],
+        })
     }
 }
 

@@ -2,18 +2,8 @@ use postscript;
 use postscript::compact1::FontSet;
 use std::io::{Read, Seek};
 use truetype::{self, Result, Tag};
-use truetype::{
-    CharMapping,
-    FontHeader,
-    GlyphData,
-    GlyphMapping,
-    HorizontalHeader,
-    HorizontalMetrics,
-    MaximumProfile,
-    NamingTable,
-    PostScript,
-    WindowsMetrics,
-};
+use truetype::{CharMapping, FontHeader, GlyphData, GlyphMapping, HorizontalHeader,
+               HorizontalMetrics, MaximumProfile, NamingTable, PostScript, WindowsMetrics};
 
 use {GlyphDefinition, GlyphPositioning, GlyphSubstitution};
 
@@ -26,7 +16,9 @@ pub trait Table<'l>: Sized {
     fn tag() -> Tag;
 
     #[doc(hidden)]
-    fn take<T>(&mut T, Self::Parameter) -> Result<Self> where T: Read + Seek;
+    fn take<T>(&mut T, Self::Parameter) -> Result<Self>
+    where
+        T: Read + Seek;
 }
 
 macro_rules! table {

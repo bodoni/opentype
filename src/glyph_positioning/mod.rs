@@ -8,7 +8,7 @@ use crate::layout::{Class, Coverage, Directory};
 
 mod element;
 
-pub use self::element::*;
+pub use element::*;
 
 /// A glyph-positioning table.
 pub type GlyphPositioning = Directory<Table>;

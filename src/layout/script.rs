@@ -84,7 +84,7 @@ macro_rules! implement {
         impl Script {
             /// Return the tag.
             pub fn tag(&self) -> Tag {
-                use self::Script::*;
+                use Script::*;
                 match *self {
                     $($token => Tag(*$tag),)*
                 }
@@ -270,7 +270,7 @@ macro_rules! implement {
         impl Language {
             /// Return the tag.
             pub fn tag(&self) -> Tag {
-                use self::Language::*;
+                use Language::*;
                 match *self {
                     $($token => Tag(*$tag),)*
                 }

@@ -9,7 +9,7 @@ use crate::variation::item::Variations;
 
 mod element;
 
-pub use self::element::*;
+pub use element::*;
 
 macro_rules! field(
     ($table:expr => $field:ident, $enumeration:ident::{$($variant:ident),*}) => (

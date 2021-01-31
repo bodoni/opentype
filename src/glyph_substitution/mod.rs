@@ -8,7 +8,7 @@ use crate::layout::{Class, Coverage, Directory};
 
 mod element;
 
-pub use self::element::*;
+pub use element::*;
 
 /// A glyph-substitution table.
 pub type GlyphSubstitution = Directory<Table>;

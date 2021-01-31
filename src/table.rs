@@ -16,7 +16,7 @@ pub trait Table<'l>: Sized {
     fn tag() -> Tag;
 
     #[doc(hidden)]
-    fn take<T>(&mut T, Self::Parameter) -> Result<Self>
+    fn take<T>(tape: &mut T, parameter: Self::Parameter) -> Result<Self>
     where
         T: Read + Seek;
 }

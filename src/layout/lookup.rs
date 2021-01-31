@@ -1,5 +1,7 @@
 //! The lookup list.
 
+#![allow(unused_parens)]
+
 use truetype::{Result, Tape, Value, Walue};
 
 /// A lookup list.

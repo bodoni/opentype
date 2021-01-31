@@ -1,3 +1,5 @@
+#![allow(unused_parens)]
+
 use truetype::{Result, Tape, Value, Walue};
 
 use crate::layout::{Features, Lookups, Scripts};

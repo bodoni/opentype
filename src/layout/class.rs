@@ -44,6 +44,13 @@ table! {
     }
 }
 
+impl Default for Class {
+    #[inline]
+    fn default() -> Self {
+        Class::Format1(Class1::default())
+    }
+}
+
 impl Value for Class {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {

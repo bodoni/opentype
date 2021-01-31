@@ -116,6 +116,13 @@ table! {
     }
 }
 
+impl Default for Header {
+    #[inline]
+    fn default() -> Self {
+        Header::Version1(Header1::default())
+    }
+}
+
 impl Value for Header {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u32>()? {

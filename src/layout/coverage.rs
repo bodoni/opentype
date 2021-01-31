@@ -43,6 +43,13 @@ table! {
     }
 }
 
+impl Default for Coverage {
+    #[inline]
+    fn default() -> Self {
+        Coverage::Format1(Coverage1::default())
+    }
+}
+
 impl Value for Coverage {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {

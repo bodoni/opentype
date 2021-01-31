@@ -401,6 +401,13 @@ flags! {
     }
 }
 
+impl Default for Anchor {
+    #[inline]
+    fn default() -> Self {
+        Anchor::Format1(Anchor1::default())
+    }
+}
+
 impl Value for Anchor {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {

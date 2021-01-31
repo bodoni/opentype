@@ -46,6 +46,13 @@ impl Value for Correction {
     }
 }
 
+impl Default for Correction {
+    #[inline]
+    fn default() -> Self {
+        Correction::Device(Device::default())
+    }
+}
+
 impl Value for Device {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let start_size = tape.take()?;

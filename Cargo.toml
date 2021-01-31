@@ -15,9 +15,5 @@ readme = "README.md"
 exclude = ["tests/fixtures/*"]
 
 [dependencies]
-postscript = "0.13"
-truetype = "0.29"
-
-[[test]]
-name = "opentype"
-path = "tests/lib.rs"
+postscript = "0.14"
+truetype = "0.30"

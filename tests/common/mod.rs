@@ -1,4 +1,19 @@
+#![allow(dead_code, unused_macros)]
+
+use std::fs::File;
 use std::path::PathBuf;
+
+macro_rules! ok(($result:expr) => ($result.unwrap()));
+
+macro_rules! setup(
+    ($fixture:ident) => (crate::common::setup(crate::common::Fixture::$fixture, None));
+    ($fixture:ident, $table:expr) => (crate::common::setup(crate::common::Fixture::$fixture, Some($table)));
+);
+
+macro_rules! tags(
+    ($($name:expr,)*) => (vec![$(::truetype::Tag(*$name),)*]);
+    ($($name:expr),*) => (tags!($($name,)*));
+);
 
 pub enum Fixture {
     AdobeVFPrototype,
@@ -36,4 +51,14 @@ impl Fixture {
             },
         }
     }
+}
+
+pub fn setup(fixture: Fixture, table: Option<&str>) -> File {
+    use std::io::{Seek, SeekFrom};
+
+    let mut file = ok!(File::open(fixture.path()));
+    ok!(file.seek(SeekFrom::Start(
+        table.map(|table| fixture.offset(table)).unwrap_or(0)
+    )));
+    file
 }

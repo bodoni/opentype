@@ -1,6 +1,12 @@
+extern crate opentype;
+extern crate truetype;
+
 use opentype::glyph_substitution::{GlyphSubstitution, SingleSubstitution, Table};
 use opentype::layout::script::{Language, Script};
 use truetype::Value;
+
+#[macro_use]
+mod common;
 
 #[test]
 fn features() {

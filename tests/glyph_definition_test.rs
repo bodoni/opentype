@@ -1,6 +1,12 @@
+extern crate opentype;
+extern crate truetype;
+
 use opentype::glyph_definition::{GlyphDefinition, Header};
 use opentype::layout::Class;
 use truetype::Value;
+
+#[macro_use]
+mod common;
 
 #[test]
 fn table() {

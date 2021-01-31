@@ -4,7 +4,7 @@
 
 use truetype::{Result, Tape, Value, Walue};
 
-use layout::{Class, Coverage, Directory};
+use crate::layout::{Class, Coverage, Directory};
 
 mod element;
 

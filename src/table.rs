@@ -5,7 +5,7 @@ use truetype::{self, Result, Tag};
 use truetype::{CharMapping, FontHeader, GlyphData, GlyphMapping, HorizontalHeader,
                HorizontalMetrics, MaximumProfile, NamingTable, PostScript, WindowsMetrics};
 
-use {GlyphDefinition, GlyphPositioning, GlyphSubstitution};
+use crate::{GlyphDefinition, GlyphPositioning, GlyphSubstitution};
 
 /// A font table.
 pub trait Table<'l>: Sized {

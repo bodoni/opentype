@@ -1,7 +1,7 @@
 use truetype::{Result, Tape, Value, Walue};
 
-use layout::{Features, Lookups, Scripts};
-use layout::feature::Variations;
+use crate::layout::{Features, Lookups, Scripts};
+use crate::layout::feature::Variations;
 
 /// A layout directory.
 #[derive(Clone, Debug)]

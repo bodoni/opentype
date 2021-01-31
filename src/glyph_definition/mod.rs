@@ -4,8 +4,8 @@
 
 use truetype::{Result, Tape, Value};
 
-use layout::Class;
-use variation::item::Variations;
+use crate::layout::Class;
+use crate::variation::item::Variations;
 
 mod element;
 

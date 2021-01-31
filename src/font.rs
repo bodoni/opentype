@@ -2,7 +2,7 @@ use std::io::{Read, Seek};
 use truetype::{Result, Tag, Tape};
 use truetype::offset_table::OffsetTable;
 
-use Table;
+use crate::Table;
 
 /// A font.
 pub struct Font {

@@ -1,6 +1,6 @@
 use truetype::{Result, Tape, Value};
 
-use layout::{Correction, Coverage};
+use crate::layout::{Correction, Coverage};
 
 table! {
     #[doc = "A glyph attachment."]

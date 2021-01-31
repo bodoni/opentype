@@ -6,6 +6,7 @@ use truetype::{Result, Tape, Value, Walue};
 
 /// A lookup list.
 #[derive(Clone, Debug)]
+#[rustfmt::skip]
 pub struct Lookups<T> { // LookupList
     pub count:   (u16           ), // LookupCount
     pub offsets: (Vec<u16>      ), // Lookup
@@ -14,6 +15,7 @@ pub struct Lookups<T> { // LookupList
 
 /// A lookup record.
 #[derive(Clone, Debug)]
+#[rustfmt::skip]
 pub struct Record<T> { // Lookup
     pub kind:               (u16        ), // LookupType
     pub flags:              (Flags      ), // LookupFlag

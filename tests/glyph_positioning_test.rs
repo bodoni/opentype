@@ -17,11 +17,10 @@ fn features() {
         .map(|header| header.tag)
         .collect::<Vec<_>>();
     assert!(
-        tags
-            == tags![
-                b"kern", b"kern", b"kern", b"kern", b"kern",
-                b"size", b"size", b"size", b"size", b"size",
-            ]
+        tags == tags![
+            b"kern", b"kern", b"kern", b"kern", b"kern", b"size", b"size", b"size", b"size",
+            b"size",
+        ]
     );
     let lookups = features
         .records

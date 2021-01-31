@@ -2,11 +2,12 @@
 
 use truetype::{Result, Tape, Value, Walue};
 
-use crate::layout::{Features, Lookups, Scripts};
 use crate::layout::feature::Variations;
+use crate::layout::{Features, Lookups, Scripts};
 
 /// A layout directory.
 #[derive(Clone, Debug)]
+#[rustfmt::skip]
 pub struct Directory<T> {
     pub major_version:     (u16), // MajorVersion
     pub minor_version:     (u16), // MinorVersion

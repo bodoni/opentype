@@ -1,6 +1,6 @@
 use std::io::{Read, Seek};
-use truetype::{Result, Tag, Tape};
 use truetype::offset_table::OffsetTable;
+use truetype::{Result, Tag, Tape};
 
 use crate::Table;
 

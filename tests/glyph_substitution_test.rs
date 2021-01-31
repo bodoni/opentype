@@ -16,52 +16,52 @@ fn features() {
         .iter()
         .map(|header| header.tag)
         .collect::<Vec<_>>();
+    #[rustfmt::skip]
     assert!(
-        tags
-            == tags![
-                b"aalt", b"aalt", b"aalt", b"aalt", b"aalt",
-                b"case", b"case", b"case", b"case", b"case",
-                b"dnom", b"dnom", b"dnom", b"dnom", b"dnom",
-                b"frac", b"frac", b"frac", b"frac", b"frac",
-                b"liga", b"liga", b"liga", b"liga", b"liga",
-                b"lnum", b"lnum", b"lnum", b"lnum", b"lnum",
-                b"locl", b"locl", b"locl",
-                b"numr", b"numr", b"numr", b"numr", b"numr",
-                b"onum", b"onum", b"onum", b"onum", b"onum",
-                b"ordn", b"ordn", b"ordn", b"ordn", b"ordn",
-                b"pnum", b"pnum", b"pnum", b"pnum", b"pnum",
-                b"sinf", b"sinf", b"sinf", b"sinf", b"sinf",
-                b"subs", b"subs", b"subs", b"subs", b"subs",
-                b"sups", b"sups", b"sups", b"sups", b"sups",
-                b"tnum", b"tnum", b"tnum", b"tnum", b"tnum",
-                b"zero", b"zero", b"zero", b"zero", b"zero",
-            ]
+        tags == tags![
+            b"aalt", b"aalt", b"aalt", b"aalt", b"aalt",
+            b"case", b"case", b"case", b"case", b"case",
+            b"dnom", b"dnom", b"dnom", b"dnom", b"dnom",
+            b"frac", b"frac", b"frac", b"frac", b"frac",
+            b"liga", b"liga", b"liga", b"liga", b"liga",
+            b"lnum", b"lnum", b"lnum", b"lnum", b"lnum",
+            b"locl", b"locl", b"locl",
+            b"numr", b"numr", b"numr", b"numr", b"numr",
+            b"onum", b"onum", b"onum", b"onum", b"onum",
+            b"ordn", b"ordn", b"ordn", b"ordn", b"ordn",
+            b"pnum", b"pnum", b"pnum", b"pnum", b"pnum",
+            b"sinf", b"sinf", b"sinf", b"sinf", b"sinf",
+            b"subs", b"subs", b"subs", b"subs", b"subs",
+            b"sups", b"sups", b"sups", b"sups", b"sups",
+            b"tnum", b"tnum", b"tnum", b"tnum", b"tnum",
+            b"zero", b"zero", b"zero", b"zero", b"zero",
+        ]
     );
     let lookups = features
         .records
         .iter()
         .map(|record| record.lookup_count)
         .collect::<Vec<_>>();
+    #[rustfmt::skip]
     assert!(
-        lookups
-            == vec![
-                2, 2, 2, 2, 2,
-                1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1,
-                3, 3, 3, 3, 3,
-                1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1,
-                1, 1, 1,
-                1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1,
-                3, 3, 3, 3, 3,
-                1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1,
-            ]
+        lookups == vec![
+            2, 2, 2, 2, 2,
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1,
+            3, 3, 3, 3, 3,
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1,
+            1, 1, 1,
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1,
+            3, 3, 3, 3, 3,
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1,
+        ]
     );
 }
 

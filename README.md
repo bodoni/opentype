@@ -43,8 +43,8 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
 [font]: https://github.com/bodoni/font
 
-[build-img]: https://travis-ci.org/bodoni/opentype.svg?branch=master
-[build-url]: https://travis-ci.org/bodoni/opentype
+[build-img]: https://github.com/bodoni/opentype/workflows/build/badge.svg
+[build-url]: https://github.com/bodoni/opentype/actions/workflows/build.yml
 [documentation-img]: https://docs.rs/opentype/badge.svg
 [documentation-url]: https://docs.rs/opentype
 [package-img]: https://img.shields.io/crates/v/opentype.svg

@@ -1,8 +1,8 @@
 use std::io::{Read, Seek};
 use truetype::offset_table::OffsetTable;
-use truetype::{Result, Tag, Tape};
+use truetype::{Tag, Tape};
 
-use crate::Table;
+use crate::{Result, Table};
 
 /// A font.
 pub struct Font {

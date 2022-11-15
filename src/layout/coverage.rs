@@ -1,4 +1,6 @@
-use truetype::{GlyphID, Result, Tape, Value};
+use truetype::{GlyphID, Tape, Value};
+
+use crate::Result;
 
 /// A coverage table.
 #[derive(Clone, Debug)]

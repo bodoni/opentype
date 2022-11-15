@@ -47,7 +47,7 @@ impl Font {
                     record.checksum(tape, |_, word| word)?
                 };
                 if !check {
-                    raise!("found a malformed font table");
+                    raise!("found a malformed font table ({:?})", tag);
                 }
                 Tape::jump(tape, record.offset as u64)?;
                 return Ok(Some(Table::take(tape, parameter)?));

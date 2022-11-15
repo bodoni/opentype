@@ -80,7 +80,9 @@ macro_rules! jump_take_maybe(
 );
 
 macro_rules! raise(
-    ($message:expr) => (return Err(::truetype::Error::new(::std::io::ErrorKind::Other, $message)));
+    ($($argument:tt)*) => (
+        return Err(crate::Error::new(::std::io::ErrorKind::Other, format!($($argument)*)))
+    );
 );
 
 macro_rules! table {

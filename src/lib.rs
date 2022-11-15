@@ -59,3 +59,9 @@ pub use glyph_definition::GlyphDefinition;
 pub use glyph_positioning::GlyphPositioning;
 pub use glyph_substitution::GlyphSubstitution;
 pub use table::Table;
+
+/// An error.
+pub type Error = std::io::Error;
+
+/// A result.
+pub type Result<T> = std::io::Result<T>;

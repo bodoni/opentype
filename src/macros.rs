@@ -152,7 +152,7 @@ macro_rules! table {
         value
     });
     (@read $name:ident, $this:ident, $tape:ident [] [$kind:ty] []
-     |$this_:pat, $tape_:pat| $body:block) => ({
+     |$this_:tt, $tape_:tt| $body:block) => ({
         #[inline(always)]
         fn read<T: ::truetype::Tape>($this_: &$name, $tape_: &mut T)
                                      -> ::truetype::Result<$kind> $body
@@ -160,7 +160,7 @@ macro_rules! table {
         read(&$this, $tape)?
     });
     (@read $name:ident, $this:ident, $tape:ident [$position:ident] [$kind:ty] []
-     |$this_:pat, $tape_:pat, $position_:pat| $body:block) => ({
+     |$this_:tt, $tape_:tt, $position_:tt| $body:block) => ({
         #[inline(always)]
         fn read<T: ::truetype::Tape>($this_: &$name, $tape_: &mut T, $position_: u64)
                                      -> ::truetype::Result<$kind> $body

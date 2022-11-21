@@ -1,6 +1,6 @@
 use std::io::{Read, Seek};
 use truetype::offset_table::OffsetTable;
-use truetype::{Tag, Tape};
+use truetype::Tape;
 
 use crate::{Result, Table};
 
@@ -41,13 +41,8 @@ impl Font {
         let tag = U::tag();
         for record in &self.offset_table.records {
             if record.tag == tag {
-                let check = if tag == Tag(*b"head") {
-                    record.checksum(tape, |i, word| if i == 2 { 0 } else { word })?
-                } else {
-                    record.checksum(tape, |_, word| word)?
-                };
-                if !check {
-                    raise!("found a malformed font table with {:?}", tag);
+                if record.checksum != record.checksum(tape)? {
+                    raise!("found a malformed font table with {:?}", record.tag);
                 }
                 Tape::jump(tape, record.offset as u64)?;
                 return Ok(Some(Table::take(tape, parameter)?));

@@ -14,6 +14,9 @@ repository = "https://github.com/bodoni/opentype"
 readme = "README.md"
 exclude = ["tests/fixtures/*"]
 
+[features]
+ignore-invalid-checksums = []
+
 [dependencies]
 postscript = "0.14"
 truetype = "0.31"

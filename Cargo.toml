@@ -15,6 +15,7 @@ readme = "README.md"
 exclude = ["tests/fixtures/*"]
 
 [features]
+# https://github.com/google/fonts/issues/5553
 ignore-invalid-checksums = []
 
 [dependencies]

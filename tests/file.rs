@@ -17,6 +17,15 @@ fn cff() {
 }
 
 #[test]
+fn cff_variable() {
+    use opentype::GlyphSubstitution;
+
+    let mut reader = setup!(AdobeVFPrototype);
+    let file = ok!(File::read(&mut reader));
+    let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
+}
+
+#[test]
 fn ttf() {
     use truetype::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
 
@@ -32,17 +41,18 @@ fn ttf() {
     ));
 }
 
+#[cfg(feature = "ignore-invalid-checksums")]
 #[test]
-fn variable_cff() {
-    use opentype::GlyphSubstitution;
+fn ttf_corrupted() {
+    use truetype::FontHeader;
 
-    let mut reader = setup!(AdobeVFPrototype);
+    let mut reader = setup!(KaushanScript);
     let file = ok!(File::read(&mut reader));
-    let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
+    let _ = ok!(ok!(file[0].take::<_, FontHeader>(&mut reader)));
 }
 
 #[test]
-fn variable_ttf() {
+fn ttf_variable() {
     use opentype::GlyphSubstitution;
 
     let mut reader = setup!(Gingham);

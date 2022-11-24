@@ -18,6 +18,7 @@ macro_rules! tags(
 pub enum Fixture {
     AdobeVFPrototype,
     Gingham,
+    KaushanScript,
     OpenSans,
     SourceSerifPro,
 }
@@ -27,6 +28,7 @@ impl Fixture {
         match *self {
             Fixture::AdobeVFPrototype => "tests/fixtures/AdobeVFPrototype.otf".into(),
             Fixture::Gingham => "tests/fixtures/Gingham.ttf".into(),
+            Fixture::KaushanScript => "tests/fixtures/KaushanScript-Regular.ttf".into(),
             Fixture::OpenSans => "tests/fixtures/OpenSans-Italic.ttf".into(),
             Fixture::SourceSerifPro => "tests/fixtures/SourceSerifPro-Regular.otf".into(),
         }
@@ -42,6 +44,9 @@ impl Fixture {
             },
             Fixture::OpenSans => match table {
                 "GDEF" => 206348,
+                _ => unreachable!(),
+            },
+            Fixture::KaushanScript => match table {
                 _ => unreachable!(),
             },
             Fixture::SourceSerifPro => match table {

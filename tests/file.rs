@@ -41,8 +41,8 @@ fn ttf() {
     ));
 }
 
-#[cfg(feature = "ignore-invalid-checksums")]
 #[test]
+#[cfg_attr(not(feature = "ignore-invalid-checksums"), should_panic)]
 fn ttf_corrupted() {
     use truetype::FontHeader;
 

@@ -2,9 +2,10 @@
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/GSUB.htm
 
-use truetype::{GlyphID, Result, Tape, Value, Walue};
+use truetype::GlyphID;
 
 use crate::layout::{Class, Coverage, Directory};
+use crate::{Result, Tape, Value, Walue};
 
 mod element;
 

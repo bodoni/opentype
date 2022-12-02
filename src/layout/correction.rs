@@ -1,6 +1,4 @@
-use truetype::{Tape, Value};
-
-use crate::Result;
+use crate::{Result, Tape, Value};
 
 /// A correction.
 #[derive(Clone, Debug)]

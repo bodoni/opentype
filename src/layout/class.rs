@@ -1,6 +1,6 @@
-use truetype::{GlyphID, Tape, Value};
+use truetype::GlyphID;
 
-use crate::Result;
+use crate::{Result, Tape, Value};
 
 /// A class definition.
 #[derive(Clone, Debug)]

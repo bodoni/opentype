@@ -2,9 +2,8 @@
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/gpos.htm
 
-use truetype::{Result, Tape, Value, Walue};
-
 use crate::layout::{Class, Coverage, Directory};
+use crate::{Result, Tape, Value, Walue};
 
 mod element;
 

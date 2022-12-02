@@ -1,10 +1,8 @@
 #![allow(unused_parens)]
 
-use truetype::{Tape, Value, Walue};
-
 use crate::layout::feature::Variations;
 use crate::layout::{Features, Lookups, Scripts};
-use crate::Result;
+use crate::{Result, Tape, Value, Walue};
 
 /// A layout directory.
 #[derive(Clone, Debug)]

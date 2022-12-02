@@ -1,8 +1,9 @@
 use std::io::{Read, Seek};
 use std::ops::Deref;
-use truetype::{Tag, Tape};
 
-use crate::{Font, Result};
+use truetype::Tag;
+
+use crate::{Font, Result, Tape};
 
 /// A file.
 pub struct File {

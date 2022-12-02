@@ -2,10 +2,9 @@
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/GDEF.htm
 
-use truetype::{Result, Tape, Value};
-
 use crate::layout::Class;
 use crate::variation::item::Variations;
+use crate::{Result, Tape, Value};
 
 mod element;
 

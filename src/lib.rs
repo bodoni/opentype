@@ -35,12 +35,10 @@
 //! ```
 
 pub extern crate postscript;
-
-#[macro_use(flags)]
 pub extern crate truetype;
 
 #[macro_use]
-mod macros;
+pub extern crate typeface;
 
 mod file;
 mod font;
@@ -53,15 +51,11 @@ pub mod glyph_substitution;
 pub mod layout;
 pub mod variation;
 
+pub use typeface::{Error, Result, Tape, Value, Walue};
+
 pub use file::File;
 pub use font::Font;
 pub use glyph_definition::GlyphDefinition;
 pub use glyph_positioning::GlyphPositioning;
 pub use glyph_substitution::GlyphSubstitution;
 pub use table::Table;
-
-/// An error.
-pub type Error = std::io::Error;
-
-/// A result.
-pub type Result<T> = std::io::Result<T>;

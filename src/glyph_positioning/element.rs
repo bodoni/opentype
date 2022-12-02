@@ -1,6 +1,7 @@
-use truetype::{GlyphID, Result, Tape, Value, Walue};
+use truetype::GlyphID;
 
 use crate::layout::Correction;
+use crate::{Result, Tape, Value, Walue};
 
 /// An anchor.
 #[derive(Clone, Debug)]

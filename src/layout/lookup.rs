@@ -2,9 +2,7 @@
 
 #![allow(unused_parens)]
 
-use truetype::{Tape, Value, Walue};
-
-use crate::Result;
+use crate::{Result, Tape, Value, Walue};
 
 /// A lookup list.
 #[derive(Clone, Debug)]

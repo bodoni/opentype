@@ -36,8 +36,7 @@
 
 pub extern crate postscript;
 pub extern crate truetype;
-
-#[macro_use]
+#[macro_use(flags, jump_take, jump_take_maybe, jump_take_given, raise, table)]
 pub extern crate typeface;
 
 mod file;

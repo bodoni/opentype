@@ -20,5 +20,5 @@ ignore-invalid-checksums = []
 
 [dependencies]
 postscript = "0.16"
-truetype = "0.34"
+truetype = "0.35"
 typeface = "0.1"

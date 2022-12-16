@@ -2,13 +2,13 @@
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/GDEF.htm
 
-use crate::layout::Class;
-use crate::variation::item::Variations;
-use crate::{Result, Tape, Value};
-
 mod element;
 
 pub use element::*;
+
+use crate::layout::Class;
+use crate::variation::item::Variations;
+use crate::{Result, Tape, Value};
 
 macro_rules! field(
     ($table:expr => $field:ident, $enumeration:ident::{$($variant:ident),*}) => (

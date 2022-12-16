@@ -2,12 +2,12 @@
 //!
 //! [1]: https://www.microsoft.com/typography/otspec/gpos.htm
 
-use crate::layout::{Class, Coverage, Directory};
-use crate::{Result, Tape, Value, Walue};
-
 mod element;
 
 pub use element::*;
+
+use crate::layout::{Class, Coverage, Directory};
+use crate::{Result, Tape, Value, Walue};
 
 /// A glyph-positioning table.
 pub type GlyphPositioning = Directory<Table>;

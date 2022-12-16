@@ -1,11 +1,11 @@
 extern crate opentype;
 
+#[macro_use]
+mod common;
+
 use opentype::glyph_definition::{GlyphDefinition, Header};
 use opentype::layout::Class;
 use opentype::Value;
-
-#[macro_use]
-mod common;
 
 #[test]
 fn table() {

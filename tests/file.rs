@@ -2,10 +2,10 @@ extern crate opentype;
 extern crate postscript;
 extern crate truetype;
 
-use opentype::File;
-
 #[macro_use]
 mod common;
+
+use opentype::File;
 
 #[test]
 fn cff() {

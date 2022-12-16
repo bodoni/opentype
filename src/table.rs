@@ -1,6 +1,6 @@
-use postscript;
-use postscript::compact1::FontSet;
 use std::io::{Read, Seek};
+
+use postscript::{self, compact1::FontSet};
 use truetype::{self, Tag};
 use truetype::{
     CharMapping, FontHeader, GlyphData, GlyphMapping, HorizontalHeader, HorizontalMetrics,

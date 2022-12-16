@@ -31,12 +31,9 @@
 
 pub extern crate postscript;
 pub extern crate truetype;
-#[macro_use(flags, jump_take, jump_take_maybe, jump_take_given, raise, table)]
-pub extern crate typeface;
 
-mod file;
-mod font;
-mod table;
+#[macro_use(flags, jump_take, jump_take_maybe, jump_take_given, raise, table)]
+extern crate typeface;
 
 pub mod compact2;
 pub mod glyph_definition;
@@ -44,6 +41,10 @@ pub mod glyph_positioning;
 pub mod glyph_substitution;
 pub mod layout;
 pub mod variation;
+
+mod file;
+mod font;
+mod table;
 
 pub use typeface::{Error, Result, Tape, Value, Walue};
 

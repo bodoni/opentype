@@ -1,11 +1,11 @@
 extern crate opentype;
 
+#[macro_use]
+mod common;
+
 use opentype::glyph_substitution::{GlyphSubstitution, SingleSubstitution, Table};
 use opentype::layout::script::{Language, Script};
 use opentype::Value;
-
-#[macro_use]
-mod common;
 
 #[test]
 fn features() {

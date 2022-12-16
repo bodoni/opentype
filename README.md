@@ -31,18 +31,10 @@ let naming_table: NamingTable = ok!(ok!(font.take(&mut reader)));
 let names: Vec<_> = naming_table.collect();
 let names: HashMap<_, _> = names
     .iter()
-    .map(|((name_id, language_tag), value)| {
-        ((*name_id, language_tag.as_deref()), value.as_deref())
-    })
+    .map(|((name_id, _), value)| (*name_id, value.as_deref()))
     .collect();
-assert_eq!(
-    ok!(names[&(NameID::FullFontName, Some("en"))]),
-    "Source Serif Pro",
-);
-assert_eq!(
-    ok!(names[&(NameID::DesignerName, Some("en"))]),
-    "Frank Grießhammer",
-);
+assert_eq!(ok!(names[&NameID::FullFontName]), "Source Serif Pro");
+assert_eq!(ok!(names[&NameID::DesignerName]), "Frank Grießhammer");
 ```
 
 ## Contribution

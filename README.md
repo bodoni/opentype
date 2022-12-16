@@ -9,9 +9,11 @@ this package.
 ```rust
 extern crate opentype;
 
+use std::collections::HashMap;
+
 use opentype::Font;
 use opentype::truetype::{FontHeader, HorizontalHeader};
-use opentype::truetype::naming_table::{NamingTable, PredefinedName};
+use opentype::truetype::naming_table::{NameID, NamingTable};
 
 macro_rules! ok(($result:expr) => ($result.unwrap()));
 
@@ -26,8 +28,21 @@ let horizontal_header: HorizontalHeader = ok!(ok!(font.take(&mut reader)));
 assert_eq!(horizontal_header.ascender, 918);
 
 let naming_table: NamingTable = ok!(ok!(font.take(&mut reader)));
-assert_eq!(ok!(naming_table.get(PredefinedName::FullFontName)), "Source Serif Pro");
-assert_eq!(ok!(naming_table.get(PredefinedName::DesignerName)), "Frank Grießhammer");
+let names: Vec<_> = naming_table.collect();
+let names: HashMap<_, _> = names
+    .iter()
+    .map(|((name_id, language_tag), value)| {
+        ((*name_id, language_tag.as_deref()), value.as_deref())
+    })
+    .collect();
+assert_eq!(
+    ok!(names[&(NameID::FullFontName, Some("en"))]),
+    "Source Serif Pro",
+);
+assert_eq!(
+    ok!(names[&(NameID::DesignerName, Some("en"))]),
+    "Frank Grießhammer",
+);
 ```
 
 ## Contribution

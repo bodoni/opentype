@@ -3,7 +3,7 @@ extern crate postscript;
 extern crate truetype;
 
 #[macro_use]
-mod common;
+mod support;
 
 use opentype::File;
 

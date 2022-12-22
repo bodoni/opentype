@@ -1,7 +1,7 @@
 extern crate opentype;
 
 #[macro_use]
-mod common;
+mod support;
 
 use opentype::glyph_positioning::{GlyphPositioning, PairAdjustment, Table};
 use opentype::layout::script::{Language, Script};

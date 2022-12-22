@@ -6,8 +6,8 @@ use std::path::PathBuf;
 macro_rules! ok(($result:expr) => ($result.unwrap()));
 
 macro_rules! setup(
-    ($fixture:ident) => (crate::common::setup(crate::common::Fixture::$fixture, None));
-    ($fixture:ident, $table:expr) => (crate::common::setup(crate::common::Fixture::$fixture, Some($table)));
+    ($fixture:ident) => (crate::support::setup(crate::support::Fixture::$fixture, None));
+    ($fixture:ident, $table:expr) => (crate::support::setup(crate::support::Fixture::$fixture, Some($table)));
 );
 
 macro_rules! tags(
@@ -26,12 +26,12 @@ pub enum Fixture {
 impl Fixture {
     pub fn path(&self) -> PathBuf {
         match *self {
-            Fixture::AdobeVFPrototype => "tests/fixtures/AdobeVFPrototype.otf".into(),
-            Fixture::Gingham => "tests/fixtures/Gingham.ttf".into(),
-            Fixture::KaushanScript => "tests/fixtures/KaushanScript-Regular.ttf".into(),
-            Fixture::OpenSans => "tests/fixtures/OpenSans-Italic.ttf".into(),
-            Fixture::SourceSerifPro => "tests/fixtures/SourceSerifPro-Regular.otf".into(),
-        }
+            Fixture::AdobeVFPrototype => "tests/fixtures/AdobeVFPrototype.otf",
+            Fixture::Gingham => "tests/fixtures/Gingham.ttf",
+            Fixture::KaushanScript => "tests/fixtures/KaushanScript-Regular.ttf",
+            Fixture::OpenSans => "tests/fixtures/OpenSans-Italic.ttf",
+            Fixture::SourceSerifPro => "tests/fixtures/SourceSerifPro-Regular.otf",
+        }.into()
     }
 
     pub fn offset(&self, table: &str) -> u64 {

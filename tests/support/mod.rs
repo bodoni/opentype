@@ -31,7 +31,8 @@ impl Fixture {
             Fixture::KaushanScript => "tests/fixtures/KaushanScript-Regular.ttf",
             Fixture::OpenSans => "tests/fixtures/OpenSans-Italic.ttf",
             Fixture::SourceSerifPro => "tests/fixtures/SourceSerifPro-Regular.otf",
-        }.into()
+        }
+        .into()
     }
 
     pub fn offset(&self, table: &str) -> u64 {

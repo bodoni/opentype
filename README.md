@@ -28,13 +28,12 @@ let horizontal_header: HorizontalHeader = ok!(ok!(font.take(&mut reader)));
 assert_eq!(horizontal_header.ascender, 918);
 
 let naming_table: NamingTable = ok!(ok!(font.take(&mut reader)));
-let names: Vec<_> = naming_table.collect();
-let names: HashMap<_, _> = names
+let names: HashMap<_, _> = naming_table
     .iter()
-    .map(|((name_id, _), value)| (*name_id, value.as_deref()))
+    .map(|((name_id, _), value)| (name_id, value.as_deref()))
     .collect();
-assert_eq!(ok!(names[&NameID::FullFontName]), "Source Serif Pro");
-assert_eq!(ok!(names[&NameID::DesignerName]), "Frank Grießhammer");
+assert_eq!(ok!(names[&NameID::FullFontName].as_ref()), "Source Serif Pro");
+assert_eq!(ok!(names[&NameID::DesignerName].as_ref()), "Frank Grießhammer");
 ```
 
 ## Contribution

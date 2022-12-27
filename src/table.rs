@@ -3,7 +3,7 @@ use std::io::{Read, Seek};
 use postscript::{self, compact1::FontSet};
 use truetype::{self, Tag};
 use truetype::{
-    CharMapping, FontHeader, GlyphData, GlyphMapping, HorizontalHeader, HorizontalMetrics,
+    CharacterMapping, FontHeader, GlyphData, GlyphMapping, HorizontalHeader, HorizontalMetrics,
     MaximumProfile, NamingTable, PostScript, WindowsMetrics,
 };
 
@@ -68,7 +68,7 @@ table! {
     b"GPOS" => opentype::GlyphPositioning(),
     b"GSUB" => opentype::GlyphSubstitution(),
     b"OS/2" => truetype::WindowsMetrics(),
-    b"cmap" => truetype::CharMapping(),
+    b"cmap" => truetype::CharacterMapping(),
     b"glyf" => truetype::GlyphData(..),
     b"head" => truetype::FontHeader(),
     b"hhea" => truetype::HorizontalHeader(),

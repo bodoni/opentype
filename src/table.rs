@@ -9,7 +9,7 @@ use truetype::{
 
 use crate::{GlyphDefinition, GlyphPositioning, GlyphSubstitution, Result};
 
-/// A font table.
+/// A type representing a font table.
 pub trait Table<'l>: Sized {
     #[doc(hidden)]
     type Parameter;

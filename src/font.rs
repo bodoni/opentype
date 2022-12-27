@@ -10,7 +10,7 @@ pub struct Font {
 }
 
 impl Font {
-    /// Read a font.
+    /// Read a file.
     #[inline]
     pub fn read<T>(tape: &mut T) -> Result<Font>
     where
@@ -21,7 +21,7 @@ impl Font {
         })
     }
 
-    /// Find, verify, and read a table.
+    /// Read a table.
     #[inline]
     pub fn take<'l, T, U>(&self, tape: &mut T) -> Result<Option<U>>
     where
@@ -31,7 +31,7 @@ impl Font {
         self.take_given(tape, ())
     }
 
-    /// Find, verify, and read a table given a parameter.
+    /// Read a table given a parameter.
     pub fn take_given<'l, T, U>(&self, tape: &mut T, parameter: U::Parameter) -> Result<Option<U>>
     where
         T: Read + Seek,

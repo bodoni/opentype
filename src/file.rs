@@ -1,5 +1,4 @@
 use std::io::{Read, Seek};
-use std::ops::Deref;
 
 use truetype::Tag;
 
@@ -23,11 +22,4 @@ impl File {
     }
 }
 
-impl Deref for File {
-    type Target = [Font];
-
-    #[inline(always)]
-    fn deref(&self) -> &Self::Target {
-        &self.fonts
-    }
-}
+dereference! { File::fonts => [Font] }

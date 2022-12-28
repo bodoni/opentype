@@ -1,7 +1,6 @@
-use std::io::{Read, Seek};
 use truetype::offset_table::OffsetTable;
 
-use crate::{Result, Table, Tape};
+use crate::{Result, Table, Tape, Value};
 
 /// A font.
 pub struct Font {
@@ -14,18 +13,16 @@ impl Font {
     #[inline]
     pub fn read<T>(tape: &mut T) -> Result<Font>
     where
-        T: Read + Seek,
+        T: Tape,
     {
-        Ok(Font {
-            offset_table: Tape::take(tape)?,
-        })
+        Tape::take(tape)
     }
 
     /// Read a table.
     #[inline]
     pub fn take<'l, T, U>(&self, tape: &mut T) -> Result<Option<U>>
     where
-        T: Read + Seek,
+        T: Tape,
         U: Table<'l, Parameter = ()>,
     {
         self.take_given(tape, ())
@@ -34,7 +31,7 @@ impl Font {
     /// Read a table given a parameter.
     pub fn take_given<'l, T, U>(&self, tape: &mut T, parameter: U::Parameter) -> Result<Option<U>>
     where
-        T: Read + Seek,
+        T: Tape,
         U: Table<'l>,
     {
         let tag = U::tag();
@@ -50,5 +47,14 @@ impl Font {
             }
         }
         Ok(None)
+    }
+}
+
+impl Value for Font {
+    #[inline]
+    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+        Ok(Self {
+            offset_table: tape.take()?,
+        })
     }
 }

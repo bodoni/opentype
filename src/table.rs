@@ -1,11 +1,10 @@
-use std::io::{Read, Seek};
-
 use postscript::{self, compact1::FontSet};
 use truetype::{self, Tag};
 use truetype::{
     CharacterMapping, FontHeader, GlyphData, GlyphMapping, HorizontalHeader, HorizontalMetrics,
     MaximumProfile, NamingTable, PostScript, WindowsMetrics,
 };
+use typeface::Tape;
 
 use crate::{GlyphDefinition, GlyphPositioning, GlyphSubstitution, Result};
 
@@ -20,7 +19,7 @@ pub trait Table<'l>: Sized {
     #[doc(hidden)]
     fn take<T>(tape: &mut T, parameter: Self::Parameter) -> Result<Self>
     where
-        T: Read + Seek;
+        T: Tape;
 }
 
 macro_rules! table {
@@ -36,7 +35,8 @@ macro_rules! table {
 
             #[inline]
             fn take<T>(tape: &mut T, _: Self::Parameter) -> Result<Self>
-                where T: Read + Seek
+            where
+                T: Tape,
             {
                 $scope::Tape::take(tape)
             }
@@ -51,7 +51,8 @@ macro_rules! table {
 
             #[inline]
             fn take<T>(tape: &mut T, parameter: Self::Parameter) -> Result<Self>
-                where T: Read + Seek
+            where
+                T: Tape,
             {
                 $scope::Tape::take_given(tape, parameter)
             }

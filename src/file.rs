@@ -1,5 +1,3 @@
-use std::io::{Read, Seek};
-
 use truetype::Tag;
 
 use crate::{Font, Result, Tape};
@@ -12,7 +10,7 @@ pub struct File {
 
 impl File {
     /// Read a file.
-    pub fn read<T: Read + Seek>(tape: &mut T) -> Result<File> {
+    pub fn read<T: Tape>(tape: &mut T) -> Result<File> {
         if Tag::from(Tape::peek::<u32>(tape)?) == Tag(*b"ttcf") {
             raise!("found a TrueType collection, which is not supported yet");
         }

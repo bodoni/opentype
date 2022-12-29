@@ -11,7 +11,7 @@ pub struct Font {
 impl Font {
     /// Read a file.
     #[inline]
-    pub fn read<T>(tape: &mut T) -> Result<Font>
+    pub fn read<T>(tape: &mut T) -> Result<Self>
     where
         T: Tape,
     {

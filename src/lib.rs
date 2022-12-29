@@ -45,7 +45,7 @@ pub extern crate truetype;
     jump_take_maybe,
     jump_take_given,
     raise,
-    table,
+    table
 )]
 extern crate typeface;
 

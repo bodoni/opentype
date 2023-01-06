@@ -1,6 +1,6 @@
 //! The [common layout tables][1].
 //!
-//! [1]: https://www.microsoft.com/typography/otspec/chapter2.htm
+//! [1]: https://learn.microsoft.com/en-gb/typography/opentype/spec/chapter2
 
 pub mod feature;
 pub mod lookup;

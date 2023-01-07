@@ -8,7 +8,7 @@ mod support;
 use opentype::File;
 
 #[test]
-fn cff() {
+fn cff_regular() {
     use postscript::compact1::FontSet;
 
     let mut reader = setup!(SourceSerifPro);
@@ -20,13 +20,23 @@ fn cff() {
 fn cff_variable() {
     use opentype::GlyphSubstitution;
 
-    let mut reader = setup!(AdobeVFPrototype);
+    let mut reader = setup!(AdobeVFPrototypeCFF);
     let file = ok!(File::read(&mut reader));
     let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
 }
 
 #[test]
-fn ttf() {
+#[cfg_attr(not(feature = "ignore-invalid-checksums"), should_panic)]
+fn ttf_corrupted() {
+    use truetype::FontHeader;
+
+    let mut reader = setup!(KaushanScript);
+    let file = ok!(File::read(&mut reader));
+    let _ = ok!(ok!(file[0].take::<_, FontHeader>(&mut reader)));
+}
+
+#[test]
+fn ttf_regular() {
     use truetype::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
 
     let mut reader = setup!(OpenSans);
@@ -42,20 +52,10 @@ fn ttf() {
 }
 
 #[test]
-#[cfg_attr(not(feature = "ignore-invalid-checksums"), should_panic)]
-fn ttf_corrupted() {
-    use truetype::FontHeader;
-
-    let mut reader = setup!(KaushanScript);
-    let file = ok!(File::read(&mut reader));
-    let _ = ok!(ok!(file[0].take::<_, FontHeader>(&mut reader)));
-}
-
-#[test]
 fn ttf_variable() {
     use opentype::GlyphSubstitution;
 
-    let mut reader = setup!(Gingham);
+    let mut reader = setup!(AdobeVFPrototypeTTF);
     let file = ok!(File::read(&mut reader));
     let _ = ok!(ok!(file[0].take::<_, GlyphSubstitution>(&mut reader)));
 }

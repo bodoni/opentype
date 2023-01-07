@@ -16,8 +16,8 @@ macro_rules! tags(
 );
 
 pub enum Fixture {
-    AdobeVFPrototype,
-    Gingham,
+    AdobeVFPrototypeCFF,
+    AdobeVFPrototypeTTF,
     KaushanScript,
     OpenSans,
     SourceSerifPro,
@@ -26,8 +26,8 @@ pub enum Fixture {
 impl Fixture {
     pub fn path(&self) -> PathBuf {
         match *self {
-            Fixture::AdobeVFPrototype => "tests/fixtures/AdobeVFPrototype.otf",
-            Fixture::Gingham => "tests/fixtures/Gingham.ttf",
+            Fixture::AdobeVFPrototypeCFF => "tests/fixtures/AdobeVFPrototype.otf",
+            Fixture::AdobeVFPrototypeTTF => "tests/fixtures/AdobeVFPrototype.ttf",
             Fixture::KaushanScript => "tests/fixtures/KaushanScript-Regular.ttf",
             Fixture::OpenSans => "tests/fixtures/OpenSans-Italic.ttf",
             Fixture::SourceSerifPro => "tests/fixtures/SourceSerifPro-Regular.otf",
@@ -37,10 +37,10 @@ impl Fixture {
 
     pub fn offset(&self, table: &str) -> u64 {
         match *self {
-            Fixture::AdobeVFPrototype => match table {
+            Fixture::AdobeVFPrototypeCFF => match table {
                 _ => unreachable!(),
             },
-            Fixture::Gingham => match table {
+            Fixture::AdobeVFPrototypeTTF => match table {
                 _ => unreachable!(),
             },
             Fixture::OpenSans => match table {

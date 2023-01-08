@@ -31,7 +31,9 @@ macro_rules! table {
             type Parameter = ();
 
             #[inline]
-            fn tag() -> Tag { Tag(*$tag) }
+            fn tag() -> Tag {
+                Tag(*$tag)
+            }
 
             #[inline]
             fn take<T>(tape: &mut T, _: Self::Parameter) -> Result<Self>
@@ -47,7 +49,9 @@ macro_rules! table {
             type Parameter = <$kind as $scope::Walue<'l>>::Parameter;
 
             #[inline]
-            fn tag() -> Tag { Tag(*$tag) }
+            fn tag() -> Tag {
+                Tag(*$tag)
+            }
 
             #[inline]
             fn take<T>(tape: &mut T, parameter: Self::Parameter) -> Result<Self>

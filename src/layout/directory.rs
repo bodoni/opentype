@@ -6,18 +6,17 @@ use crate::{Result, Tape, Value, Walue};
 
 /// A layout directory.
 #[derive(Clone, Debug)]
-#[rustfmt::skip]
 pub struct Directory<T> {
-    pub major_version:     (u16), // MajorVersion
-    pub minor_version:     (u16), // MinorVersion
-    pub scripts_offset:    (u16), // ScriptList
-    pub features_offset:   (u16), // FeatureList
-    pub lookups_offset:    (u16), // LookupList
-    pub variations_offset: (u32), // FeatureVariations
+    pub major_version: u16,     // MajorVersion
+    pub minor_version: u16,     // MinorVersion
+    pub scripts_offset: u16,    // ScriptList
+    pub features_offset: u16,   // FeatureList
+    pub lookups_offset: u16,    // LookupList
+    pub variations_offset: u32, // FeatureVariations
 
-    pub scripts:    (Scripts           ),
-    pub features:   (Features          ),
-    pub lookups:    (Lookups<T>        ),
+    pub scripts: (Scripts),
+    pub features: (Features),
+    pub lookups: (Lookups<T>),
     pub variations: (Option<Variations>),
 }
 

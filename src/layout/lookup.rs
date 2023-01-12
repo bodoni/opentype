@@ -6,23 +6,23 @@ use crate::{Result, Tape, Value, Walue};
 
 /// A lookup list.
 #[derive(Clone, Debug)]
-#[rustfmt::skip]
-pub struct Lookups<T> { // LookupList
-    pub count:   (u16           ), // LookupCount
-    pub offsets: (Vec<u16>      ), // Lookup
-    pub records: (Vec<Record<T>>),
+pub struct Lookups<T> {
+    // LookupList
+    pub count: u16,        // LookupCount
+    pub offsets: Vec<u16>, // Lookup
+    pub records: Vec<Record<T>>,
 }
 
 /// A lookup record.
 #[derive(Clone, Debug)]
-#[rustfmt::skip]
-pub struct Record<T> { // Lookup
-    pub kind:               (u16        ), // LookupType
-    pub flags:              (Flags      ), // LookupFlag
-    pub table_count:        (u16        ), // SubTableCount
-    pub table_offsets:      (Vec<u16>   ), // SubTable
-    pub mark_filtering_set: (Option<u16>), // MarkFilteringSet
-    pub tables:             (Vec<T>     ),
+pub struct Record<T> {
+    // Lookup
+    pub kind: u16,                       // LookupType
+    pub flags: Flags,                    // LookupFlag
+    pub table_count: u16,                // SubTableCount
+    pub table_offsets: Vec<u16>,         // SubTable
+    pub mark_filtering_set: Option<u16>, // MarkFilteringSet
+    pub tables: Vec<T>,
 }
 
 flags! {

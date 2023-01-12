@@ -1,5 +1,3 @@
-#![allow(unused_parens)]
-
 use crate::layout::feature::Variations;
 use crate::layout::{Features, Lookups, Scripts};
 use crate::{Result, Tape, Value, Walue};

@@ -1,7 +1,5 @@
 //! The lookup list.
 
-#![allow(unused_parens)]
-
 use crate::{Result, Tape, Value, Walue};
 
 /// A lookup list.

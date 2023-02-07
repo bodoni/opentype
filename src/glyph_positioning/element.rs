@@ -427,8 +427,8 @@ impl Walue<'static> for Base {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Base {
-            anchor_offsets: anchor_offsets,
-            anchors: anchors,
+            anchor_offsets,
+            anchors,
         })
     }
 }
@@ -443,10 +443,7 @@ impl Walue<'static> for Bases {
         for _ in 0..(count as usize) {
             records.push(tape.take_given((position, class_count))?);
         }
-        Ok(Bases {
-            count: count,
-            records: records,
-        })
+        Ok(Bases { count, records })
     }
 }
 
@@ -457,8 +454,8 @@ impl Walue<'static> for Component {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Component {
-            anchor_offsets: anchor_offsets,
-            anchors: anchors,
+            anchor_offsets,
+            anchors,
         })
     }
 }
@@ -474,8 +471,8 @@ impl Walue<'static> for Ligature {
             components.push(tape.take_given((position, class_count))?);
         }
         Ok(Ligature {
-            component_count: component_count,
-            components: components,
+            component_count,
+            components,
         })
     }
 }
@@ -489,9 +486,9 @@ impl Walue<'static> for Ligatures {
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
         let records = jump_take_given!(@unwrap tape, position, count, offsets, class_count);
         Ok(Ligatures {
-            count: count,
-            offsets: offsets,
-            records: records,
+            count,
+            offsets,
+            records,
         })
     }
 }
@@ -504,9 +501,9 @@ impl Walue<'static> for Mark1 {
         let anchor_offset = tape.take()?;
         let anchor = jump_take!(@unwrap tape, position, anchor_offset);
         Ok(Mark1 {
-            class_id: class_id,
-            anchor_offset: anchor_offset,
-            anchor: anchor,
+            class_id,
+            anchor_offset,
+            anchor,
         })
     }
 }
@@ -518,8 +515,8 @@ impl Walue<'static> for Mark2 {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
         Ok(Mark2 {
-            anchor_offsets: anchor_offsets,
-            anchors: anchors,
+            anchor_offsets,
+            anchors,
         })
     }
 }
@@ -534,10 +531,7 @@ impl Walue<'static> for Mark2s {
         for _ in 0..(count as usize) {
             records.push(tape.take_given((position, class_count))?);
         }
-        Ok(Mark2s {
-            count: count,
-            records: records,
-        })
+        Ok(Mark2s { count, records })
     }
 }
 
@@ -565,10 +559,7 @@ impl Walue<'static> for Pair1s {
         for _ in 0..(count as usize) {
             records.push(tape.take_given(parameter)?);
         }
-        Ok(Pair1s {
-            count: count,
-            records: records,
-        })
+        Ok(Pair1s { count, records })
     }
 }
 
@@ -597,7 +588,7 @@ impl Walue<'static> for Pair2s {
         for _ in 0..(class2_count as usize) {
             records.push(tape.take_given((position, value1_flags, value2_flags))?);
         }
-        Ok(Pair2s { records: records })
+        Ok(Pair2s { records })
     }
 }
 
@@ -610,10 +601,10 @@ impl Walue<'static> for Passage {
         let entry = jump_take!(@unwrap tape, position, entry_offset);
         let exit = jump_take!(@unwrap tape, position, exit_offset);
         Ok(Passage {
-            entry_offset: entry_offset,
-            exit_offset: exit_offset,
-            entry: entry,
-            exit: exit,
+            entry_offset,
+            exit_offset,
+            entry,
+            exit,
         })
     }
 }
@@ -644,18 +635,18 @@ impl Walue<'static> for Single {
         let x_advance_correction = take!(x_advance_correction_offset);
         let y_advance_correction = take!(y_advance_correction_offset);
         Ok(Single {
-            x_placement: x_placement,
-            y_placement: y_placement,
-            x_advance: x_advance,
-            y_advance: y_advance,
-            x_placement_correction_offset: x_placement_correction_offset,
-            y_placement_correction_offset: y_placement_correction_offset,
-            x_advance_correction_offset: x_advance_correction_offset,
-            y_advance_correction_offset: y_advance_correction_offset,
-            x_placement_correction: x_placement_correction,
-            y_placement_correction: y_placement_correction,
-            x_advance_correction: x_advance_correction,
-            y_advance_correction: y_advance_correction,
+            x_placement,
+            y_placement,
+            x_advance,
+            y_advance,
+            x_placement_correction_offset,
+            y_placement_correction_offset,
+            x_advance_correction_offset,
+            y_advance_correction_offset,
+            x_placement_correction,
+            y_placement_correction,
+            x_advance_correction,
+            y_advance_correction,
         })
     }
 }

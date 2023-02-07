@@ -45,9 +45,9 @@ where
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
         let records = jump_take!(@unwrap tape, position, count, offsets);
         Ok(Lookups {
-            count: count,
-            offsets: offsets,
-            records: records,
+            count,
+            offsets,
+            records,
         })
     }
 }
@@ -69,12 +69,12 @@ where
         };
         let tables = jump_take_given!(@unwrap tape, position, table_count, table_offsets, kind);
         Ok(Record {
-            kind: kind,
-            flags: flags,
-            table_count: table_count,
-            table_offsets: table_offsets,
-            mark_filtering_set: mark_filtering_set,
-            tables: tables,
+            kind,
+            flags,
+            table_count,
+            table_offsets,
+            mark_filtering_set,
+            tables,
         })
     }
 }

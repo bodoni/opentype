@@ -69,10 +69,10 @@ impl Value for Device {
         let short_count = (bit_count + 16 - bit_count % 16) >> 4;
         let deltas = tape.take_given(short_count)?;
         Ok(Device {
-            start_size: start_size,
-            end_size: end_size,
-            format: format,
-            deltas: deltas,
+            start_size,
+            end_size,
+            format,
+            deltas,
         })
     }
 }

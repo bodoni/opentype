@@ -43,16 +43,16 @@ where
         let lookups = jump_take!(@unwrap tape, position, lookups_offset);
         let variations = jump_take_maybe!(@unwrap tape, position, variations_offset);
         Ok(Directory {
-            major_version: major_version,
-            minor_version: minor_version,
-            scripts_offset: scripts_offset,
-            features_offset: features_offset,
-            lookups_offset: lookups_offset,
-            variations_offset: variations_offset,
-            scripts: scripts,
-            features: features,
-            lookups: lookups,
-            variations: variations,
+            major_version,
+            minor_version,
+            scripts_offset,
+            features_offset,
+            lookups_offset,
+            variations_offset,
+            scripts,
+            features,
+            lookups,
+            variations,
         })
     }
 }

@@ -1,5 +1,3 @@
-extern crate opentype;
-
 #[macro_use]
 mod support;
 

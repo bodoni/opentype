@@ -1,13 +1,18 @@
 #![allow(dead_code, unused_macros)]
 
 use std::fs::File;
+use std::io::{Seek, SeekFrom};
 use std::path::PathBuf;
 
 macro_rules! ok(($result:expr) => ($result.unwrap()));
 
 macro_rules! setup(
-    ($fixture:ident) => (crate::support::setup(crate::support::Fixture::$fixture, None));
-    ($fixture:ident, $table:expr) => (crate::support::setup(crate::support::Fixture::$fixture, Some($table)));
+    ($fixture:ident) => (
+        crate::support::setup(crate::support::Fixture::$fixture, None)
+    );
+    ($fixture:ident, $table:expr) => (
+        crate::support::setup(crate::support::Fixture::$fixture, Some($table))
+    );
 );
 
 macro_rules! tags(
@@ -25,14 +30,14 @@ pub enum Fixture {
 
 impl Fixture {
     pub fn path(&self) -> PathBuf {
-        match *self {
-            Fixture::AdobeVFPrototypeCFF => "tests/fixtures/AdobeVFPrototype.otf",
-            Fixture::AdobeVFPrototypeTTF => "tests/fixtures/AdobeVFPrototype.ttf",
-            Fixture::KaushanScript => "tests/fixtures/KaushanScript-Regular.ttf",
-            Fixture::OpenSans => "tests/fixtures/OpenSans-Italic.ttf",
-            Fixture::SourceSerifPro => "tests/fixtures/SourceSerifPro-Regular.otf",
-        }
-        .into()
+        let file_name = match *self {
+            Fixture::AdobeVFPrototypeCFF => "AdobeVFPrototype.otf",
+            Fixture::AdobeVFPrototypeTTF => "AdobeVFPrototype.ttf",
+            Fixture::KaushanScript => "KaushanScript-Regular.ttf",
+            Fixture::OpenSans => "OpenSans-Italic.ttf",
+            Fixture::SourceSerifPro => "SourceSerifPro-Regular.otf",
+        };
+        PathBuf::from("tests").join("fixtures").join(file_name)
     }
 
     pub fn offset(&self, table: &str) -> u64 {
@@ -60,8 +65,6 @@ impl Fixture {
 }
 
 pub fn setup(fixture: Fixture, table: Option<&str>) -> File {
-    use std::io::{Seek, SeekFrom};
-
     let mut file = ok!(File::open(fixture.path()));
     ok!(file.seek(SeekFrom::Start(
         table.map(|table| fixture.offset(table)).unwrap_or(0)

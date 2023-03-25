@@ -1,7 +1,3 @@
-extern crate opentype;
-extern crate postscript;
-extern crate truetype;
-
 #[macro_use]
 mod support;
 
@@ -9,7 +5,7 @@ use opentype::File;
 
 #[test]
 fn cff_regular() {
-    use postscript::compact1::FontSet;
+    use opentype::postscript::compact1::FontSet;
 
     let mut reader = setup!(SourceSerifPro);
     let file = ok!(File::read(&mut reader));
@@ -28,7 +24,7 @@ fn cff_variable() {
 #[test]
 #[cfg_attr(not(feature = "ignore-invalid-checksums"), should_panic)]
 fn ttf_corrupted() {
-    use truetype::FontHeader;
+    use opentype::truetype::FontHeader;
 
     let mut reader = setup!(KaushanScript);
     let file = ok!(File::read(&mut reader));
@@ -37,7 +33,7 @@ fn ttf_corrupted() {
 
 #[test]
 fn ttf_regular() {
-    use truetype::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
+    use opentype::truetype::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
 
     let mut reader = setup!(OpenSans);
     let file = ok!(File::read(&mut reader));

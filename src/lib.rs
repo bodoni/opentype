@@ -47,7 +47,7 @@ pub extern crate truetype;
     raise,
     table
 )]
-pub extern crate typeface;
+extern crate typeface;
 
 pub mod compact2;
 pub mod glyph_definition;

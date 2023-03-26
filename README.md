@@ -18,16 +18,16 @@ use opentype::truetype::naming_table::{NameID, NamingTable};
 macro_rules! ok(($result:expr) => ($result.unwrap()));
 
 let path = "SourceSerifPro-Regular.otf";
-let mut reader = ok!(std::fs::File::open(path));
-let File { mut fonts } = ok!(File::read(&mut reader));
+let mut tape = ok!(std::fs::File::open(path));
+let File { mut fonts } = ok!(File::read(&mut tape));
 
-let font_header: FontHeader = ok!(ok!(fonts[0].take(&mut reader)));
+let font_header: FontHeader = ok!(ok!(fonts[0].take(&mut tape)));
 assert_eq!(font_header.units_per_em, 1000);
 
-let horizontal_header: HorizontalHeader = ok!(ok!(fonts[0].take(&mut reader)));
+let horizontal_header: HorizontalHeader = ok!(ok!(fonts[0].take(&mut tape)));
 assert_eq!(horizontal_header.ascender, 918);
 
-let naming_table: NamingTable = ok!(ok!(fonts[0].take(&mut reader)));
+let naming_table: NamingTable = ok!(ok!(fonts[0].take(&mut tape)));
 let names: HashMap<_, _> = naming_table
     .iter()
     .map(|((name_id, _), value)| (name_id, value))

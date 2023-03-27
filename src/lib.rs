@@ -62,3 +62,9 @@ pub use glyph_definition::GlyphDefinition;
 pub use glyph_positioning::GlyphPositioning;
 pub use glyph_substitution::GlyphSubstitution;
 pub use table::Table;
+
+/// Check if a tag is recognized.
+#[inline]
+pub fn accept(tag: &truetype::Tag) -> bool {
+    matches!(&tag.0, b"ttcf") || truetype::accept(tag)
+}

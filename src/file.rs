@@ -11,7 +11,7 @@ pub struct File {
 impl File {
     /// Read a file.
     pub fn read<T: Tape>(tape: &mut T) -> Result<File> {
-        if Tape::peek::<Tag>(tape)?.0 == *b"ttcf" {
+        if &Tape::peek::<Tag>(tape)?.0 == b"ttcf" {
             raise!("found a TrueType collection, which is not supported yet");
         }
         Ok(File {

@@ -9,7 +9,6 @@
 //!
 //! macro_rules! ok(($result:expr) => ($result.unwrap()));
 //!
-//! # fn main() {
 //! let path = "SourceSerifPro-Regular.otf";
 //! # let path = "tests/fixtures/SourceSerifPro-Regular.otf";
 //! let mut tape = ok!(std::fs::File::open(path));
@@ -28,7 +27,6 @@
 //!     .collect::<std::collections::HashMap<_, _>>();
 //! assert_eq!(ok!(names[&NameID::FullFontName].as_ref()), "Source Serif Pro");
 //! assert_eq!(ok!(names[&NameID::DesignerName].as_ref()), "Frank Grießhammer");
-//! # }
 //! ```
 
 pub extern crate postscript;

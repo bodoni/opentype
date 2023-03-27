@@ -7,10 +7,6 @@ this package.
 ## Example
 
 ```rust
-extern crate opentype;
-
-use std::collections::HashMap;
-
 use opentype::File;
 use opentype::truetype::{FontHeader, HorizontalHeader};
 use opentype::truetype::naming_table::{NameID, NamingTable};
@@ -28,10 +24,10 @@ let horizontal_header: HorizontalHeader = ok!(ok!(fonts[0].take(&mut tape)));
 assert_eq!(horizontal_header.ascender, 918);
 
 let naming_table: NamingTable = ok!(ok!(fonts[0].take(&mut tape)));
-let names: HashMap<_, _> = naming_table
+let names = naming_table
     .iter()
     .map(|((name_id, _), value)| (name_id, value))
-    .collect();
+    .collect::<std::collections::HashMap<_, _>>();
 assert_eq!(ok!(names[&NameID::FullFontName].as_ref()), "Source Serif Pro");
 assert_eq!(ok!(names[&NameID::DesignerName].as_ref()), "Frank Grießhammer");
 ```

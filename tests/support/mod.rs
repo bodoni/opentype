@@ -46,6 +46,7 @@ impl Fixture {
                 _ => unreachable!(),
             },
             Fixture::AdobeVFPrototypeTTF => match table {
+                "fvar" => 41556,
                 _ => unreachable!(),
             },
             Fixture::OpenSans => match table {

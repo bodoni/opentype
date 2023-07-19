@@ -6,7 +6,7 @@ mod element;
 
 pub use element::*;
 
-use crate::font_variations::common::item::Variations;
+use crate::variations::item::Variations;
 use crate::layout::Class;
 use crate::{Result, Tape, Value};
 

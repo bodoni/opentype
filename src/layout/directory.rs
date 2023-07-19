@@ -8,10 +8,10 @@ use crate::{Result, Tape, Value, Walue};
 pub struct Directory<T> {
     pub major_version: u16, // MajorVersion
     pub minor_version: u16, // MinorVersion
-    pub scripts_offset: u16, // ScriptList
-    pub features_offset: u16, // FeatureList
-    pub lookups_offset: u16, // LookupList
-    pub variations_offset: u32, // FeatureVariations
+    pub script_offset: u16, // ScriptList
+    pub feature_offset: u16, // FeatureList
+    pub lookup_offset: u16, // LookupList
+    pub variation_offset: u32, // FeatureVariations
 
     pub scripts: Scripts,
     pub features: Features,
@@ -31,24 +31,24 @@ where
             (1, 0) | (1, 1) => {}
             _ => raise!("found an unknown version of the directory table"),
         }
-        let scripts_offset = tape.take()?;
-        let features_offset = tape.take()?;
-        let lookups_offset = tape.take()?;
-        let variations_offset = match (major_version, minor_version) {
+        let script_offset = tape.take()?;
+        let feature_offset = tape.take()?;
+        let lookup_offset = tape.take()?;
+        let variation_offset = match (major_version, minor_version) {
             (1, 1) => tape.take()?,
             _ => 0,
         };
-        let scripts = jump_take!(@unwrap tape, position, scripts_offset);
-        let features = jump_take!(@unwrap tape, position, features_offset);
-        let lookups = jump_take!(@unwrap tape, position, lookups_offset);
-        let variations = jump_take_maybe!(@unwrap tape, position, variations_offset);
+        let scripts = jump_take!(@unwrap tape, position, script_offset);
+        let features = jump_take!(@unwrap tape, position, feature_offset);
+        let lookups = jump_take!(@unwrap tape, position, lookup_offset);
+        let variations = jump_take_maybe!(@unwrap tape, position, variation_offset);
         Ok(Directory {
             major_version,
             minor_version,
-            scripts_offset,
-            features_offset,
-            lookups_offset,
-            variations_offset,
+            script_offset,
+            feature_offset,
+            lookup_offset,
+            variation_offset,
             scripts,
             features,
             lookups,

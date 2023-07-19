@@ -4,9 +4,9 @@ table! {
     @position
     #[doc = "An item variation store."]
     pub Variations { // ItemVariationStore
-        format         (u16) = { 1 }, // format
-        regions_offset (u32), // offsetToVariationRegionList
-        count          (u16), // itemVariationDataCount
+        format        (u16) = { 1 }, // format
+        region_offset (u32), // offsetToVariationRegionList
+        count         (u16), // itemVariationDataCount
 
         record_offsets (Vec<u32>) |this, tape, _| { // itemVariationDataOffsets
             tape.take_given(this.count as usize)

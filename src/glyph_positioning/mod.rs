@@ -176,8 +176,8 @@ table! {
         mark_coverage_offset (u16), // MarkCoverage
         base_coverage_offset (u16), // BaseCoverage
         class_count          (u16), // ClassCount
-        marks_offset         (u16), // MarkArray
-        bases_offset         (u16), // BaseArray
+        mark_offset          (u16), // MarkArray
+        base_offset          (u16), // BaseArray
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -188,11 +188,11 @@ table! {
         },
 
         marks (Mark1s) |this, tape, position| {
-            jump_take!(tape, position, this.marks_offset)
+            jump_take!(tape, position, this.mark_offset)
         },
 
         bases (Bases) |this, tape, position| {
-            jump_take_given!(tape, position, this.bases_offset, this.class_count)
+            jump_take_given!(tape, position, this.base_offset, this.class_count)
         },
     }
 }
@@ -205,8 +205,8 @@ table! {
         mark_coverage_offset     (u16), // MarkCoverage
         ligature_coverage_offset (u16), // LigatureCoverage
         class_count              (u16), // ClassCount
-        marks_offset             (u16), // MarkArray
-        ligatures_offset         (u16), // LigatureArray
+        mark_offset              (u16), // MarkArray
+        ligature_offset          (u16), // LigatureArray
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -217,11 +217,11 @@ table! {
         },
 
         marks (Mark1s) |this, tape, position| {
-            jump_take!(tape, position, this.marks_offset)
+            jump_take!(tape, position, this.mark_offset)
         },
 
         ligatures (Ligatures) |this, tape, position| {
-            jump_take_given!(tape, position, this.ligatures_offset, this.class_count)
+            jump_take_given!(tape, position, this.ligature_offset, this.class_count)
         },
     }
 }
@@ -234,8 +234,8 @@ table! {
         mark1_coverage_offset (u16), // Mark1Coverage
         mark2_coverage_offset (u16), // Mark2Coverage
         class_count           (u16), // ClassCount
-        mark1s_offset         (u16), // Mark1Array
-        mark2s_offset         (u16), // Mark2Array
+        mark1_offset          (u16), // Mark1Array
+        mark2_offset          (u16), // Mark2Array
 
         mark1_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark1_coverage_offset)
@@ -246,11 +246,11 @@ table! {
         },
 
         mark1s (Mark1s) |this, tape, position| {
-            jump_take!(tape, position, this.mark1s_offset)
+            jump_take!(tape, position, this.mark1_offset)
         },
 
         mark2s (Mark2s) |this, tape, position| {
-            jump_take_given!(tape, position, this.mark2s_offset, this.class_count)
+            jump_take_given!(tape, position, this.mark2_offset, this.class_count)
         },
     }
 }

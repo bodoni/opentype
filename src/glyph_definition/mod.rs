@@ -36,12 +36,12 @@ table! {
         },
 
         attachments (Option<Attachments>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => attachments_offset,
+            jump_take_maybe!(tape, position, field!(this.header => attachment_offset,
                                                     Header::{Version1, Version12, Version13}))
         },
 
         ligatures (Option<Ligatures>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => ligatures_offset,
+            jump_take_maybe!(tape, position, field!(this.header => ligature_offset,
                                                     Header::{Version1, Version12, Version13}))
         },
 
@@ -51,12 +51,12 @@ table! {
         },
 
         marks (Option<Marks>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => marks_offset(0),
+            jump_take_maybe!(tape, position, field!(this.header => mark_offset(0),
                                                     Header::{Version12, Version13}))
         },
 
         variations (Option<Variations>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => marks_offset(0),
+            jump_take_maybe!(tape, position, field!(this.header => mark_offset(0),
                                                     Header::{Version13}))
         },
     }
@@ -80,8 +80,8 @@ table! {
         major_version      (u16) = { 1 }, // MajorVersion
         minor_version      (u16) = { 0 }, // MinorVersion
         glyph_class_offset (u16), // GlyphClassDef
-        attachments_offset (u16), // AttachList
-        ligatures_offset   (u16), // LigCaretList
+        attachment_offset  (u16), // AttachList
+        ligature_offset    (u16), // LigCaretList
         mark_class_offset  (u16), // MarkAttachClassDef
     }
 }
@@ -93,10 +93,10 @@ table! {
         major_version      (u16) = { 1 }, // MajorVersion
         minor_version      (u16) = { 2 }, // MinorVersion
         glyph_class_offset (u16), // GlyphClassDef
-        attachments_offset (u16), // AttachList
-        ligatures_offset   (u16), // LigCaretList
+        attachment_offset  (u16), // AttachList
+        ligature_offset    (u16), // LigCaretList
         mark_class_offset  (u16), // MarkAttachClassDef
-        marks_offset       (u16), // MarkGlyphSetsDef
+        mark_offset        (u16), // MarkGlyphSetsDef
     }
 }
 
@@ -107,11 +107,11 @@ table! {
         major_version      (u16) = { 1 }, // MajorVersion
         minor_version      (u16) = { 3 }, // MinorVersion
         glyph_class_offset (u16), // GlyphClassDef
-        attachments_offset (u16), // AttachList
-        ligatures_offset   (u16), // LigCaretList
+        attachment_offset  (u16), // AttachList
+        ligature_offset    (u16), // LigCaretList
         mark_class_offset  (u16), // MarkAttachClassDef
-        marks_offset       (u16), // MarkGlyphSetsDef
-        variations_offset  (u32), // ItemVarStore
+        mark_offset        (u16), // MarkGlyphSetsDef
+        variation_offset   (u32), // ItemVarStore
     }
 }
 

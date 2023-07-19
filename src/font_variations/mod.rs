@@ -23,7 +23,7 @@ table! {
     pub Header {
         major_version  (u16), // majorVersion
         minor_version  (u16), // minorVersion
-        axes_offset    (u16), // axesArrayOffset
+        axis_offset    (u16), // axesArrayOffset
         reserved       (u16) = { 2 }, // reserved
         axis_count     (u16), // axisCount
         axis_size      (u16), // axisSize
@@ -75,7 +75,7 @@ impl Value for FontVariations {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
         let header: Header = tape.take()?;
-        tape.jump(position + header.axes_offset as u64)?;
+        tape.jump(position + header.axis_offset as u64)?;
         let axis_count = header.axis_count as usize;
         let axis_records = tape.take_given(axis_count)?;
         let instance_count = header.instance_count as usize;

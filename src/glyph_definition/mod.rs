@@ -1,4 +1,4 @@
-//! The [glyph-definition table][1].
+//! The [glyph definition][1].
 //!
 //! [1]: https://learn.microsoft.com/en-gb/typography/opentype/spec/gdef
 
@@ -6,8 +6,8 @@ mod element;
 
 pub use element::*;
 
+use crate::font_variations::common::item::Variations;
 use crate::layout::Class;
-use crate::variation::item::Variations;
 use crate::{Result, Tape, Value};
 
 macro_rules! field(

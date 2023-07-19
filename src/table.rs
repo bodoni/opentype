@@ -6,7 +6,7 @@ use truetype::{
 };
 use typeface::Tape;
 
-use crate::{GlyphDefinition, GlyphPositioning, GlyphSubstitution, Result};
+use crate::{FontVariations, GlyphDefinition, GlyphPositioning, GlyphSubstitution, Result};
 
 /// A type representing a font table.
 pub trait Table<'l>: Sized {
@@ -74,6 +74,7 @@ table! {
     b"GSUB" => opentype::GlyphSubstitution(),
     b"OS/2" => truetype::WindowsMetrics(),
     b"cmap" => truetype::CharacterMapping(),
+    b"fvar" => opentype::FontVariations(),
     b"glyf" => truetype::GlyphData(..),
     b"head" => truetype::FontHeader(),
     b"hhea" => truetype::HorizontalHeader(),

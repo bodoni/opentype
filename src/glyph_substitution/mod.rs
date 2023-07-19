@@ -1,4 +1,4 @@
-//! The [glyph-substitution table][1].
+//! The [glyph substitution][1].
 //!
 //! [1]: https://learn.microsoft.com/en-gb/typography/opentype/spec/gsub
 

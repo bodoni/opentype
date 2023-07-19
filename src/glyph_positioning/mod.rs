@@ -1,4 +1,4 @@
-//! The [glyph-positioning table][1].
+//! The [glyph positioning][1].
 //!
 //! [1]: https://learn.microsoft.com/en-gb/typography/opentype/spec/gpos
 

@@ -6,8 +6,8 @@ mod element;
 
 pub use element::*;
 
-use crate::variations::item::Variations;
 use crate::layout::Class;
+use crate::variations::item::Variations;
 use crate::{Result, Tape, Value};
 
 macro_rules! field(

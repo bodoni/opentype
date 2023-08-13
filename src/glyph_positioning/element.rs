@@ -236,8 +236,8 @@ table! {
     @define
     #[doc = "A mark attachment in format 1."]
     pub Mark1 { // MarkRecord
-        class_id      (u16   ), // Class
-        anchor_offset (u16   ), // MarkAnchor
+        class_id      (u16   ), // markClass
+        anchor_offset (u16   ), // markAnchorOffset
         anchor        (Anchor),
     }
 }
@@ -246,9 +246,9 @@ table! {
     @position
     #[doc = "A set of mark attachments in format 1."]
     pub Mark1s { // MarkArray
-        count (u16), // MarkCount
+        count (u16), // markCount
 
-        records (Vec<Mark1>) |this, tape, position| { // MarkRecord
+        records (Vec<Mark1>) |this, tape, position| { // markRecords
             let mut values = Vec::with_capacity(this.count as usize);
             for _ in 0..(this.count as usize) {
                 values.push(tape.take_given(position)?);
@@ -308,7 +308,7 @@ table! {
     @define
     #[doc = "A set of pair adjustments in format 2."]
     pub Pair2s { // Class1Record
-        records (Vec<Pair2>), // Class2Record
+        records (Vec<Pair2>), // class2Records
     }
 }
 

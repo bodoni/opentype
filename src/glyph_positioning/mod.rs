@@ -39,11 +39,11 @@ table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 1."]
     pub SingleAdjustment1 { // SinglePosFormat1
-        format          (u16        ), // PosFormat
-        coverage_offset (u16        ), // Coverage
-        value_flags     (SingleFlags), // ValueFormat
+        format          (u16        ), // posFormat
+        coverage_offset (u16        ), // coverageOffset
+        value_flags     (SingleFlags), // valueFormat
 
-        value (Single) |this, tape, position| { // Value
+        value (Single) |this, tape, position| { // valueRecord
             tape.take_given((position, this.value_flags))
         },
 
@@ -57,12 +57,12 @@ table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 2."]
     pub SingleAdjustment2 { // SinglePosFormat2
-        format          (u16        ), // PosFormat
-        coverage_offset (u16        ), // Coverage
-        value_flags     (SingleFlags), // ValueFormat
-        value_count     (u16        ), // ValueCount
+        format          (u16        ), // posFormat
+        coverage_offset (u16        ), // coverageOffset
+        value_flags     (SingleFlags), // valueFormat
+        value_count     (u16        ), // valueCount
 
-        values (Vec<Single>) |this, tape, position| { // Value
+        values (Vec<Single>) |this, tape, position| { // valueRecords
             let mut values = Vec::with_capacity(this.value_count as usize);
             for _ in 0..(this.value_count as usize) {
                 values.push(tape.take_given((position, this.value_flags))?);
@@ -89,13 +89,13 @@ table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 1."]
     pub PairAdjustment1 { // PairPosFormat1
-        format          (u16        ), // PosFormat
-        coverage_offset (u16        ), // Coverage
-        value1_flags    (SingleFlags), // ValueFormat1
-        value2_flags    (SingleFlags), // ValueFormat2
-        set_count       (u16        ), // PairSetCount
+        format          (u16        ), // posFormat
+        coverage_offset (u16        ), // coverageOffset
+        value1_flags    (SingleFlags), // valueFormat1
+        value2_flags    (SingleFlags), // valueFormat2
+        set_count       (u16        ), // pairSetCount
 
-        set_offsets (Vec<u16>) |this, tape, _| { // PairSetOffset
+        set_offsets (Vec<u16>) |this, tape, _| { // pairSetOffsets
             tape.take_given(this.set_count as usize)
         },
 
@@ -114,16 +114,16 @@ table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 2."]
     pub PairAdjustment2 { // PairPosFormat2
-        format          (u16        ), // PosFormat
-        coverage_offset (u16        ), // Coverage
-        value1_flags    (SingleFlags), // ValueFormat1
-        value2_flags    (SingleFlags), // ValueFormat2
-        class1_offset   (u16        ), // ClassDef1
-        class2_offset   (u16        ), // ClassDef2
-        class1_count    (u16        ), // Class1Count
-        class2_count    (u16        ), // Class2Count
+        format          (u16        ), // posFormat
+        coverage_offset (u16        ), // coverageOffset
+        value1_flags    (SingleFlags), // valueFormat1
+        value2_flags    (SingleFlags), // valueFormat2
+        class1_offset   (u16        ), // classDef1Offset
+        class2_offset   (u16        ), // classDef2Offset
+        class1_count    (u16        ), // class1Count
+        class2_count    (u16        ), // class2Count
 
-        sets (Vec<Pair2s>) |this, tape, position| { // Class1Record
+        sets (Vec<Pair2s>) |this, tape, position| { // class1Records
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for _ in 0..(this.class1_count as usize) {
                 values.push(tape.take_given((position, this.class2_count,
@@ -150,11 +150,11 @@ table! {
     @position
     #[doc = "A table for attaching cursive glyphs."]
     pub CursiveAttachment { // CursivePosFormat1
-        format          (u16) = { 1 }, // PosFormat
-        coverage_offset (u16), // Coverage
-        passage_count   (u16), // EntryExitCount
+        format          (u16) = { 1 }, // posFormat
+        coverage_offset (u16), // coverageOffset
+        passage_count   (u16), // entryExitCount
 
-        passages (Vec<Passage>) |this, tape, position| { // EntryExitRecord
+        passages (Vec<Passage>) |this, tape, position| { // entryExitRecords
             let mut values = Vec::with_capacity(this.passage_count as usize);
             for _ in 0..(this.passage_count as usize) {
                 values.push(tape.take_given(position)?);
@@ -172,12 +172,12 @@ table! {
     @position
     #[doc = "A table for attaching combining marks to base glyphs."]
     pub MarkToBaseAttachment { // MarkBasePosFormat1
-        format               (u16) = { 1 }, // PosFormat
-        mark_coverage_offset (u16), // MarkCoverage
-        base_coverage_offset (u16), // BaseCoverage
-        class_count          (u16), // ClassCount
-        mark_offset          (u16), // MarkArray
-        base_offset          (u16), // BaseArray
+        format               (u16) = { 1 }, // posFormat
+        mark_coverage_offset (u16), // markCoverageOffset
+        base_coverage_offset (u16), // baseCoverageOffset
+        mark_class_count     (u16), // markClassCount
+        mark_offset          (u16), // markArrayOffset
+        base_offset          (u16), // baseArrayOffset
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -192,7 +192,7 @@ table! {
         },
 
         bases (Bases) |this, tape, position| {
-            jump_take_given!(tape, position, this.base_offset, this.class_count)
+            jump_take_given!(tape, position, this.base_offset, this.mark_class_count)
         },
     }
 }
@@ -201,12 +201,12 @@ table! {
     @position
     #[doc = "A table for attaching combining marks to ligatures."]
     pub MarkToLigatureAttachment { // MarkLigPosFormat1
-        format                   (u16) = { 1 }, // PosFormat
-        mark_coverage_offset     (u16), // MarkCoverage
-        ligature_coverage_offset (u16), // LigatureCoverage
-        class_count              (u16), // ClassCount
-        mark_offset              (u16), // MarkArray
-        ligature_offset          (u16), // LigatureArray
+        format                   (u16) = { 1 }, // posFormat
+        mark_coverage_offset     (u16), // markCoverageOffset
+        ligature_coverage_offset (u16), // ligatureCoverageOffset
+        mark_class_count         (u16), // markClassCount
+        mark_offset              (u16), // markArrayOffset
+        ligature_offset          (u16), // ligatureArrayOffset
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -221,7 +221,7 @@ table! {
         },
 
         ligatures (Ligatures) |this, tape, position| {
-            jump_take_given!(tape, position, this.ligature_offset, this.class_count)
+            jump_take_given!(tape, position, this.ligature_offset, this.mark_class_count)
         },
     }
 }
@@ -230,12 +230,12 @@ table! {
     @position
     #[doc = "A table for attaching combining marks to other marks."]
     pub MarkToMarkAttachment { // MarkMarkPosFormat1
-        format                (u16) = { 1 }, // PosFormat
-        mark1_coverage_offset (u16), // Mark1Coverage
-        mark2_coverage_offset (u16), // Mark2Coverage
-        class_count           (u16), // ClassCount
-        mark1_offset          (u16), // Mark1Array
-        mark2_offset          (u16), // Mark2Array
+        format                (u16) = { 1 }, // posFormat
+        mark1_coverage_offset (u16), // mark1CoverageOffset
+        mark2_coverage_offset (u16), // mark2CoverageOffset
+        mark_class_count      (u16), // markClassCount
+        mark1_offset          (u16), // mark1ArrayOffset
+        mark2_offset          (u16), // mark2ArrayOffset
 
         mark1_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark1_coverage_offset)
@@ -250,7 +250,7 @@ table! {
         },
 
         mark2s (Mark2s) |this, tape, position| {
-            jump_take_given!(tape, position, this.mark2_offset, this.class_count)
+            jump_take_given!(tape, position, this.mark2_offset, this.mark_class_count)
         },
     }
 }
@@ -269,12 +269,12 @@ pub enum ContextPositioning {
 table! {
     @position
     #[doc = "A table for positioning glyphs in a context in format 1."]
-    pub ContextPositioning1 { // ContextPosFormat1
-        format          (u16), // PosFormat
-        coverage_offset (u16), // Coverage
-        set_count       (u16), // PosRuleSetCount
+    pub ContextPositioning1 { // SequenceContextFormat1
+        format          (u16), // format
+        coverage_offset (u16), // coverageOffset
+        set_count       (u16), // seqRuleSetCount
 
-        set_offsets (Vec<u16>) |this, tape, _| { // PosRuleSet
+        set_offsets (Vec<u16>) |this, tape, _| { // seqRuleSetOffsets
             tape.take_given(this.set_count as usize)
         },
 
@@ -291,13 +291,13 @@ table! {
 table! {
     @position
     #[doc = "A table for positioning glyphs in a context in format 2."]
-    pub ContextPositioning2 { // ContextPosFormat2
-        format          (u16), // PosFormat
-        coverage_offset (u16), // Coverage
-        class_offset    (u16), // ClassDef
-        set_count       (u16), // PosClassSetCnt
+    pub ContextPositioning2 { // SequenceContextFormat2
+        format          (u16), // format
+        coverage_offset (u16), // coverageOffset
+        class_offset    (u16), // classDefOffset
+        set_count       (u16), // classSeqRuleSetCount
 
-        set_offsets (Vec<u16>) |this, tape, _| { // PosClassSet
+        set_offsets (Vec<u16>) |this, tape, _| { // classSeqRuleSetOffsets
             tape.take_given(this.set_count as usize)
         },
 
@@ -314,16 +314,16 @@ table! {
 table! {
     @position
     #[doc = "A table for positioning glyphs in a context in format 3."]
-    pub ContextPositioning3 { // ContextPosFormat3
-        format          (u16), // PosFormat
-        glyph_count     (u16), // GlyphCount
-        operation_count (u16), // PosCount
+    pub ContextPositioning3 { // SequenceContextFormat3
+        format          (u16), // format
+        glyph_count     (u16), // glyphCount
+        operation_count (u16), // seqLookupCount
 
-        coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+        coverage_offsets (Vec<u16>) |this, tape, _| { // coverageOffsets
             tape.take_given(this.glyph_count as usize)
         },
 
-        operations (Vec<Positioning>) |this, tape, _| { // PosLookupRecord
+        operations (Vec<Positioning>) |this, tape, _| { // seqLookupRecords
             tape.take_given(this.operation_count as usize)
         },
 
@@ -347,12 +347,12 @@ pub enum ChainContextPositioning {
 table! {
     @position
     #[doc = "A table for positioning glyphs in a chaining context in format 1."]
-    pub ChainContextPositioning1 {
-        format          (u16), // PosFormat
-        coverage_offset (u16), // Coverage
-        set_count       (u16), // ChainPosRuleSetCount
+    pub ChainContextPositioning1 { // ChainedSequenceContextFormat1
+        format          (u16), // format
+        coverage_offset (u16), // coverageOffset
+        set_count       (u16), // chainedSeqRuleSetCount
 
-        set_offsets (Vec<u16>) |this, tape, _| { // ChainPosRuleSet
+        set_offsets (Vec<u16>) |this, tape, _| { // chainedSeqRuleSetOffsets
             tape.take_given(this.set_count as usize)
         },
 
@@ -369,15 +369,15 @@ table! {
 table! {
     @position
     #[doc = "A table for positioning glyphs in a chaining context in format 2."]
-    pub ChainContextPositioning2 {
-        format                (u16), // PosFormat
-        coverage_offset       (u16), // Coverage
-        backward_class_offset (u16), // BacktrackClassDef
-        input_class_offset    (u16), // InputClassDef
-        forward_class_offset  (u16), // LookaheadClassDef
-        set_count             (u16), // ChainPosClassSetCnt
+    pub ChainContextPositioning2 { // ChainedSequenceContextFormat2
+        format                (u16), // format
+        coverage_offset       (u16), // coverageOffset
+        backward_class_offset (u16), // backtrackClassDefOffset
+        input_class_offset    (u16), // inputClassDefOffset
+        forward_class_offset  (u16), // lookaheadClassDefOffset
+        set_count             (u16), // chainedClassSeqRuleSetCount
 
-        set_offsets (Vec<u16>) |this, tape, _| { // ChainPosClassSet
+        set_offsets (Vec<u16>) |this, tape, _| { // chainedClassSeqRuleSetOffsets
             tape.take_given(this.set_count as usize)
         },
 
@@ -406,29 +406,29 @@ table! {
 table! {
     @position
     #[doc = "A table for positioning glyphs in a chaining context in format 3."]
-    pub ChainContextPositioning3 {
-        format               (u16), // PosFormat
-        backward_glyph_count (u16), // BacktrackGlyphCount
+    pub ChainContextPositioning3 { // ChainedSequenceContextFormat3
+        format               (u16), // format
+        backward_glyph_count (u16), // backtrackGlyphCount  
 
-        backward_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+        backward_coverage_offsets (Vec<u16>) |this, tape, _| { // backtrackCoverageOffsets
             tape.take_given(this.backward_glyph_count as usize)
         },
 
-        input_glyph_count (u16), // InputGlyphCount
+        input_glyph_count (u16), // inputGlyphCount
 
-        input_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+        input_coverage_offsets (Vec<u16>) |this, tape, _| { // inputCoverageOffsets
             tape.take_given(this.input_glyph_count as usize)
         },
 
-        forward_glyph_count (u16), // LookaheadGlyphCount
+        forward_glyph_count (u16), // lookaheadGlyphCount
 
-        forward_coverage_offsets (Vec<u16>) |this, tape, _| { // Coverage
+        forward_coverage_offsets (Vec<u16>) |this, tape, _| { // lookaheadCoverageOffsets
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        operation_count (u16), // PosCount
+        operation_count (u16), // seqLookupCount
 
-        operations (Vec<Positioning>) |this, tape, _| { // PosLookupRecord
+        operations (Vec<Positioning>) |this, tape, _| { // seqLookupRecords
             tape.take_given(this.operation_count as usize)
         },
 
@@ -449,9 +449,9 @@ table! {
 table! {
     #[doc = "A table for other types of positioning."]
     pub ExtensionPositioning { // ExtensionPosFormat1
-        format (u16) = { 1 }, // PosFormat
-        kind   (u16), // ExtensionLookupType
-        offset (u32), // ExtensionOffset
+        format (u16) = { 1 }, // posFormat
+        kind   (u16), // extensionLookupType
+        offset (u32), // extensionOffset
     }
 }
 

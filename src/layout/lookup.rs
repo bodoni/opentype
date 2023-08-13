@@ -6,8 +6,9 @@ use crate::{Result, Tape, Value, Walue};
 #[derive(Clone, Debug)]
 #[rustfmt::skip]
 pub struct Lookups<T> { // LookupList
-    pub count: u16, // LookupCount
-    pub offsets: Vec<u16>, // Lookup
+    pub count: u16, // lookupCount
+    pub offsets: Vec<u16>, // lookupOffsets
+
     pub records: Vec<Record<T>>,
 }
 
@@ -15,11 +16,12 @@ pub struct Lookups<T> { // LookupList
 #[derive(Clone, Debug)]
 #[rustfmt::skip]
 pub struct Record<T> { // Lookup
-    pub kind: u16, // LookupType
-    pub flags: Flags, // LookupFlag
-    pub table_count: u16, // SubTableCount
-    pub table_offsets: Vec<u16>, // SubTable
-    pub mark_filtering_set: Option<u16>, // MarkFilteringSet
+    pub kind: u16, // lookupType
+    pub flags: Flags, // lookupFlag
+    pub table_count: u16, // subTableCount
+    pub table_offsets: Vec<u16>, // subTableOffsets
+    pub mark_filtering_set: Option<u16>, // markFilteringSet
+
     pub tables: Vec<T>,
 }
 

@@ -6,12 +6,12 @@ use crate::{Result, Tape, Value, Walue};
 #[derive(Clone, Debug)]
 #[rustfmt::skip]
 pub struct Directory<T> {
-    pub major_version: u16, // MajorVersion
-    pub minor_version: u16, // MinorVersion
-    pub script_offset: u16, // ScriptList
-    pub feature_offset: u16, // FeatureList
-    pub lookup_offset: u16, // LookupList
-    pub variation_offset: u32, // FeatureVariations
+    pub major_version: u16, // majorVersion
+    pub minor_version: u16, // minorVersion
+    pub script_offset: u16, // scriptListOffset
+    pub feature_offset: u16, // featureListOffset
+    pub lookup_offset: u16, // lookupListOffset
+    pub variation_offset: u32, // featureVariationsOffset
 
     pub scripts: Scripts,
     pub features: Features,

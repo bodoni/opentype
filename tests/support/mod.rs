@@ -23,6 +23,7 @@ macro_rules! tags(
 pub enum Fixture {
     AdobeVFPrototypeCFF,
     AdobeVFPrototypeTTF,
+    CrimsonText,
     KaushanScript,
     OpenSans,
     SourceSerifPro,
@@ -33,6 +34,7 @@ impl Fixture {
         let file_name = match *self {
             Fixture::AdobeVFPrototypeCFF => "AdobeVFPrototype.otf",
             Fixture::AdobeVFPrototypeTTF => "AdobeVFPrototype.ttf",
+            Fixture::CrimsonText => "CrimsonText-Regular.ttf",
             Fixture::KaushanScript => "KaushanScript-Regular.ttf",
             Fixture::OpenSans => "OpenSans-Italic.ttf",
             Fixture::SourceSerifPro => "SourceSerifPro-Regular.otf",
@@ -47,6 +49,10 @@ impl Fixture {
             },
             Fixture::AdobeVFPrototypeTTF => match table {
                 "fvar" => 41556,
+                _ => unreachable!(),
+            },
+            Fixture::CrimsonText => match table {
+                "GPOS" => 94952,
                 _ => unreachable!(),
             },
             Fixture::OpenSans => match table {

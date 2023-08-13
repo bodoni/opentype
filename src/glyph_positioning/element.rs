@@ -415,7 +415,7 @@ impl Value for Anchor {
             1 => Anchor::Format1(tape.take()?),
             2 => Anchor::Format2(tape.take()?),
             3 => Anchor::Format3(tape.take()?),
-            _ => raise!("found an unknown format of the anchor table"),
+            value => raise!("found an unknown format of the anchor table ({value})"),
         })
     }
 }

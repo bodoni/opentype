@@ -385,7 +385,7 @@ impl Walue<'static> for Table {
             6 => Table::ChainContextSubstitution(tape.take()?),
             7 => Table::ExtensionSubstitution(tape.take()?),
             8 => Table::ReverseChainContextSubstitution(tape.take()?),
-            _ => raise!("found an unknown glyph-substitution type"),
+            value => raise!("found an unknown glyph-substitution type ({value})"),
         })
     }
 }
@@ -395,7 +395,7 @@ impl Value for SingleSubstitution {
         Ok(match tape.peek::<u16>()? {
             1 => SingleSubstitution::Format1(tape.take()?),
             2 => SingleSubstitution::Format2(tape.take()?),
-            _ => raise!("found an unknown format of the single-substitution table"),
+            value => raise!("found an unknown format of the single-substitution table ({value})"),
         })
     }
 }
@@ -406,7 +406,7 @@ impl Value for ContextSubstitution {
             1 => ContextSubstitution::Format1(tape.take()?),
             2 => ContextSubstitution::Format2(tape.take()?),
             3 => ContextSubstitution::Format3(tape.take()?),
-            _ => raise!("found an unknown format of the context-substitution table"),
+            value => raise!("found an unknown format of the context-substitution table ({value})"),
         })
     }
 }
@@ -417,7 +417,9 @@ impl Value for ChainContextSubstitution {
             1 => ChainContextSubstitution::Format1(tape.take()?),
             2 => ChainContextSubstitution::Format2(tape.take()?),
             3 => ChainContextSubstitution::Format3(tape.take()?),
-            _ => raise!("found an unknown format of the chaining-context-substitution table"),
+            value => raise!(
+                "found an unknown format of the chaining-context-substitution table ({value})"
+            ),
         })
     }
 }

@@ -469,7 +469,7 @@ impl Walue<'static> for Table {
             7 => Table::ContextPositioning(tape.take()?),
             8 => Table::ChainContextPositioning(tape.take()?),
             9 => Table::ExtensionPositioning(tape.take()?),
-            _ => raise!("found an unknown glyph-positioning type"),
+            value => raise!("found an unknown glyph-positioning type ({value})"),
         })
     }
 }
@@ -479,7 +479,7 @@ impl Value for SingleAdjustment {
         Ok(match tape.peek::<u16>()? {
             1 => SingleAdjustment::Format1(tape.take()?),
             2 => SingleAdjustment::Format2(tape.take()?),
-            _ => raise!("found an unknown format of the single-adjustment table"),
+            value => raise!("found an unknown format of the single-adjustment table ({value})"),
         })
     }
 }
@@ -489,7 +489,7 @@ impl Value for PairAdjustment {
         Ok(match tape.peek::<u16>()? {
             1 => PairAdjustment::Format1(tape.take()?),
             2 => PairAdjustment::Format2(tape.take()?),
-            _ => raise!("found an unknown format of the pair-adjustment table"),
+            value => raise!("found an unknown format of the pair-adjustment table ({value})"),
         })
     }
 }
@@ -500,7 +500,7 @@ impl Value for ContextPositioning {
             1 => ContextPositioning::Format1(tape.take()?),
             2 => ContextPositioning::Format2(tape.take()?),
             3 => ContextPositioning::Format3(tape.take()?),
-            _ => raise!("found an unknown format of the context-positioning table"),
+            value => raise!("found an unknown format of the context-positioning table ({value})"),
         })
     }
 }
@@ -511,7 +511,9 @@ impl Value for ChainContextPositioning {
             1 => ChainContextPositioning::Format1(tape.take()?),
             2 => ChainContextPositioning::Format2(tape.take()?),
             3 => ChainContextPositioning::Format3(tape.take()?),
-            _ => raise!("found an unknown format of the chaining-context-positioning table"),
+            value => raise!(
+                "found an unknown format of the chaining-context-positioning table ({value})"
+            ),
         })
     }
 }

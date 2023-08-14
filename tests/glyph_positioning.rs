@@ -13,7 +13,7 @@ mod crimson_text {
             .iter()
             .map(|header| header.tag)
             .collect::<Vec<_>>();
-        assert_eq!(tags, tags![]);
+        assert_eq!(tags, tags![b"kern", b"mark", b"mkmk"]);
     }
 }
 

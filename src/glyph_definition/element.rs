@@ -4,9 +4,9 @@ use crate::{Result, Tape, Value};
 table! {
     #[doc = "A glyph attachment."]
     pub Attachment { // AttachPoint
-        index_count (u16), // PointCount
+        index_count (u16), // pointCount
 
-        indices (Vec<u16>) |this, tape| { // PointIndex
+        indices (Vec<u16>) |this, tape| { // pointIndices
             tape.take_given(this.index_count as usize)
         },
     }
@@ -16,10 +16,10 @@ table! {
     @position
     #[doc = "A set of glyph attachments."]
     pub Attachments { // AttachList
-        coverage_offset (u16), // Coverage
-        count           (u16), // GlyphCount
+        coverage_offset (u16), // coverageOffset
+        count           (u16), // glyphCount
 
-        offsets (Vec<u16>) |this, tape, _| { // AttachPoint
+        offsets (Vec<u16>) |this, tape, _| { // attachPointOffsets
             tape.take_given(this.count as usize)
         },
 
@@ -47,28 +47,28 @@ pub enum Caret {
 table! {
     /// A ligature caret in format 1.
     #[derive(Copy)]
-    pub Caret1 {
-        format     (u16), // CaretValueFormat
-        coordinate (i16), // Coordinate
+    pub Caret1 { // CaretValueFormat1
+        format     (u16), // caretValueFormat
+        coordinate (i16), // coordinate
     }
 }
 
 table! {
     /// A ligature caret in format 2.
     #[derive(Copy)]
-    pub Caret2 {
-        format (u16), // CaretValueFormat
-        index  (u16), // CaretValuePoint
+    pub Caret2 { // CaretValueFormat2
+        format (u16), // caretValueFormat
+        index  (u16), // caretValuePointIndex
     }
 }
 
 table! {
     @position
     /// A ligature caret in format 3.
-    pub Caret3 {
-        format            (u16), // CaretValueFormat
-        coordinate        (i16), // Coordinate
-        correction_offset (u16), // DeviceTable
+    pub Caret3 { // CaretValueFormat3
+        format            (u16), // caretValueFormat
+        coordinate        (i16), // coordinate
+        correction_offset (u16), // deviceOffset
 
         correction (Correction) |this, tape, position| {
             jump_take!(tape, position, this.correction_offset)
@@ -80,9 +80,9 @@ table! {
     @position
     #[doc = "A ligature."]
     pub Ligature { // LigGlyph
-        caret_count (u16), // CaretCount
+        caret_count (u16), // caretCount
 
-        caret_offsets (Vec<u16>) |this, tape, _| { // CaretValue
+        caret_offsets (Vec<u16>) |this, tape, _| { // caretValueOffsets
             tape.take_given(this.caret_count as usize)
         },
 
@@ -96,10 +96,10 @@ table! {
     @position
     #[doc = "A set of ligatures."]
     pub Ligatures { // LigCaretList
-        coverage_offset (u16), // Coverage
-        count           (u16), // LigGlyphCount
+        coverage_offset (u16), // coverageOffset
+        count           (u16), // ligGlyphCount
 
-        offsets (Vec<u16>) |this, tape, _| { // LigGlyph
+        offsets (Vec<u16>) |this, tape, _| { // ligGlyphOffsets
             tape.take_given(this.count as usize)
         },
 
@@ -116,11 +116,11 @@ table! {
 table! {
     @position
     #[doc = "A set of marks."]
-    pub Marks { // MarkGlyphSetsTable
-        format (u16) = { 1 }, // MarkSetTableFormat
-        count  (u16), // MarkSetCount
+    pub Marks { // MarkGlyphSets
+        format (u16) = { 1 }, // format
+        count  (u16), // markGlyphSetCount
 
-        coverage_offsets (Vec<u32>) |this, tape, _| { // Coverage
+        coverage_offsets (Vec<u32>) |this, tape, _| { // coverageOffsets
             tape.take_given(this.count as usize)
         },
 
@@ -133,9 +133,9 @@ table! {
 impl Value for Caret {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u32>()? {
-            1 => Caret::Format1(tape.take()?),
-            2 => Caret::Format2(tape.take()?),
-            3 => Caret::Format3(tape.take()?),
+            1 => Self::Format1(tape.take()?),
+            2 => Self::Format2(tape.take()?),
+            3 => Self::Format3(tape.take()?),
             _ => raise!("found an unknown format of the caret-value table"),
         })
     }

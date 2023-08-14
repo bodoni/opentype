@@ -31,33 +31,51 @@ table! {
         header (Header),
 
         glyph_class (Option<Class>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => glyph_class_offset,
-                                                    Header::{Version1, Version12, Version13}))
+            jump_take_maybe!(
+                tape,
+                position,
+                field!(this.header => glyph_class_offset, Header::{Version1, Version12, Version13})
+            )
         },
 
         attachments (Option<Attachments>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => attachment_offset,
-                                                    Header::{Version1, Version12, Version13}))
+            jump_take_maybe!(
+                tape,
+                position,
+                field!(this.header => attachment_offset, Header::{Version1, Version12, Version13})
+            )
         },
 
         ligatures (Option<Ligatures>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => ligature_offset,
-                                                    Header::{Version1, Version12, Version13}))
+            jump_take_maybe!(
+                tape,
+                position,
+                field!(this.header => ligature_offset, Header::{Version1, Version12, Version13})
+            )
         },
 
         mark_class (Option<Class>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => mark_class_offset,
-                                                    Header::{Version1, Version12, Version13}))
+            jump_take_maybe!(
+                tape,
+                position,
+                field!(this.header => mark_class_offset, Header::{Version1, Version12, Version13})
+            )
         },
 
         marks (Option<Marks>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => mark_offset(0),
-                                                    Header::{Version12, Version13}))
+            jump_take_maybe!(
+                tape,
+                position,
+                field!(this.header => mark_offset(0), Header::{Version12, Version13})
+            )
         },
 
         variations (Option<Variations>) |this, tape, position| {
-            jump_take_maybe!(tape, position, field!(this.header => mark_offset(0),
-                                                    Header::{Version13}))
+            jump_take_maybe!(
+                tape,
+                position,
+                field!(this.header => mark_offset(0), Header::{Version13})
+            )
         },
     }
 }
@@ -77,12 +95,12 @@ table! {
     #[doc = "The header of a glyph-definition table of version 1.0."]
     #[derive(Copy)]
     pub Header1 {
-        major_version      (u16) = { 1 }, // MajorVersion
-        minor_version      (u16) = { 0 }, // MinorVersion
-        glyph_class_offset (u16), // GlyphClassDef
-        attachment_offset  (u16), // AttachList
-        ligature_offset    (u16), // LigCaretList
-        mark_class_offset  (u16), // MarkAttachClassDef
+        major_version      (u16) = { 1 }, // majorVersion
+        minor_version      (u16) = { 0 }, // minorVersion
+        glyph_class_offset (u16), // glyphClassDefOffset
+        attachment_offset  (u16), // attachListOffset
+        ligature_offset    (u16), // ligCaretListOffset
+        mark_class_offset  (u16), // markAttachClassDefOffset
     }
 }
 
@@ -90,13 +108,13 @@ table! {
     #[doc = "The header of a glyph-definition table of version 1.2."]
     #[derive(Copy)]
     pub Header12 {
-        major_version      (u16) = { 1 }, // MajorVersion
-        minor_version      (u16) = { 2 }, // MinorVersion
-        glyph_class_offset (u16), // GlyphClassDef
-        attachment_offset  (u16), // AttachList
-        ligature_offset    (u16), // LigCaretList
-        mark_class_offset  (u16), // MarkAttachClassDef
-        mark_offset        (u16), // MarkGlyphSetsDef
+        major_version      (u16) = { 1 }, // majorVersion
+        minor_version      (u16) = { 2 }, // minorVersion
+        glyph_class_offset (u16), // glyphClassDefOffset
+        attachment_offset  (u16), // attachListOffset
+        ligature_offset    (u16), // ligCaretListOffset
+        mark_class_offset  (u16), // markAttachClassDefOffset
+        mark_offset        (u16), // markGlyphSetsDefOffset
     }
 }
 
@@ -104,30 +122,30 @@ table! {
     #[doc = "The header of a glyph-definition table of version 1.3."]
     #[derive(Copy)]
     pub Header13 {
-        major_version      (u16) = { 1 }, // MajorVersion
-        minor_version      (u16) = { 3 }, // MinorVersion
-        glyph_class_offset (u16), // GlyphClassDef
-        attachment_offset  (u16), // AttachList
-        ligature_offset    (u16), // LigCaretList
-        mark_class_offset  (u16), // MarkAttachClassDef
-        mark_offset        (u16), // MarkGlyphSetsDef
-        variation_offset   (u32), // ItemVarStore
+        major_version      (u16) = { 1 }, // majorVersion
+        minor_version      (u16) = { 3 }, // minorVersion
+        glyph_class_offset (u16), // glyphClassDefOffset
+        attachment_offset  (u16), // attachListOffset
+        ligature_offset    (u16), // ligCaretListOffset
+        mark_class_offset  (u16), // markAttachClassDefOffset
+        mark_offset        (u16), // markGlyphSetsDefOffset
+        variation_offset   (u32), // itemVarStoreOffset
     }
 }
 
 impl Default for Header {
     #[inline]
     fn default() -> Self {
-        Header::Version1(Header1::default())
+        Self::Version1(Header1::default())
     }
 }
 
 impl Value for Header {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u32>()? {
-            0x00010000 => Header::Version1(tape.take()?),
-            0x00010002 => Header::Version12(tape.take()?),
-            0x00010003 => Header::Version13(tape.take()?),
+            0x00010000 => Self::Version1(tape.take()?),
+            0x00010002 => Self::Version12(tape.take()?),
+            0x00010003 => Self::Version13(tape.take()?),
             _ => raise!("found an unknown format of the glyph-definition table"),
         })
     }

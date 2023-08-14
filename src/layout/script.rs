@@ -74,11 +74,11 @@ table! {
 }
 
 macro_rules! implement {
-    ($($tag:expr => $name:expr => $token:ident,)*) => (
+    ($($tag:expr => $name:expr => $variant:ident,)*) => (
         /// A script.
         #[derive(Clone, Copy, Debug, Eq, PartialEq)]
         pub enum Script {
-            $(#[doc = $name] $token,)*
+            $(#[doc = $name] $variant,)*
         }
 
         impl Script {
@@ -86,7 +86,7 @@ macro_rules! implement {
             pub fn tag(&self) -> Tag {
                 use Script::*;
                 match *self {
-                    $($token => Tag(*$tag),)*
+                    $($variant => Tag(*$tag),)*
                 }
             }
         }
@@ -260,11 +260,11 @@ implement! {
 }
 
 macro_rules! implement {
-    ($($tag:expr => $name:expr => $token:ident => $code:expr,)*) => (
+    ($($tag:expr => $name:expr => $variant:ident => $code:expr,)*) => (
         /// A language system.
         #[derive(Clone, Copy, Debug, Eq, PartialEq)]
         pub enum Language {
-            $(#[doc = $name] $token,)*
+            $(#[doc = $name] $variant,)*
         }
 
         impl Language {
@@ -272,7 +272,7 @@ macro_rules! implement {
             pub fn tag(&self) -> Tag {
                 use Language::*;
                 match *self {
-                    $($token => Tag(*$tag),)*
+                    $($variant => Tag(*$tag),)*
                 }
             }
         }

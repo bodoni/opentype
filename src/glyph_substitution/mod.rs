@@ -31,15 +31,15 @@ pub enum Table {
 #[derive(Clone, Debug)]
 pub enum Single {
     /// Format 1.
-    Format1(SingleSubstitution1),
+    Format1(Single1),
     /// Format 2.
-    Format2(SingleSubstitution2),
+    Format2(Single2),
 }
 
 table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 1."]
-    pub SingleSubstitution1 { // SingleSubstFormat1
+    pub Single1 { // SingleSubstFormat1
         format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         delta_glyph_id  (i16), // DeltaGlyphID
@@ -53,7 +53,7 @@ table! {
 table! {
     @position
     #[doc = "A table for substituting one glyph with one glyph in format 2."]
-    pub SingleSubstitution2 { // SingleSubstFormat2
+    pub Single2 { // SingleSubstFormat2
         format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         glyph_count     (u16), // GlyphCount
@@ -92,7 +92,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for substituting one glyph with one of many glyphs."]
+    #[doc = "A table for substituting one glyph with one of several glyphs."]
     pub Alternate { // AlternateSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage

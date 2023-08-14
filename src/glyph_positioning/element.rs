@@ -188,7 +188,7 @@ table! {
 
 table! {
     @define
-    #[doc = "An entry-exit record."]
+    #[doc = "An entry–exit record."]
     pub Passage { // EntryExitRecord
         entry_offset (u16), // entryAnchorOffset
         exit_offset  (u16), // exitAnchorOffset

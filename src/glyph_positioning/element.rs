@@ -18,9 +18,9 @@ table! {
     #[doc = "An anchor in format 1."]
     #[derive(Copy)]
     pub Anchor1 { // AnchorFormat1
-        format (u16), // AnchorFormat
-        x      (i16), // XCoordinate
-        y      (i16), // YCoordinate
+        format (u16), // anchorFormat
+        x      (i16), // xCoordinate
+        y      (i16), // yCoordinate
     }
 }
 
@@ -28,10 +28,10 @@ table! {
     #[doc = "An anchor in format 2."]
     #[derive(Copy)]
     pub Anchor2 { // AnchorFormat2
-        format (u16), // AnchorFormat
-        x      (i16), // XCoordinate
-        y      (i16), // YCoordinate
-        index  (u16), // AnchorPoint
+        format (u16), // anchorFormat
+        x      (i16), // xCoordinate
+        y      (i16), // yCoordinate
+        index  (u16), // anchorPoint
     }
 }
 
@@ -39,11 +39,11 @@ table! {
     @position
     #[doc = "An anchor in format 3."]
     pub Anchor3 { // AnchorFormat3
-        format              (u16), // AnchorFormat
-        x                   (i16), // XCoordinate
-        y                   (i16), // YCoordinate
-        x_correction_offset (u16), // XDeviceTable
-        y_correction_offset (u16), // YDeviceTable
+        format              (u16), // anchorFormat
+        x                   (i16), // xCoordinate
+        y                   (i16), // yCoordinate
+        x_correction_offset (u16), // xDeviceOffset
+        y_correction_offset (u16), // yDeviceOffset
 
         x_correction (Option<Correction>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.x_correction_offset)
@@ -59,8 +59,9 @@ table! {
     @define
     #[doc = "A base attachment."]
     pub Base { // BaseRecord
-        anchor_offsets (Vec<u16>   ), // BaseAnchor
-        anchors        (Vec<Anchor>),
+        anchor_offsets (Vec<u16>), // baseAnchorOffsets
+
+        anchors (Vec<Anchor>),
     }
 }
 
@@ -68,8 +69,8 @@ table! {
     @define
     #[doc = "A set of base attachments."]
     pub Bases { // BaseArray
-        count   (u16      ), // BaseCount
-        records (Vec<Base>), // BaseRecord
+        count   (u16      ), // baseCount
+        records (Vec<Base>), // baseRecords
     }
 }
 
@@ -77,8 +78,9 @@ table! {
     @define
     #[doc = "A component attachment."]
     pub Component { // ComponentRecord
-        anchor_offsets (Vec<u16>   ),
-        anchors        (Vec<Anchor>),
+        anchor_offsets (Vec<u16>), // ligatureAnchorOffsets
+
+        anchors (Vec<Anchor>),
     }
 }
 
@@ -86,8 +88,8 @@ table! {
     @define
     #[doc = "A ligature attachment."]
     pub Ligature { // LigatureAttach
-        component_count (u16           ), // ComponentCount
-        components      (Vec<Component>), // ComponentRecord
+        component_count (u16           ), // componentCount
+        components      (Vec<Component>), // componentRecords
     }
 }
 
@@ -95,8 +97,9 @@ table! {
     @define
     #[doc = "A set of ligature attachments."]
     pub Ligatures { // LigatureArray
-        count   (u16          ), // LigatureCount
-        offsets (Vec<u16>     ), // LigatureAttach
+        count   (u16     ), // ligatureCount
+        offsets (Vec<u16>), // ligatureAttachOffsets
+
         records (Vec<Ligature>),
     }
 }
@@ -105,9 +108,10 @@ table! {
     @define
     #[doc = "A mark attachment in format 1."]
     pub Mark1 { // MarkRecord
-        class_id      (u16   ), // markClass
-        anchor_offset (u16   ), // markAnchorOffset
-        anchor        (Anchor),
+        class_id      (u16), // markClass
+        anchor_offset (u16), // markAnchorOffset
+
+        anchor (Anchor),
     }
 }
 
@@ -131,8 +135,9 @@ table! {
     @define
     #[doc = "A mark attachment in format 2."]
     pub Mark2 { // Mark2Record
-        anchor_offsets (Vec<u16>   ), // Mark2Anchor
-        anchors        (Vec<Anchor>),
+        anchor_offsets (Vec<u16>), // mark2AnchorOffsets
+
+        anchors (Vec<Anchor>),
     }
 }
 
@@ -140,8 +145,8 @@ table! {
     @define
     #[doc = "A set of mark attachments in format 2."]
     pub Mark2s { // Mark2Array
-        count   (u16       ), // Mark2Count
-        records (Vec<Mark2>), // Mark2Record
+        count   (u16       ), // mark2Count
+        records (Vec<Mark2>), // mark2Records
     }
 }
 
@@ -149,9 +154,9 @@ table! {
     @define
     #[doc = "A pair adjustment in format 1."]
     pub Pair1 { // PairValueRecord
-        glyph2_id (GlyphID), // SecondGlyph
-        value1    (Single ), // Value1
-        value2    (Single ), // Value2
+        glyph2_id (GlyphID), // secondGlyph
+        value1    (Single ), // valueRecord1
+        value2    (Single ), // valueRecord2
     }
 }
 
@@ -159,8 +164,8 @@ table! {
     @define
     #[doc = "A set of pair adjustments in format 1."]
     pub Pair1s { // PairSet
-        count   (u16       ), // PairValueCount
-        records (Vec<Pair1>), // PairValueRecord
+        count   (u16       ), // pairValueCount
+        records (Vec<Pair1>), // pairValueRecords
     }
 }
 
@@ -168,8 +173,8 @@ table! {
     @define
     #[doc = "A pair adjustment in format 2."]
     pub Pair2 { // Class2Record
-        value1 (Single), // Value1
-        value2 (Single), // Value2
+        value1 (Single), // valueRecord1
+        value2 (Single), // valueRecord2
     }
 }
 
@@ -185,10 +190,11 @@ table! {
     @define
     #[doc = "An entry-exit record."]
     pub Passage { // EntryExitRecord
-        entry_offset (u16   ), // EntryAnchor
-        exit_offset  (u16   ), // ExitAnchor
-        entry        (Anchor),
-        exit         (Anchor),
+        entry_offset (u16), // entryAnchorOffset
+        exit_offset  (u16), // exitAnchorOffset
+
+        entry (Anchor),
+        exit  (Anchor),
     }
 }
 
@@ -196,14 +202,14 @@ table! {
     @define
     #[doc = "A single adjustment."]
     pub Single { // ValueRecord
-        x_placement                   (Option<i16>), // XPlacement
-        y_placement                   (Option<i16>), // YPlacement
-        x_advance                     (Option<i16>), // XAdvance
-        y_advance                     (Option<i16>), // YAdvance
-        x_placement_correction_offset (Option<u16>), // XPlaDevice
-        y_placement_correction_offset (Option<u16>), // YPlaDevice
-        x_advance_correction_offset   (Option<u16>), // XAdvDevice
-        y_advance_correction_offset   (Option<u16>), // YAdvDevice
+        x_placement                   (Option<i16>), // xPlacement
+        y_placement                   (Option<i16>), // yPlacement
+        x_advance                     (Option<i16>), // xAdvance
+        y_advance                     (Option<i16>), // yAdvance
+        x_placement_correction_offset (Option<u16>), // xPlaDeviceOffset
+        y_placement_correction_offset (Option<u16>), // yPlaDeviceOffset
+        x_advance_correction_offset   (Option<u16>), // xAdvDeviceOffset
+        y_advance_correction_offset   (Option<u16>), // yAdvDeviceOffset
 
         x_placement_correction (Option<Correction>),
         y_placement_correction (Option<Correction>),
@@ -251,7 +257,7 @@ impl Walue<'static> for Base {
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Base {
+        Ok(Self {
             anchor_offsets,
             anchors,
         })
@@ -268,7 +274,7 @@ impl Walue<'static> for Bases {
         for _ in 0..(count as usize) {
             records.push(tape.take_given((position, class_count))?);
         }
-        Ok(Bases { count, records })
+        Ok(Self { count, records })
     }
 }
 
@@ -278,7 +284,7 @@ impl Walue<'static> for Component {
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Component {
+        Ok(Self {
             anchor_offsets,
             anchors,
         })
@@ -295,7 +301,7 @@ impl Walue<'static> for Ligature {
         for _ in 0..(component_count as usize) {
             components.push(tape.take_given((position, class_count))?);
         }
-        Ok(Ligature {
+        Ok(Self {
             component_count,
             components,
         })
@@ -310,7 +316,7 @@ impl Walue<'static> for Ligatures {
         let count = tape.take()?;
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
         let records = jump_take_given!(@unwrap tape, position, count, offsets, class_count);
-        Ok(Ligatures {
+        Ok(Self {
             count,
             offsets,
             records,
@@ -339,7 +345,7 @@ impl Walue<'static> for Mark2 {
     fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
         let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Mark2 {
+        Ok(Self {
             anchor_offsets,
             anchors,
         })
@@ -356,7 +362,7 @@ impl Walue<'static> for Mark2s {
         for _ in 0..(count as usize) {
             records.push(tape.take_given((position, class_count))?);
         }
-        Ok(Mark2s { count, records })
+        Ok(Self { count, records })
     }
 }
 
@@ -367,7 +373,7 @@ impl Walue<'static> for Pair1 {
         tape: &mut T,
         (position, value1_flags, value2_flags): Self::Parameter,
     ) -> Result<Self> {
-        Ok(Pair1 {
+        Ok(Self {
             glyph2_id: tape.take()?,
             value1: tape.take_given((position, value1_flags))?,
             value2: tape.take_given((position, value2_flags))?,
@@ -384,7 +390,7 @@ impl Walue<'static> for Pair1s {
         for _ in 0..(count as usize) {
             records.push(tape.take_given(parameter)?);
         }
-        Ok(Pair1s { count, records })
+        Ok(Self { count, records })
     }
 }
 
@@ -395,7 +401,7 @@ impl Walue<'static> for Pair2 {
         tape: &mut T,
         (position, value1_flags, value2_flags): Self::Parameter,
     ) -> Result<Self> {
-        Ok(Pair2 {
+        Ok(Self {
             value1: tape.take_given((position, value1_flags))?,
             value2: tape.take_given((position, value2_flags))?,
         })
@@ -413,7 +419,7 @@ impl Walue<'static> for Pair2s {
         for _ in 0..(class2_count as usize) {
             records.push(tape.take_given((position, value1_flags, value2_flags))?);
         }
-        Ok(Pair2s { records })
+        Ok(Self { records })
     }
 }
 
@@ -425,7 +431,7 @@ impl Walue<'static> for Passage {
         let exit_offset = tape.take()?;
         let entry = jump_take!(@unwrap tape, position, entry_offset);
         let exit = jump_take!(@unwrap tape, position, exit_offset);
-        Ok(Passage {
+        Ok(Self {
             entry_offset,
             exit_offset,
             entry,
@@ -459,7 +465,7 @@ impl Walue<'static> for Single {
         let y_placement_correction = take!(y_placement_correction_offset);
         let x_advance_correction = take!(x_advance_correction_offset);
         let y_advance_correction = take!(y_advance_correction_offset);
-        Ok(Single {
+        Ok(Self {
             x_placement,
             y_placement,
             x_advance,

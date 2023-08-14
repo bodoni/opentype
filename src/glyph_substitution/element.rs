@@ -14,10 +14,10 @@ table! {
 table! {
     #[doc = "A ligature substitution."]
     pub Ligature { // Ligature
-        glyph_id        (GlyphID), // LigGlyph
-        component_count (u16    ), // CompCount
+        glyph_id        (GlyphID), // ligatureGlyph
+        component_count (u16    ), // componentCount
 
-        component_ids (Vec<GlyphID>) |this, tape| { // Component
+        component_ids (Vec<GlyphID>) |this, tape| { // componentGlyphIDs
             if this.component_count == 0 {
                 raise!("found a malformed ligature substitution");
             }
@@ -45,19 +45,10 @@ table! {
 table! {
     #[doc = "A substitution sequence of glyphs."]
     pub Sequence { // Sequence
-        count (u16), // GlyphCount
+        count (u16), // glyphCount
 
-        glyph_ids (Vec<GlyphID>) |this, tape| { // Substitute
+        glyph_ids (Vec<GlyphID>) |this, tape| { // substituteGlyphIDs
             tape.take_given(this.count as usize)
         },
-    }
-}
-
-table! {
-    #[doc = "A substitution operation."]
-    #[derive(Copy)]
-    pub Substitution { // SubstLookupRecord
-        sequence_index (u16), // SequenceIndex
-        lookup_index   (u16), // LookupListIndex
     }
 }

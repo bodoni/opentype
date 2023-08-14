@@ -6,7 +6,7 @@ mod element;
 
 pub use element::*;
 
-use crate::layout::{ChainedSequenceContext, Class, Coverage, Directory, SequenceContext};
+use crate::layout::{ChainedContext, Class, Context, Coverage, Directory};
 use crate::{Result, Tape, Value, Walue};
 
 /// A glyph-positioning table.
@@ -21,8 +21,8 @@ pub enum Table {
     MarkToBaseAttachment(MarkToBaseAttachment),
     MarkToLigatureAttachment(MarkToLigatureAttachment),
     MarkToMarkAttachment(MarkToMarkAttachment),
-    Context(SequenceContext),
-    ChainedContext(ChainedSequenceContext),
+    Context(Context),
+    ChainedContext(ChainedContext),
     Extension(Extension),
 }
 

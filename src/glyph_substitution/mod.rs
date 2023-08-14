@@ -6,7 +6,7 @@ mod element;
 
 use truetype::GlyphID;
 
-use crate::layout::{ChainedSequenceContext, Coverage, Directory, SequenceContext};
+use crate::layout::{ChainedContext, Context, Coverage, Directory};
 use crate::{Result, Tape, Value, Walue};
 
 pub use element::*;
@@ -21,8 +21,8 @@ pub enum Table {
     Multiple(Multiple),
     Alternate(Alternate),
     Ligature(Ligature),
-    Context(SequenceContext),
-    ChainedContext(ChainedSequenceContext),
+    Context(Context),
+    ChainedContext(ChainedContext),
     Extension(Extension),
     ReverseChainedContext(ReverseChainedContext),
 }

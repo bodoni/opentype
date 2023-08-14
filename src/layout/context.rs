@@ -1,3 +1,7 @@
+//! [Contextual lookup][1].
+//!
+//! [1]: https://learn.microsoft.com/en-us/typography/opentype/spec/chapter2#common-structures-for-contextual-lookup-subtables
+
 use truetype::GlyphID;
 
 use crate::layout::{Class, Coverage};
@@ -5,19 +9,19 @@ use crate::{Result, Tape, Value};
 
 /// A table for contextual lookup.
 #[derive(Clone, Debug)]
-pub enum SequenceContext {
+pub enum Context {
     /// Format 1.
-    Format1(SequenceContext1),
+    Format1(Context1),
     /// Format 2.
-    Format2(SequenceContext2),
+    Format2(Context2),
     /// Format 3.
-    Format3(SequenceContext3),
+    Format3(Context3),
 }
 
 table! {
     @position
     #[doc = "A table for contextual lookup in format 1."]
-    pub SequenceContext1 { // SequenceContextFormat1
+    pub Context1 { // SequenceContextFormat1
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
         rule_count      (u16), // seqRuleSetCount
@@ -30,7 +34,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        rules (Vec<SequenceRules>) |this, tape, position| {
+        rules (Vec<Rules>) |this, tape, position| {
             jump_take!(tape, position, this.rule_count, this.rule_offsets)
         },
     }
@@ -39,7 +43,7 @@ table! {
 table! {
     @position
     #[doc = "A table for contextual lookup in format 2."]
-    pub SequenceContext2 { // SequenceContextFormat2
+    pub Context2 { // SequenceContextFormat2
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
         class_offset    (u16), // classDefOffset
@@ -53,7 +57,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        rules (Vec<Option<ClassSequenceRules>>) |this, tape, position| {
+        rules (Vec<Option<ClassRules>>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.rule_count, this.rule_offsets)
         },
     }
@@ -62,17 +66,17 @@ table! {
 table! {
     @position
     #[doc = "A table for contextual lookup in format 3."]
-    pub SequenceContext3 { // SequenceContextFormat3
+    pub Context3 { // SequenceContextFormat3
         format       (u16), // format
         glyph_count  (u16), // glyphCount
-        lookup_count (u16), // seqLookupCount
+        record_count (u16), // seqLookupCount
 
         coverage_offsets (Vec<u16>) |this, tape, _| { // coverageOffsets
             tape.take_given(this.glyph_count as usize)
         },
 
-        lookups (Vec<SequenceLookup>) |this, tape, _| { // seqLookupRecords
-            tape.take_given(this.lookup_count as usize)
+        records (Vec<SequenceLookup>) |this, tape, _| { // seqLookupRecords
+            tape.take_given(this.record_count as usize)
         },
 
         coverages (Vec<Coverage>) |this, tape, position| {
@@ -83,19 +87,19 @@ table! {
 
 /// A table for chained contextual lookup.
 #[derive(Clone, Debug)]
-pub enum ChainedSequenceContext {
+pub enum ChainedContext {
     /// Format 1.
-    Format1(ChainedSequenceContext1),
+    Format1(ChainedContext1),
     /// Format 2.
-    Format2(ChainedSequenceContext2),
+    Format2(ChainedContext2),
     /// Format 3.
-    Format3(ChainedSequenceContext3),
+    Format3(ChainedContext3),
 }
 
 table! {
     @position
     #[doc = "A table for chained contextual lookup in format 1."]
-    pub ChainedSequenceContext1 { // ChainedSequenceContextFormat1
+    pub ChainedContext1 { // ChainedSequenceContextFormat1
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
         rule_count      (u16), // chainedSeqRuleSetCount
@@ -108,7 +112,7 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        rules (Vec<ChainedSequenceRules>) |this, tape, position| {
+        rules (Vec<ChainedRules>) |this, tape, position| {
             jump_take!(tape, position, this.rule_count, this.rule_offsets)
         },
     }
@@ -117,7 +121,7 @@ table! {
 table! {
     @position
     #[doc = "A table for chained contextual lookup in format 2."]
-    pub ChainedSequenceContext2 { // ChainedSequenceContextFormat2
+    pub ChainedContext2 { // ChainedSequenceContextFormat2
         format                (u16), // format
         coverage_offset       (u16), // coverageOffset
         backward_class_offset (u16), // backtrackClassDefOffset
@@ -145,7 +149,7 @@ table! {
             jump_take!(tape, position, this.forward_class_offset)
         },
 
-        rules (Vec<Option<ChainedClassSequenceRules>>) |this, tape, position| {
+        rules (Vec<Option<ChainedClassRules>>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.rule_count, this.rule_offsets)
         },
     }
@@ -154,7 +158,7 @@ table! {
 table! {
     @position
     #[doc = "A table for chained contextual lookup in format 3."]
-    pub ChainedSequenceContext3 { // ChainedSequenceContextFormat3
+    pub ChainedContext3 { // ChainedSequenceContextFormat3
         format               (u16), // format
         backward_glyph_count (u16), // backtrackGlyphCount
 
@@ -174,10 +178,10 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        lookup_count (u16), // seqLookupCount
+        record_count (u16), // seqLookupCount
 
-        lookups (Vec<SequenceLookup>) |this, tape, _| { // seqLookupRecords
-            tape.take_given(this.lookup_count as usize)
+        records (Vec<SequenceLookup>) |this, tape, _| { // seqLookupRecords
+            tape.take_given(this.record_count as usize)
         },
 
         backward_coverages (Vec<Coverage>) |this, tape, position| {
@@ -195,78 +199,78 @@ table! {
 }
 
 table! {
-    #[doc = "A sequence rule."]
-    pub SequeceRule { // SequenceRule
+    #[doc = "A rule."]
+    pub Rule { // SequenceRule
         input_glyph_count (u16), // glyphCount
-        lookup_count      (u16), // lookupCount
+        record_count      (u16), // lookupCount
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
-                raise!("found a malformed sequence rule");
+                raise!("found a malformed rule");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
 
-        lookups (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
-            tape.take_given(this.lookup_count as usize)
+        records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
+            tape.take_given(this.record_count as usize)
         },
     }
 }
 
 table! {
     @position
-    #[doc = "A set of sequence rules."]
-    pub SequenceRules { // SequenceRuleSet
+    #[doc = "A set of rules."]
+    pub Rules { // SequenceRuleSet
         count (u16), // seqRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // seqRuleOffsets
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<SequeceRule>) |this, tape, position| {
+        records (Vec<Rule>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }
 
 table! {
-    #[doc = "A class sequence rule."]
-    pub ClassSequeceRule { // ClassSequenceRule
+    #[doc = "A class rule."]
+    pub ClassRule { // ClassSequenceRule
         input_glyph_count (u16), // glyphCount
-        lookup_count   (u16), // seqLookupCount
+        record_count   (u16), // seqLookupCount
 
         input_class_ids (Vec<u16>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
-                raise!("found a malformed class sequence rule");
+                raise!("found a malformed class rule");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
 
-        lookups (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
-            tape.take_given(this.lookup_count as usize)
+        records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
+            tape.take_given(this.record_count as usize)
         },
     }
 }
 
 table! {
     @position
-    #[doc = "A set of class sequence rules."]
-    pub ClassSequenceRules { // ClassSequenceRuleSet
+    #[doc = "A set of class rules."]
+    pub ClassRules { // ClassSequenceRuleSet
         count (u16), // classSeqRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // classSeqRuleOffsets
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<ClassSequeceRule>) |this, tape, position| {
+        records (Vec<ClassRule>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }
 
 table! {
-    #[doc = "A chained sequence rule."]
-    pub ChainedSequenceRule { // ChainedSequenceRule
+    #[doc = "A chained rule."]
+    pub ChainedRule { // ChainedSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
         backward_glyph_ids (Vec<GlyphID>) |this, tape| { // backtrackSequence
@@ -277,7 +281,7 @@ table! {
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
-                raise!("found a malformed chained sequence rule");
+                raise!("found a malformed chained rule");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
@@ -288,33 +292,33 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        lookup_count (u16), // seqLookupCount
+        record_count (u16), // seqLookupCount
 
-        lookups (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
-            tape.take_given(this.lookup_count as usize)
+        records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
+            tape.take_given(this.record_count as usize)
         },
     }
 }
 
 table! {
     @position
-    #[doc = "A set of chained sequence rules."]
-    pub ChainedSequenceRules { // ChainedSequenceRuleSet
+    #[doc = "A set of chained rules."]
+    pub ChainedRules { // ChainedSequenceRuleSet
         count (u16), // chainedSeqRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // chainedSeqRuleOffsets
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<ChainedSequenceRule>) |this, tape, position| {
+        records (Vec<ChainedRule>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }
 
 table! {
-    #[doc = "A chained class sequence rule."]
-    pub ChainedClassSequenceRule { // ChainedClassSequenceRule
+    #[doc = "A chained class rule."]
+    pub ChainedClassRule { // ChainedClassSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
         backward_class_ids (Vec<u16>) |this, tape| { // backtrackSequence
@@ -325,7 +329,7 @@ table! {
 
         input_class_ids (Vec<u16>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
-                raise!("found a malformed chained class sequence rule");
+                raise!("found a malformed chained class rule");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
@@ -336,32 +340,32 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        lookup_count (u16), // seqLookupCount
+        record_count (u16), // seqLookupCount
 
-        lookups (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
-            tape.take_given(this.lookup_count as usize)
+        records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
+            tape.take_given(this.record_count as usize)
         },
     }
 }
 
 table! {
     @position
-    #[doc = "A set of chained class sequence rules."]
-    pub ChainedClassSequenceRules { // ChainedClassSequenceRuleSet
+    #[doc = "A set of chained class rules."]
+    pub ChainedClassRules { // ChainedClassSequenceRuleSet
         count (u16), // chainedClassSeqRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // chainedClassSeqRuleOffsets
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<ChainedClassSequenceRule>) |this, tape, position| {
+        records (Vec<ChainedClassRule>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }
 
 table! {
-    #[doc = "A sequence lookup."]
+    #[doc = "A sequence–lookup."]
     #[derive(Copy)]
     pub SequenceLookup { // SequenceLookupRecord
         sequence_index (u16), // sequenceIndex
@@ -369,25 +373,25 @@ table! {
     }
 }
 
-impl Value for SequenceContext {
+impl Value for Context {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),
             3 => Self::Format3(tape.take()?),
-            value => raise!("found an unknown format of the sequence-context table ({value})"),
+            value => raise!("found an unknown format of the context table ({value})"),
         })
     }
 }
 
-impl Value for ChainedSequenceContext {
+impl Value for ChainedContext {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),
             3 => Self::Format3(tape.take()?),
             value => {
-                raise!("found an unknown format of the chained sequence-context table ({value})")
+                raise!("found an unknown format of the chained context table ({value})")
             }
         })
     }

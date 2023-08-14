@@ -13,7 +13,7 @@ mod coverage;
 mod directory;
 
 pub use class::{Class, Class1, Class2, ClassRange};
-pub use context::{ChainedSequenceContext, SequenceContext};
+pub use context::{ChainedContext, Context};
 pub use correction::{Correction, Device, Variation};
 pub use coverage::{Coverage, Coverage1, Coverage2, CoverageRange};
 pub use directory::Directory;

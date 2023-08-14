@@ -60,8 +60,6 @@ table! {
     #[doc = "A base attachment."]
     pub Base { // BaseRecord
         anchor_offsets (Vec<u16>), // baseAnchorOffsets
-
-        anchors (Vec<Anchor>),
     }
 }
 
@@ -71,6 +69,8 @@ table! {
     pub Bases { // BaseArray
         count   (u16      ), // baseCount
         records (Vec<Base>), // baseRecords
+
+        anchors (Vec<Vec<Option<Anchor>>>),
     }
 }
 
@@ -79,8 +79,6 @@ table! {
     #[doc = "A component attachment."]
     pub Component { // ComponentRecord
         anchor_offsets (Vec<u16>), // ligatureAnchorOffsets
-
-        anchors (Vec<Anchor>),
     }
 }
 
@@ -88,8 +86,8 @@ table! {
     @define
     #[doc = "A ligature attachment."]
     pub Ligature { // LigatureAttach
-        component_count (u16           ), // componentCount
-        components      (Vec<Component>), // componentRecords
+        count   (u16           ), // componentCount
+        records (Vec<Component>), // componentRecords
     }
 }
 
@@ -101,17 +99,15 @@ table! {
         offsets (Vec<u16>), // ligatureAttachOffsets
 
         records (Vec<Ligature>),
+        anchors (Vec<Vec<Vec<Option<Anchor>>>>),
     }
 }
 
 table! {
-    @define
     #[doc = "A mark attachment in format 1."]
     pub Mark1 { // MarkRecord
         class_id      (u16), // markClass
         anchor_offset (u16), // markAnchorOffset
-
-        anchor (Anchor),
     }
 }
 
@@ -121,12 +117,12 @@ table! {
     pub Mark1s { // MarkArray
         count (u16), // markCount
 
-        records (Vec<Mark1>) |this, tape, position| { // markRecords
-            let mut values = Vec::with_capacity(this.count as usize);
-            for _ in 0..(this.count as usize) {
-                values.push(tape.take_given(position)?);
-            }
-            Ok(values)
+        records (Vec<Mark1>) |this, tape, _| { // markRecords
+            tape.take_given(this.count as usize)
+        },
+
+        anchors (Vec<Anchor>) |this, tape, position| {
+            jump_take!(tape, position, this.count, i => this.records[i].anchor_offset)
         },
     }
 }
@@ -136,8 +132,6 @@ table! {
     #[doc = "A mark attachment in format 2."]
     pub Mark2 { // Mark2Record
         anchor_offsets (Vec<u16>), // mark2AnchorOffsets
-
-        anchors (Vec<Anchor>),
     }
 }
 
@@ -147,6 +141,8 @@ table! {
     pub Mark2s { // Mark2Array
         count   (u16       ), // mark2Count
         records (Vec<Mark2>), // mark2Records
+
+        anchors (Vec<Vec<Option<Anchor>>>),
     }
 }
 
@@ -193,8 +189,8 @@ table! {
         entry_offset (u16), // entryAnchorOffset
         exit_offset  (u16), // exitAnchorOffset
 
-        entry (Anchor),
-        exit  (Anchor),
+        entry (Option<Anchor>),
+        exit  (Option<Anchor>),
     }
 }
 
@@ -252,117 +248,130 @@ impl Value for Anchor {
 }
 
 impl Walue<'static> for Base {
-    type Parameter = (u64, u16);
+    type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
-        let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
-        let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Self {
-            anchor_offsets,
-            anchors,
-        })
+    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
+        let anchor_offsets = tape.take_given(class_count as usize)?;
+        Ok(Self { anchor_offsets })
     }
 }
 
 impl Walue<'static> for Bases {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
-        let mut records = Vec::with_capacity(count as usize);
-        for _ in 0..(count as usize) {
-            records.push(tape.take_given((position, class_count))?);
+        let mut records: Vec<Base> = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            records.push(tape.take_given(class_count)?);
         }
-        Ok(Self { count, records })
+        let mut anchors = Vec::with_capacity(count as usize);
+        for i in 0..(count as usize) {
+            anchors.push(jump_take_maybe!(
+                @unwrap
+                tape,
+                position,
+                class_count,
+                j => records[i].anchor_offsets[j]
+            ));
+        }
+        Ok(Self {
+            count,
+            records,
+            anchors,
+        })
     }
 }
 
 impl Walue<'static> for Component {
-    type Parameter = (u64, u16);
+    type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
-        let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
-        let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Self {
-            anchor_offsets,
-            anchors,
-        })
+    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
+        let anchor_offsets = tape.take_given(class_count as usize)?;
+        Ok(Self { anchor_offsets })
     }
 }
 
 impl Walue<'static> for Ligature {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
-        let position = tape.position()?;
-        let component_count = tape.take()?;
-        let mut components = Vec::with_capacity(component_count as usize);
-        for _ in 0..(component_count as usize) {
-            components.push(tape.take_given((position, class_count))?);
+    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
+        let count = tape.take()?;
+        let mut records = Vec::with_capacity(count as usize);
+        for _ in 0..(count as usize) {
+            records.push(tape.take_given(class_count)?);
         }
-        Ok(Self {
-            component_count,
-            components,
-        })
+        Ok(Self { count, records })
     }
 }
 
 impl Walue<'static> for Ligatures {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
-        let records = jump_take_given!(@unwrap tape, position, count, offsets, class_count);
+        let records: Vec<Ligature> =
+            jump_take_given!(@unwrap tape, position, count, offsets, class_count);
+        let mut anchors = Vec::with_capacity(count as usize);
+        for i in 0..(count as usize) {
+            let mut inner = Vec::with_capacity(class_count as usize);
+            for j in 0..(class_count as usize) {
+                inner.push(jump_take_maybe!(
+                    @unwrap
+                    tape,
+                    position,
+                    class_count,
+                    k => offsets[i] + records[i].records[j].anchor_offsets[k]
+                ));
+            }
+            anchors.push(inner);
+        }
         Ok(Self {
             count,
             offsets,
             records,
-        })
-    }
-}
-
-impl Walue<'static> for Mark1 {
-    type Parameter = u64;
-
-    fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
-        let class_id = tape.take()?;
-        let anchor_offset = tape.take()?;
-        let anchor = jump_take!(@unwrap tape, position, anchor_offset);
-        Ok(Mark1 {
-            class_id,
-            anchor_offset,
-            anchor,
+            anchors,
         })
     }
 }
 
 impl Walue<'static> for Mark2 {
-    type Parameter = (u64, u16);
+    type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, (position, class_count): Self::Parameter) -> Result<Self> {
-        let anchor_offsets: Vec<u16> = tape.take_given(class_count as usize)?;
-        let anchors = jump_take!(@unwrap tape, position, class_count, anchor_offsets);
-        Ok(Self {
-            anchor_offsets,
-            anchors,
-        })
+    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
+        let anchor_offsets = tape.take_given(class_count as usize)?;
+        Ok(Self { anchor_offsets })
     }
 }
 
 impl Walue<'static> for Mark2s {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: u16) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
-        let count = tape.take()?;
-        let mut records = Vec::with_capacity(count as usize);
-        for _ in 0..(count as usize) {
-            records.push(tape.take_given((position, class_count))?);
+        let count = tape.take::<u16>()?;
+        let mut records: Vec<Mark2> = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            records.push(tape.take_given(class_count)?);
         }
-        Ok(Self { count, records })
+        let mut anchors = Vec::with_capacity(count as usize);
+        for i in 0..(count as usize) {
+            anchors.push(jump_take_maybe!(
+                @unwrap
+                tape,
+                position,
+                class_count,
+                j => records[i].anchor_offsets[j]
+            ));
+        }
+        Ok(Self {
+            count,
+            records,
+            anchors,
+        })
     }
 }
 
@@ -429,8 +438,8 @@ impl Walue<'static> for Passage {
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
         let entry_offset = tape.take()?;
         let exit_offset = tape.take()?;
-        let entry = jump_take!(@unwrap tape, position, entry_offset);
-        let exit = jump_take!(@unwrap tape, position, exit_offset);
+        let entry = jump_take_maybe!(@unwrap tape, position, entry_offset);
+        let exit = jump_take_maybe!(@unwrap tape, position, exit_offset);
         Ok(Self {
             entry_offset,
             exit_offset,

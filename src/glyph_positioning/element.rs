@@ -267,6 +267,7 @@ impl Walue<'static> for Bases {
             records.push(tape.take_given(class_count)?);
         }
         let mut anchors = Vec::with_capacity(count as usize);
+        #[allow(clippy::needless_range_loop)]
         for i in 0..(count as usize) {
             anchors.push(jump_take_maybe!(
                 @unwrap
@@ -358,6 +359,7 @@ impl Walue<'static> for Mark2s {
             records.push(tape.take_given(class_count)?);
         }
         let mut anchors = Vec::with_capacity(count as usize);
+        #[allow(clippy::needless_range_loop)]
         for i in 0..(count as usize) {
             anchors.push(jump_take_maybe!(
                 @unwrap

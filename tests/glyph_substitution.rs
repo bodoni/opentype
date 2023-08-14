@@ -1,7 +1,7 @@
 #[macro_use]
 mod support;
 
-use opentype::glyph_substitution::{GlyphSubstitution, SingleSubstitution, Table};
+use opentype::glyph_substitution::{GlyphSubstitution, Single, Table};
 use opentype::layout::script::{Language, Script};
 use opentype::Value;
 
@@ -74,7 +74,7 @@ fn lookups() {
     let record = &lookups.records[0];
     assert!(record.tables.len() == 1);
     match &record.tables[0] {
-        &Table::SingleSubstitution(SingleSubstitution::Format2(ref table)) => {
+        &Table::Single(Single::Format2(ref table)) => {
             assert!(table.glyph_count == 61);
         }
         _ => unreachable!(),
@@ -82,9 +82,9 @@ fn lookups() {
     let record = &lookups.records[17];
     assert!(record.tables.len() == 1);
     match &record.tables[0] {
-        &Table::LigatureSubstitution(ref table) => {
-            assert!(table.set_count == 1);
-            let table = &table.sets[0];
+        &Table::Ligature(ref table) => {
+            assert!(table.rule_count == 1);
+            let table = &table.rules[0];
             assert!(table.count == 3);
             let table = &table.records[0];
             assert!(table.component_count == 2);

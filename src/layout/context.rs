@@ -63,8 +63,8 @@ table! {
     @position
     #[doc = "A table for contextual lookup in format 3."]
     pub SequenceContext3 { // SequenceContextFormat3
-        format          (u16), // format
-        glyph_count     (u16), // glyphCount
+        format       (u16), // format
+        glyph_count  (u16), // glyphCount
         lookup_count (u16), // seqLookupCount
 
         coverage_offsets (Vec<u16>) |this, tape, _| { // coverageOffsets

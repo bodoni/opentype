@@ -21,8 +21,8 @@ pub enum Table {
     MarkToBaseAttachment(MarkToBaseAttachment),
     MarkToLigatureAttachment(MarkToLigatureAttachment),
     MarkToMarkAttachment(MarkToMarkAttachment),
-    SequenceContext(SequenceContext),
-    ChainedSequenceContext(ChainedSequenceContext),
+    Context(SequenceContext),
+    ChainedContext(ChainedSequenceContext),
     Extension(Extension),
 }
 
@@ -93,18 +93,18 @@ table! {
         coverage_offset (u16        ), // coverageOffset
         value1_flags    (SingleFlags), // valueFormat1
         value2_flags    (SingleFlags), // valueFormat2
-        set_count       (u16        ), // pairSetCount
+        rule_count      (u16        ), // pairSetCount
 
-        set_offsets (Vec<u16>) |this, tape, _| { // pairSetOffsets
-            tape.take_given(this.set_count as usize)
+        rule_offsets (Vec<u16>) |this, tape, _| { // pairSetOffsets
+            tape.take_given(this.rule_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sets (Vec<Pair1s>) |this, tape, position| {
-            jump_take_given!(tape, position, this.set_count, this.set_offsets,
+        rules (Vec<Pair1s>) |this, tape, position| {
+            jump_take_given!(tape, position, this.rule_count, this.rule_offsets,
                              (position, this.value1_flags, this.value2_flags))
         },
     }
@@ -123,7 +123,7 @@ table! {
         class1_count    (u16        ), // class1Count
         class2_count    (u16        ), // class2Count
 
-        sets (Vec<Pair2s>) |this, tape, position| { // class1Records
+        rules (Vec<Pair2s>) |this, tape, position| { // class1Records
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for _ in 0..(this.class1_count as usize) {
                 values.push(tape.take_given((position, this.class2_count,
@@ -275,8 +275,8 @@ impl Walue<'static> for Table {
             4 => Self::MarkToBaseAttachment(tape.take()?),
             5 => Self::MarkToLigatureAttachment(tape.take()?),
             6 => Self::MarkToMarkAttachment(tape.take()?),
-            7 => Self::SequenceContext(tape.take()?),
-            8 => Self::ChainedSequenceContext(tape.take()?),
+            7 => Self::Context(tape.take()?),
+            8 => Self::ChainedContext(tape.take()?),
             9 => Self::Extension(tape.take()?),
             value => raise!("found an unknown glyph-positioning type ({value})"),
         })

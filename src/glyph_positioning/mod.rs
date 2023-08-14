@@ -1,6 +1,6 @@
 //! The [glyph positioning][1].
 //!
-//! [1]: https://learn.microsoft.com/en-gb/typography/opentype/spec/gpos
+//! [1]: https://learn.microsoft.com/en-us/typography/opentype/spec/gpos
 
 mod element;
 
@@ -104,8 +104,13 @@ table! {
         },
 
         rules (Vec<Pair1s>) |this, tape, position| {
-            jump_take_given!(tape, position, this.rule_count, this.rule_offsets,
-                             (position, this.value1_flags, this.value2_flags))
+            jump_take_given!(
+                tape,
+                position,
+                this.rule_count,
+                this.rule_offsets,
+                (position, this.value1_flags, this.value2_flags)
+            )
         },
     }
 }
@@ -126,8 +131,12 @@ table! {
         rules (Vec<Pair2s>) |this, tape, position| { // class1Records
             let mut values = Vec::with_capacity(this.class1_count as usize);
             for _ in 0..(this.class1_count as usize) {
-                values.push(tape.take_given((position, this.class2_count,
-                                             this.value1_flags, this.value2_flags))?);
+                values.push(tape.take_given((
+                    position,
+                    this.class2_count,
+                    this.value1_flags,
+                    this.value2_flags,
+                ))?);
             }
             Ok(values)
         },

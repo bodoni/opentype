@@ -41,7 +41,7 @@ mod source_serif {
         let lookups = features
             .records
             .iter()
-            .map(|record| record.lookup_count)
+            .map(|record| record.lookup_index_count)
             .collect::<Vec<_>>();
         assert_eq!(lookups, &[1, 1, 1, 1, 1, 0, 0, 0, 0, 0]);
     }

@@ -37,7 +37,7 @@ fn features() {
     let lookups = features
         .records
         .iter()
-        .map(|record| record.lookup_count)
+        .map(|record| record.lookup_index_count)
         .collect::<Vec<_>>();
     #[rustfmt::skip]
     assert!(

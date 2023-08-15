@@ -6,9 +6,9 @@ table! {
     @position
     #[doc = "A script list."]
     pub Scripts { // ScriptList
-        count (u16), // ScriptCount
+        count (u16), // scriptCount
 
-        headers (Vec<Header>) |this, tape, _| { // ScriptRecord
+        headers (Vec<Header>) |this, tape, _| { // scriptRecords
             tape.take_given(this.count as usize)
         },
 
@@ -22,8 +22,8 @@ table! {
     #[doc = "A script header."]
     #[derive(Copy)]
     pub Header { // ScriptRecord
-        tag    (Tag), // ScriptTag
-        offset (u16), // Script
+        tag    (Tag), // scriptTag
+        offset (u16), // scriptOffset
     }
 }
 
@@ -31,10 +31,10 @@ table! {
     @position
     #[doc = "A script record."]
     pub Record { // Script
-        default_language_offset (u16), // DefaultLangSys
-        language_count          (u16), // LangSysCount
+        default_language_offset (u16), // defaultLangSysOffset
+        language_count          (u16), // langSysCount
 
-        language_headers (Vec<LanguageHeader>) |this, tape, _| { // LangSysRecord
+        language_headers (Vec<LanguageHeader>) |this, tape, _| { // langSysRecords
             tape.take_given(this.language_count as usize)
         },
 
@@ -55,38 +55,47 @@ table! {
 table! {
     #[doc = "A language-system header."]
     pub LanguageHeader { // LangSysRecord
-        tag    (Tag), // LangSysTag
-        offset (u16), // LangSys
+        tag    (Tag), // langSysTag
+        offset (u16), // langSysOffset
     }
 }
 
 table! {
     #[doc = "A language-system record."]
     pub LanguageRecord { // LangSys
-        lookup_order           (u16) = { 0 }, // LookupOrder
-        required_feature_index (u16), // ReqFeatureIndex
-        feature_count          (u16), // FeatureCount
+        lookup_order_offset    (u16) = { 0 }, // lookupOrderOffset
+        required_feature_index (u16), // requiredFeatureIndex
+        feature_index_count    (u16), // featureIndexCount
 
-        feature_indices (Vec<u16>) |this, tape| { // FeatureIndex
-            tape.take_given(this.feature_count as usize)
+        feature_indices (Vec<u16>) |this, tape| { // featureIndices
+            tape.take_given(this.feature_index_count as usize)
         },
     }
 }
 
 macro_rules! implement {
-    ($($tag:expr => $name:expr => $variant:ident,)*) => (
+    ($($tag:literal => $name:literal => $variant:ident,)*) => (
         /// A script.
-        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+        #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
         pub enum Script {
             $(#[doc = $name] $variant,)*
         }
 
         impl Script {
-            /// Return the tag.
-            pub fn tag(&self) -> Tag {
-                use Script::*;
-                match *self {
-                    $($variant => Tag(*$tag),)*
+            /// Create an instance from a tag.
+            #[allow(unreachable_patterns)]
+            pub fn from_tag(tag: &Tag) -> Option<Self> {
+                match &**tag {
+                    $($tag => Some(Self::$variant),)*
+                    _ => None,
+                }
+            }
+        }
+
+        impl From<Script> for Tag {
+            fn from(script: Script) -> Self {
+                match script {
+                    $(Script::$variant => Tag(*$tag),)*
                 }
             }
         }
@@ -94,13 +103,12 @@ macro_rules! implement {
         impl Scripts {
             /// Return the record of a script if present.
             pub fn get(&self, script: Script) -> Option<&Record> {
-                let tag = script.tag();
-                for (i, header) in self.headers.iter().enumerate() {
-                    if header.tag == tag {
-                        return Some(&self.records[i]);
-                    }
-                }
-                None
+                let tag = Tag::from(script);
+                self.headers
+                    .iter()
+                    .enumerate()
+                    .find(|(_, header)| header.tag == tag)
+                    .map(|(i, _)| &self.records[i])
             }
         }
     );

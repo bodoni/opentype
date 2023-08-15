@@ -102,8 +102,8 @@ macro_rules! implement {
 
         impl Scripts {
             /// Return the record of a script if present.
-            pub fn get(&self, script: Script) -> Option<&Record> {
-                let tag = Tag::from(script);
+            pub fn get<T: Into<Tag>>(&self, tag: T) -> Option<&Record> {
+                let tag = tag.into();
                 self.headers
                     .iter()
                     .enumerate()

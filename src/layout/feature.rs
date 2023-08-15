@@ -87,8 +87,8 @@ macro_rules! implement {
 
         impl Features {
             /// Return the record of a feature if present.
-            pub fn get(&self, feature: Feature) -> Option<&Record> {
-                let tag = Tag::from(feature);
+            pub fn get<T: Into<Tag>>(&self, tag: T) -> Option<&Record> {
+                let tag = tag.into();
                 self.headers
                     .iter()
                     .enumerate()

@@ -26,7 +26,7 @@ table! {
 macro_rules! implement {
     ($($tag:expr => $name:expr => $variant:ident => $code:expr,)*) => (
         /// A language.
-        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+        #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
         pub enum Language {
             $(#[doc = $name] $variant,)*
         }

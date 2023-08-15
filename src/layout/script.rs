@@ -275,26 +275,23 @@ macro_rules! implement {
             $(#[doc = $name] $variant,)*
         }
 
-        impl Language {
-            /// Return the tag.
-            pub fn tag(&self) -> Tag {
-                use Language::*;
-                match *self {
-                    $($variant => Tag(*$tag),)*
+        impl From<Language> for Tag {
+            fn from(language: Language) -> Self {
+                match language {
+                    $(Language::$variant => Tag(*$tag),)*
                 }
             }
         }
 
         impl Record {
             /// Return the record of a language system if present.
-            pub fn get(&self, language: Language) -> Option<&LanguageRecord> {
-                let tag = language.tag();
-                for (i, header) in self.language_headers.iter().enumerate() {
-                    if header.tag == tag {
-                        return Some(&self.language_records[i]);
-                    }
-                }
-                None
+            pub fn get<T: Into<Tag>>(&self, tag: T) -> Option<&LanguageRecord> {
+                let tag = tag.into();
+                self.language_headers
+                    .iter()
+                    .enumerate()
+                    .find(|(_, header)| header.tag == tag)
+                    .map(|(i, _)| &self.language_records[i])
             }
         }
     );

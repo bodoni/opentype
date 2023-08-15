@@ -87,6 +87,13 @@ macro_rules! implement {
                     _ => None,
                 }
             }
+
+            /// Return the name.
+            pub fn name(&self) -> &'static str {
+                match self {
+                    $(Self::$variant => $name,)*
+                }
+            }
         }
 
         impl From<Feature> for Tag {
@@ -219,8 +226,8 @@ implement! {
     b"cv97" => "Character Variants 97" => CharacterVariants97,
     b"cv98" => "Character Variants 98" => CharacterVariants98,
     b"cv99" => "Character Variants 99" => CharacterVariants99,
-    b"c2pc" => "Petite Capitals From Capitals" => PetiteCapitalsFromCapitals,
-    b"c2sc" => "Small Capitals From Capitals" => SmallCapitalsFromCapitals,
+    b"c2pc" => "Petite Capitals from Capitals" => PetiteCapitalsFromCapitals,
+    b"c2sc" => "Small Capitals from Capitals" => SmallCapitalsFromCapitals,
     b"dist" => "Distances" => Distances,
     b"dlig" => "Discretionary Ligatures" => DiscretionaryLigatures,
     b"dnom" => "Denominators" => Denominators,
@@ -240,7 +247,7 @@ implement! {
     b"hkna" => "Horizontal Kana Alternates" => HorizontalKanaAlternates,
     b"hlig" => "Historical Ligatures" => HistoricalLigatures,
     b"hngl" => "Hangul" => Hangul,
-    b"hojo" => "Hojo Kanji Forms (JIS X 0212-1990 Kanji Forms)" => HojoKanjiForms,
+    b"hojo" => "Hojo Kanji Forms" => HojoKanjiForms,
     b"hwid" => "Half Widths" => HalfWidths,
     b"init" => "Initial Forms" => InitialForms,
     b"isol" => "Isolated Forms" => IsolatedForms,
@@ -338,7 +345,7 @@ implement! {
     b"vkna" => "Vertical Kana Alternates" => VerticalKanaAlternates,
     b"vkrn" => "Vertical Kerning" => VerticalKerning,
     b"vpal" => "Proportional Alternate Vertical Metrics" => ProportionalAlternateVerticalMetrics,
-    b"vrt2" => "Vertical Alternates And Rotation" => VerticalAlternatesAndRotation,
-    b"vrtr" => "Vertical Alternates For Rotation" => VerticalAlternatesForRotation,
+    b"vrt2" => "Vertical Alternates and Rotation" => VerticalAlternatesAndRotation,
+    b"vrtr" => "Vertical Alternates for Rotation" => VerticalAlternatesForRotation,
     b"zero" => "Slashed Zero" => SlashedZero,
 }

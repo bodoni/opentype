@@ -95,6 +95,13 @@ macro_rules! implement {
                     _ => None,
                 }
             }
+
+            /// Return the name.
+            pub fn name(&self) -> &'static str {
+                match self {
+                    $(Self::$variant => $name,)*
+                }
+            }
         }
 
         impl From<Script> for Tag {
@@ -119,7 +126,7 @@ implement! {
     b"bass" => "Bassa Vah" => BassaVah,
     b"batk" => "Batak" => Batak,
     b"beng" => "Bengali" => Bengali,
-    b"bng2" => "Bengali v2" => BengaliV2,
+    b"bng2" => "Bengali" => BengaliV2,
     b"bhks" => "Bhaiksuki" => Bhaiksuki,
     b"bopo" => "Bopomofo" => Bopomofo,
     b"brah" => "Brahmi" => Brahmi,
@@ -140,7 +147,7 @@ implement! {
     b"DFLT" => "Default" => Default,
     b"dsrt" => "Deseret" => Deseret,
     b"deva" => "Devanagari" => Devanagari,
-    b"dev2" => "Devanagari v2" => DevanagariV2,
+    b"dev2" => "Devanagari" => DevanagariV2,
     b"dupl" => "Duployan" => Duployan,
     b"egyp" => "Egyptian Hieroglyphs" => EgyptianHieroglyphs,
     b"elba" => "Elbasan" => Elbasan,
@@ -151,9 +158,9 @@ implement! {
     b"gran" => "Grantha" => Grantha,
     b"grek" => "Greek" => Greek,
     b"gujr" => "Gujarati" => Gujarati,
-    b"gjr2" => "Gujarati v2" => GujaratiV2,
+    b"gjr2" => "Gujarati" => GujaratiV2,
     b"guru" => "Gurmukhi" => Gurmukhi,
-    b"gur2" => "Gurmukhi v2" => GurmukhiV2,
+    b"gur2" => "Gurmukhi" => GurmukhiV2,
     b"hang" => "Hangul" => Hangul,
     b"jamo" => "Hangul Jamo" => HangulJamo,
     b"hano" => "Hanunoo" => Hanunoo,
@@ -166,7 +173,7 @@ implement! {
     b"java" => "Javanese" => Javanese,
     b"kthi" => "Kaithi" => Kaithi,
     b"knda" => "Kannada" => Kannada,
-    b"knd2" => "Kannada v2" => KannadaV2,
+    b"knd2" => "Kannada" => KannadaV2,
     b"kana" => "Katakana" => Katakana,
     b"kali" => "Kayah Li" => KayahLi,
     b"khar" => "Kharosthi" => Kharosthi,
@@ -184,7 +191,7 @@ implement! {
     b"lydi" => "Lydian" => Lydian,
     b"mahj" => "Mahajani" => Mahajani,
     b"mlym" => "Malayalam" => Malayalam,
-    b"mlm2" => "Malayalam v2" => MalayalamV2,
+    b"mlm2" => "Malayalam" => MalayalamV2,
     b"mand" => "Mandaic, Mandaean" => Mandaic,
     b"mani" => "Manichaean" => Manichaean,
     b"marc" => "Marchen" => Marchen,
@@ -200,13 +207,13 @@ implement! {
     b"mult" => "Multani" => Multani,
     b"musc" => "Musical Symbols" => MusicalSymbols,
     b"mymr" => "Myanmar" => Myanmar,
-    b"mym2" => "Myanmar v2" => MyanmarV2,
+    b"mym2" => "Myanmar" => MyanmarV2,
     b"nbat" => "Nabataean" => Nabataean,
     b"newa" => "Newa" => Newa,
     b"talu" => "New Tai Lue" => NewTaiLue,
     b"nko " => "N’Ko" => NKo,
-    b"orya" => "Odia (formerly Oriya)" => Odia,
-    b"ory2" => "Odia v2 (formerly Oriya v2)" => OdiaV2,
+    b"orya" => "Odia" => Odia,
+    b"ory2" => "Odia" => OdiaV2,
     b"ogam" => "Ogham" => Ogham,
     b"olck" => "Ol Chiki" => OlChiki,
     b"ital" => "Old Italic" => OldItalic,
@@ -245,10 +252,10 @@ implement! {
     b"tavt" => "Tai Viet" => TaiViet,
     b"takr" => "Takri" => Takri,
     b"taml" => "Tamil" => Tamil,
-    b"tml2" => "Tamil v2" => TamilV2,
+    b"tml2" => "Tamil" => TamilV2,
     b"tang" => "Tangut" => Tangut,
     b"telu" => "Telugu" => Telugu,
-    b"tel2" => "Telugu v2" => TeluguV2,
+    b"tel2" => "Telugu" => TeluguV2,
     b"thaa" => "Thaana" => Thaana,
     b"thai" => "Thai" => Thai,
     b"tibt" => "Tibetan" => Tibetan,

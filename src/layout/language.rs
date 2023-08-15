@@ -47,6 +47,13 @@ macro_rules! implement {
                     $(Language::$variant => $codes.split(", ").filter(filter),)*
                 }
             }
+
+            /// Return the name.
+            pub fn name(&self) -> &'static str {
+                match self {
+                    $(Self::$variant => $name,)*
+                }
+            }
         }
 
         impl From<Language> for Tag {
@@ -74,7 +81,7 @@ implement! {
     b"ALT " => "Altai" => Altai => "atv, alt",
     b"AMH " => "Amharic" => Amharic => "amh",
     b"ANG " => "Anglo-Saxon" => AngloSaxon => "ang",
-    b"APPH" => "Phonetic transcription, Americanist" => AmericanistPhoneticNotation => "",
+    b"APPH" => "Phonetic Transcription, Americanist" => AmericanistPhoneticNotation => "",
     b"ARA " => "Arabic" => Arabic => "ara",
     b"ARG " => "Aragonese" => Aragonese => "arg",
     b"ARI " => "Aari" => Aari => "aiw",
@@ -473,7 +480,7 @@ implement! {
     b"OCI " => "Occitan" => Occitan => "oci",
     b"OCR " => "Oji-Cree" => OjiCree => "ojs",
     b"OJB " => "Ojibway" => Ojibway => "oji",
-    b"ORI " => "Odia (formerly Oriya)" => Odia => "ori",
+    b"ORI " => "Odia" => Odia => "ori",
     b"ORO " => "Oromo" => Oromo => "orm",
     b"OSS " => "Ossetian" => Ossetian => "oss",
     b"PAA " => "Palestinian Aramaic" => PalestinianAramaic => "sam",
@@ -554,7 +561,7 @@ implement! {
     b"SNA " => "Sena" => Sena => "seh",
     b"SNA0" => "Shona" => Shona => "sna",
     b"SND " => "Sindhi" => Sindhi => "snd",
-    b"SNH " => "Sinhala (Sinhalese)" => SinhalaSinhalese => "sin",
+    b"SNH " => "Sinhala (Sinhalese)" => Sinhala => "sin",
     b"SNK " => "Soninke" => Soninke => "snk",
     b"SOG " => "Sodo Gurage" => SodoGurage => "gru",
     b"SOP " => "Songe" => Songe => "sop",

@@ -59,6 +59,18 @@ table! {
     }
 }
 
+impl Features {
+    /// Return the record of a feature if present.
+    pub fn get<T: Into<Tag>>(&self, tag: T) -> Option<&Record> {
+        let tag = tag.into();
+        self.headers
+            .iter()
+            .enumerate()
+            .find(|(_, header)| header.tag == tag)
+            .map(|(i, _)| &self.records[i])
+    }
+}
+
 macro_rules! implement {
     ($($tag:literal => $name:literal => $variant:ident,)*) => (
         /// A feature.
@@ -82,18 +94,6 @@ macro_rules! implement {
                 match feature {
                     $(Feature::$variant => Tag(*$tag),)*
                 }
-            }
-        }
-
-        impl Features {
-            /// Return the record of a feature if present.
-            pub fn get<T: Into<Tag>>(&self, tag: T) -> Option<&Record> {
-                let tag = tag.into();
-                self.headers
-                    .iter()
-                    .enumerate()
-                    .find(|(_, header)| header.tag == tag)
-                    .map(|(i, _)| &self.records[i])
             }
         }
     );

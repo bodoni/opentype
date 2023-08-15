@@ -19,7 +19,8 @@ mod crimson_text {
 
 mod source_serif {
     use opentype::glyph_positioning::{GlyphPositioning, PairAdjustment, Table};
-    use opentype::layout::script::{Language, Script};
+    use opentype::layout::Language;
+    use opentype::layout::Script;
     use opentype::Value;
 
     #[test]

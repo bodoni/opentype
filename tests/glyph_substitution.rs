@@ -2,7 +2,8 @@
 mod support;
 
 use opentype::glyph_substitution::{GlyphSubstitution, Single, Table};
-use opentype::layout::script::{Language, Script};
+use opentype::layout::Language;
+use opentype::layout::Script;
 use opentype::Value;
 
 #[test]

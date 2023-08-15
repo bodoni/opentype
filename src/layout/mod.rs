@@ -4,6 +4,7 @@
 
 pub mod context;
 pub mod feature;
+pub mod language;
 pub mod lookup;
 pub mod script;
 
@@ -17,6 +18,7 @@ pub use context::{ChainedContext, Context};
 pub use correction::{Correction, Device, Variation};
 pub use coverage::{Coverage, Coverage1, Coverage2, CoverageRange};
 pub use directory::Directory;
-pub use feature::Features;
+pub use feature::{Feature, Features};
+pub use language::Language;
 pub use lookup::Lookups;
-pub use script::Scripts;
+pub use script::{Script, Scripts};

@@ -53,7 +53,7 @@ table! {
 }
 
 table! {
-    #[doc = "A language-system header."]
+    #[doc = "A language header."]
     pub LanguageHeader { // LangSysRecord
         tag    (Tag), // langSysTag
         offset (u16), // langSysOffset
@@ -61,7 +61,7 @@ table! {
 }
 
 table! {
-    #[doc = "A language-system record."]
+    #[doc = "A language record."]
     pub LanguageRecord { // LangSys
         lookup_order_offset    (u16) = { 0 }, // lookupOrderOffset
         required_feature_index (u16), // requiredFeatureIndex
@@ -269,7 +269,7 @@ implement! {
 
 macro_rules! implement {
     ($($tag:expr => $name:expr => $variant:ident => $code:expr,)*) => (
-        /// A language system.
+        /// A language.
         #[derive(Clone, Copy, Debug, Eq, PartialEq)]
         pub enum Language {
             $(#[doc = $name] $variant,)*
@@ -284,7 +284,7 @@ macro_rules! implement {
         }
 
         impl Record {
-            /// Return the record of a language system if present.
+            /// Return the record of a language if present.
             pub fn get<T: Into<Tag>>(&self, tag: T) -> Option<&LanguageRecord> {
                 let tag = tag.into();
                 self.language_headers

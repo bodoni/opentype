@@ -31,6 +31,16 @@ macro_rules! implement {
             $(#[doc = $name] $variant,)*
         }
 
+        impl Language {
+            /// Create an instance from a tag.
+            pub fn from_tag(tag: &Tag) -> Option<Self> {
+                match &**tag {
+                    $($tag => Some(Self::$variant),)*
+                    _ => None,
+                }
+            }
+        }
+
         impl From<Language> for Tag {
             fn from(language: Language) -> Self {
                 match language {

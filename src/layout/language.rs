@@ -32,19 +32,19 @@ macro_rules! implement {
         }
 
         impl Language {
-            /// Return ISO 639 codes.
-            pub fn codes(&self) -> impl Iterator<Item = &'static str> {
-                let filter = |code: &&str| !code.is_empty();
-                match self {
-                    $(Language::$variant => $codes.split(", ").filter(filter),)*
-                }
-            }
-
             /// Create an instance from a tag.
             pub fn from_tag(tag: &Tag) -> Option<Self> {
                 match &**tag {
                     $($tag => Some(Self::$variant),)*
                     _ => None,
+                }
+            }
+
+            /// Return ISO 639 codes.
+            pub fn codes(&self) -> impl Iterator<Item = &'static str> {
+                let filter = |code: &&str| !code.is_empty();
+                match self {
+                    $(Language::$variant => $codes.split(", ").filter(filter),)*
                 }
             }
         }
@@ -658,4 +658,19 @@ implement! {
     b"ZND " => "Zande" => Zande => "zne",
     b"ZUL " => "Zulu" => Zulu => "zul",
     b"ZZA " => "Zazaki" => Zazaki => "zza",
+}
+
+#[cfg(test)]
+mod tests {
+    use truetype::Tag;
+
+    use super::Language;
+
+    macro_rules! ok(($result:expr) => ($result.unwrap()));
+
+    #[test]
+    fn codes() {
+        assert_eq!(ok!(Language::from_tag(&Tag(*b"IPPH"))).codes().count(), 0);
+        assert_eq!(ok!(Language::from_tag(&Tag(*b"ATH "))).codes().count(), 43);
+    }
 }

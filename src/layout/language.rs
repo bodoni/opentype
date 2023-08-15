@@ -24,7 +24,7 @@ table! {
 }
 
 macro_rules! implement {
-    ($($tag:expr => $name:expr => $variant:ident => $code:expr,)*) => (
+    ($($tag:literal => $name:literal => $variant:ident => $codes:literal,)*) => (
         /// A language.
         #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
         pub enum Language {
@@ -32,6 +32,14 @@ macro_rules! implement {
         }
 
         impl Language {
+            /// Return ISO 639 codes.
+            pub fn codes(&self) -> impl Iterator<Item = &'static str> {
+                let filter = |code: &&str| !code.is_empty();
+                match self {
+                    $(Language::$variant => $codes.split(", ").filter(filter),)*
+                }
+            }
+
             /// Create an instance from a tag.
             pub fn from_tag(tag: &Tag) -> Option<Self> {
                 match &**tag {

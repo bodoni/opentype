@@ -117,7 +117,7 @@ implement! {
     b"blwm" => "Below-base Mark Positioning" => BelowBaseMarkPositioning,
     b"blws" => "Below-base Substitutions" => BelowBaseSubstitutions,
     b"calt" => "Contextual Alternates" => ContextualAlternates,
-    b"case" => "Case-Sensitive Forms" => CaseSensitiveForms,
+    b"case" => "Case-sensitive Forms" => CaseSensitiveForms,
     b"ccmp" => "Glyph Composition and Decomposition" => GlyphCompositionDecomposition,
     b"cfar" => "Conjunct Form After Ro" => ConjunctFormAfterRo,
     b"chws" => "Contextual Half-width Spacing" => ContextualHalfWidthSpacing,

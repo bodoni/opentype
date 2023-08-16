@@ -3,7 +3,7 @@
 use truetype::Tag;
 
 table! {
-    #[doc = "A language header."]
+    #[doc = "A language-system header."]
     pub Header { // LangSysRecord
         tag    (Tag), // langSysTag
         offset (u16), // langSysOffset
@@ -11,7 +11,7 @@ table! {
 }
 
 table! {
-    #[doc = "A language record."]
+    #[doc = "A language-system record."]
     pub Record { // LangSys
         lookup_order_offset    (u16) = { 0 }, // lookupOrderOffset
         required_feature_index (u16), // requiredFeatureIndex
@@ -25,7 +25,7 @@ table! {
 
 macro_rules! implement {
     ($($tag:literal => $name:literal => $variant:ident => $codes:literal,)*) => (
-        /// A language.
+        /// A language system.
         #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
         pub enum Language {
             $(#[doc = $name] $variant,)*

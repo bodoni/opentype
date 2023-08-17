@@ -310,22 +310,25 @@ impl Walue<'static> for Ligature {
 impl Walue<'static> for Ligatures {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
         let records: Vec<Ligature> =
-            jump_take_given!(@unwrap tape, position, count, offsets, class_count);
+            jump_take_given!(@unwrap tape, position, count, offsets, mark_class_count);
         let mut anchors = Vec::with_capacity(count as usize);
         for i in 0..(count as usize) {
-            let mut inner = Vec::with_capacity(class_count as usize);
-            for j in 0..(class_count as usize) {
+            let mut inner = Vec::with_capacity(records[i].count as usize);
+            for j in 0..(records[i].count as usize) {
                 inner.push(jump_take_maybe!(
                     @unwrap
                     tape,
                     position,
-                    class_count,
-                    k => offsets[i] + records[i].records[j].anchor_offsets[k]
+                    mark_class_count,
+                    k => {
+                        let offset = records[i].records[j].anchor_offsets[k];
+                        if offset > 0 { offsets[i] + offset } else { 0 }
+                    }
                 ));
             }
             anchors.push(inner);

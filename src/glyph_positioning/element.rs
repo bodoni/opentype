@@ -250,8 +250,8 @@ impl Value for Anchor {
 impl Walue<'static> for Base {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
-        let anchor_offsets = tape.take_given(class_count as usize)?;
+    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
+        let anchor_offsets = tape.take_given(mark_class_count as usize)?;
         Ok(Self { anchor_offsets })
     }
 }
@@ -259,12 +259,12 @@ impl Walue<'static> for Base {
 impl Walue<'static> for Bases {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
         let mut records: Vec<Base> = Vec::with_capacity(count as usize);
         for _ in 0..count {
-            records.push(tape.take_given(class_count)?);
+            records.push(tape.take_given(mark_class_count)?);
         }
         let mut anchors = Vec::with_capacity(count as usize);
         #[allow(clippy::needless_range_loop)]
@@ -273,7 +273,7 @@ impl Walue<'static> for Bases {
                 @unwrap
                 tape,
                 position,
-                class_count,
+                mark_class_count,
                 j => records[i].anchor_offsets[j]
             ));
         }
@@ -288,8 +288,8 @@ impl Walue<'static> for Bases {
 impl Walue<'static> for Component {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
-        let anchor_offsets = tape.take_given(class_count as usize)?;
+    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
+        let anchor_offsets = tape.take_given(mark_class_count as usize)?;
         Ok(Self { anchor_offsets })
     }
 }
@@ -297,11 +297,11 @@ impl Walue<'static> for Component {
 impl Walue<'static> for Ligature {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let count = tape.take()?;
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
-            records.push(tape.take_given(class_count)?);
+            records.push(tape.take_given(mark_class_count)?);
         }
         Ok(Self { count, records })
     }
@@ -345,8 +345,8 @@ impl Walue<'static> for Ligatures {
 impl Walue<'static> for Mark2 {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
-        let anchor_offsets = tape.take_given(class_count as usize)?;
+    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
+        let anchor_offsets = tape.take_given(mark_class_count as usize)?;
         Ok(Self { anchor_offsets })
     }
 }
@@ -354,12 +354,12 @@ impl Walue<'static> for Mark2 {
 impl Walue<'static> for Mark2s {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, class_count: Self::Parameter) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take::<u16>()?;
         let mut records: Vec<Mark2> = Vec::with_capacity(count as usize);
         for _ in 0..count {
-            records.push(tape.take_given(class_count)?);
+            records.push(tape.take_given(mark_class_count)?);
         }
         let mut anchors = Vec::with_capacity(count as usize);
         #[allow(clippy::needless_range_loop)]
@@ -368,7 +368,7 @@ impl Walue<'static> for Mark2s {
                 @unwrap
                 tape,
                 position,
-                class_count,
+                mark_class_count,
                 j => records[i].anchor_offsets[j]
             ));
         }

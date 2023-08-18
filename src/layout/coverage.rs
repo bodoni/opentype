@@ -57,7 +57,7 @@ impl Value for Coverage {
         Ok(match tape.peek::<u16>()? {
             1 => Coverage::Format1(tape.take()?),
             2 => Coverage::Format2(tape.take()?),
-            _ => raise!("found an unknown format of the coverage table"),
+            value => raise!("found an unknown format of the coverage table ({value})"),
         })
     }
 }

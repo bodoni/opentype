@@ -41,7 +41,7 @@ impl Value for Correction {
         Ok(match tape.peek::<Header>()?.format {
             1 | 2 | 3 => Correction::Device(tape.take()?),
             0x8000 => Correction::Variation(tape.take()?),
-            _ => raise!("found an unknown format of the correction table"),
+            value => raise!("found an unknown format of the correction table ({value})"),
         })
     }
 }
@@ -62,7 +62,7 @@ impl Value for Device {
         }
         let format = tape.take()?;
         if format == 0 || format > 3 {
-            raise!("found an unknown format of the device table");
+            raise!("found an unknown format of the device table ({format})");
         }
         let count = (end_size - start_size) as usize + 1;
         let bit_count = (1 << format as usize) * count;

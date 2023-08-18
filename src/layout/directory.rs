@@ -29,7 +29,7 @@ where
         let minor_version = tape.take()?;
         match (major_version, minor_version) {
             (1, 0) | (1, 1) => {}
-            _ => raise!("found an unknown version of the directory table"),
+            value => raise!("found an unknown version of the directory table {value:?}"),
         }
         let script_offset = tape.take()?;
         let feature_offset = tape.take()?;

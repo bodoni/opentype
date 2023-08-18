@@ -58,7 +58,7 @@ impl Value for Class {
         Ok(match tape.peek::<u16>()? {
             1 => Class::Format1(tape.take()?),
             2 => Class::Format2(tape.take()?),
-            _ => raise!("found an unknown format of the class definition"),
+            value => raise!("found an unknown format of the class definition ({value})"),
         })
     }
 }

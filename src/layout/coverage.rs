@@ -1,3 +1,5 @@
+//! The coverage.
+
 use truetype::GlyphID;
 
 use crate::{Result, Tape, Value};
@@ -14,10 +16,10 @@ pub enum Coverage {
 table! {
     #[doc = "A coverage table in format 1."]
     pub Coverage1 { // CoverageFormat1
-        format (u16), // CoverageFormat
-        count  (u16), // GlyphCount
+        format (u16), // coverageFormat
+        count  (u16), // glyphCount
 
-        glyph_ids (Vec<GlyphID>) |this, tape| { // GlyphArray
+        glyph_ids (Vec<GlyphID>) |this, tape| { // glyphArray
             tape.take_given(this.count as usize)
         },
     }
@@ -26,22 +28,22 @@ table! {
 table! {
     #[doc = "A coverage table in format 2."]
     pub Coverage2 { // CoverageFormat2
-        format (u16), // CoverageFormat
-        count  (u16), // RangeCount
+        format (u16), // coverageFormat
+        count  (u16), // rangeCount
 
-        ranges (Vec<CoverageRange>) |this, tape| { // RangeRecord
+        records (Vec<Record>) |this, tape| { // rangeRecords
             tape.take_given(this.count as usize)
         },
     }
 }
 
 table! {
-    #[doc = "A coverage range."]
+    #[doc = "A coverage record."]
     #[derive(Copy)]
-    pub CoverageRange { // RangeRecord
-        start (GlyphID), // Start
-        end   (GlyphID), // End
-        index (u16    ), // StartCoverageIndex
+    pub Record { // RangeRecord
+        start_glyph_id (GlyphID), // startGlyphID
+        end_glyph_id   (GlyphID), // endGlyphID
+        index          (u16    ), // startCoverageIndex
     }
 }
 

@@ -1,6 +1,4 @@
-//! The [contextual lookup][1].
-//!
-//! [1]: https://learn.microsoft.com/en-us/typography/opentype/spec/chapter2#common-structures-for-contextual-lookup-subtables
+//! The context.
 
 use truetype::GlyphID;
 

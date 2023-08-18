@@ -13,32 +13,25 @@ table! {
     @define
     #[doc = "A device correction."]
     pub Device { // Device
-        start_size (u16     ), // StartSize
-        end_size   (u16     ), // EndSize
-        format     (u16     ), // DeltaFormat
-        deltas     (Vec<u16>), // DeltaValue
+        start_size (u16     ), // startSize
+        end_size   (u16     ), // endSize
+        format     (u16     ), // deltaFormat
+        deltas     (Vec<u16>), // deltaValue
     }
 }
 
 table! {
     #[doc = "A variation correction."]
     pub Variation { // VariationIndex
-        outer_index (u16), // DeltaSetOuterIndex
-        inner_index (u16), // DeltaSetInnerIndex
-        format      (u16), // DeltaFormat
-    }
-}
-
-table! {
-    pub Header {
-        _dummy (u32),
-        format (u16),
+        outer_index (u16), // deltaSetOuterIndex
+        inner_index (u16), // deltaSetInnerIndex
+        format      (u16), // deltaFormat
     }
 }
 
 impl Value for Correction {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        Ok(match tape.peek::<Header>()?.format {
+        Ok(match tape.peek::<(u32, u16)>()?.1 {
             1 | 2 | 3 => Correction::Device(tape.take()?),
             0x8000 => Correction::Variation(tape.take()?),
             value => raise!("found an unknown format of the correction table ({value})"),

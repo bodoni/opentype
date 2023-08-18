@@ -1,7 +1,7 @@
 use truetype::GlyphID;
 
 use crate::layout::Correction;
-use crate::{Result, Tape, Value, Walue};
+use crate::{Result, Tape, Walue};
 
 /// An anchor.
 #[derive(Clone, Debug)]
@@ -151,8 +151,8 @@ table! {
     #[doc = "A pair adjustment in format 1."]
     pub Pair1 { // PairValueRecord
         glyph2_id (GlyphID), // secondGlyph
-        value1    (Single ), // valueRecord1
-        value2    (Single ), // valueRecord2
+        value1    (Option<Value>), // valueRecord1
+        value2    (Option<Value>), // valueRecord2
     }
 }
 
@@ -169,8 +169,8 @@ table! {
     @define
     #[doc = "A pair adjustment in format 2."]
     pub Pair2 { // Class2Record
-        value1 (Single), // valueRecord1
-        value2 (Single), // valueRecord2
+        value1 (Option<Value>), // valueRecord1
+        value2 (Option<Value>), // valueRecord2
     }
 }
 
@@ -197,7 +197,7 @@ table! {
 table! {
     @define
     #[doc = "A single adjustment."]
-    pub Single { // ValueRecord
+    pub Value { // ValueRecord
         x_placement                   (Option<i16>), // xPlacement
         y_placement                   (Option<i16>), // yPlacement
         x_advance                     (Option<i16>), // xAdvance
@@ -215,8 +215,8 @@ table! {
 }
 
 flags! {
-    #[doc = "Single-adjustment flags."]
-    pub SingleFlags(u16) {
+    #[doc = "Value flags."]
+    pub ValueFlags(u16) { // ValueFormat
         0b0000_0000_0000_0001 => has_x_placement,
         0b0000_0000_0000_0010 => has_y_placement,
         0b0000_0000_0000_0100 => has_x_advance,
@@ -236,7 +236,7 @@ impl Default for Anchor {
     }
 }
 
-impl Value for Anchor {
+impl crate::Value for Anchor {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Anchor::Format1(tape.take()?),
@@ -381,7 +381,7 @@ impl Walue<'static> for Mark2s {
 }
 
 impl Walue<'static> for Pair1 {
-    type Parameter = (u64, SingleFlags, SingleFlags);
+    type Parameter = (u64, ValueFlags, ValueFlags);
 
     fn read<T: Tape>(
         tape: &mut T,
@@ -389,41 +389,58 @@ impl Walue<'static> for Pair1 {
     ) -> Result<Self> {
         Ok(Self {
             glyph2_id: tape.take()?,
-            value1: tape.take_given((position, value1_flags))?,
-            value2: tape.take_given((position, value2_flags))?,
+            value1: if value1_flags.0 > 0 {
+                Some(tape.take_given((position, value1_flags))?)
+            } else {
+                None
+            },
+            value2: if value2_flags.0 > 0 {
+                Some(tape.take_given((position, value2_flags))?)
+            } else {
+                None
+            },
         })
     }
 }
 
 impl Walue<'static> for Pair1s {
-    type Parameter = (u64, SingleFlags, SingleFlags);
+    type Parameter = (ValueFlags, ValueFlags);
 
-    fn read<T: Tape>(tape: &mut T, parameter: Self::Parameter) -> Result<Self> {
+    fn read<T: Tape>(tape: &mut T, (value1_flags, value2_flags): Self::Parameter) -> Result<Self> {
+        let position = tape.position()?;
         let count = tape.take()?;
         let mut records = Vec::with_capacity(count as usize);
         for _ in 0..(count as usize) {
-            records.push(tape.take_given(parameter)?);
+            records.push(tape.take_given((position, value1_flags, value2_flags))?);
         }
         Ok(Self { count, records })
     }
 }
 
 impl Walue<'static> for Pair2 {
-    type Parameter = (u64, SingleFlags, SingleFlags);
+    type Parameter = (u64, ValueFlags, ValueFlags);
 
     fn read<T: Tape>(
         tape: &mut T,
         (position, value1_flags, value2_flags): Self::Parameter,
     ) -> Result<Self> {
         Ok(Self {
-            value1: tape.take_given((position, value1_flags))?,
-            value2: tape.take_given((position, value2_flags))?,
+            value1: if value1_flags.0 > 0 {
+                Some(tape.take_given((position, value1_flags))?)
+            } else {
+                None
+            },
+            value2: if value2_flags.0 > 0 {
+                Some(tape.take_given((position, value2_flags))?)
+            } else {
+                None
+            },
         })
     }
 }
 
 impl Walue<'static> for Pair2s {
-    type Parameter = (u64, u16, SingleFlags, SingleFlags);
+    type Parameter = (u64, u16, ValueFlags, ValueFlags);
 
     fn read<T: Tape>(
         tape: &mut T,
@@ -454,8 +471,8 @@ impl Walue<'static> for Passage {
     }
 }
 
-impl Walue<'static> for Single {
-    type Parameter = (u64, SingleFlags);
+impl Walue<'static> for Value {
+    type Parameter = (u64, ValueFlags);
 
     fn read<T: Tape>(tape: &mut T, (position, flags): Self::Parameter) -> Result<Self> {
         macro_rules! take(
@@ -469,16 +486,25 @@ impl Walue<'static> for Single {
         let y_placement_correction_offset = take!(has_y_placement_correction);
         let x_advance_correction_offset = take!(has_x_advance_correction);
         let y_advance_correction_offset = take!(has_y_advance_correction);
-        macro_rules! take(
-            ($offset:ident) => (match $offset {
-                Some(offset) => Some(jump_take!(@unwrap tape, position, offset)),
-                _ => None,
-            });
-        );
-        let x_placement_correction = take!(x_placement_correction_offset);
-        let y_placement_correction = take!(y_placement_correction_offset);
-        let x_advance_correction = take!(x_advance_correction_offset);
-        let y_advance_correction = take!(y_advance_correction_offset);
+        let (
+            x_placement_correction,
+            y_placement_correction,
+            x_advance_correction,
+            y_advance_correction,
+        ) = tape.stay(|tape| {
+            macro_rules! take(
+                ($offset:ident) => (match $offset {
+                    Some(offset) => jump_take_maybe!(@unwrap tape, position, offset),
+                    _ => None,
+                });
+            );
+            Ok((
+                take!(x_placement_correction_offset),
+                take!(y_placement_correction_offset),
+                take!(x_advance_correction_offset),
+                take!(y_advance_correction_offset),
+            ))
+        })?;
         Ok(Self {
             x_placement,
             y_placement,

@@ -14,9 +14,9 @@ fn table() {
     }
     match &table.glyph_class {
         &Some(Class::Format2(ref table)) => {
-            assert_eq!(table.range_count, 1);
-            assert_eq!(table.ranges[0].start, 0);
-            assert_eq!(table.ranges[0].end, 937);
+            assert_eq!(table.count, 1);
+            assert_eq!(table.records[0].start_glyph_id, 0);
+            assert_eq!(table.records[0].end_glyph_id, 937);
         }
         _ => unreachable!(),
     }

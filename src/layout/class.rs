@@ -1,8 +1,10 @@
+//! The class.
+
 use truetype::GlyphID;
 
 use crate::{Result, Tape, Value};
 
-/// A class definition.
+/// A class.
 #[derive(Clone, Debug)]
 pub enum Class {
     /// Format 1.
@@ -12,26 +14,26 @@ pub enum Class {
 }
 
 table! {
-    #[doc = "A class definition in format 1."]
+    #[doc = "A class in format 1."]
     pub Class1 { // ClassDefFormat1
-        format      (u16    ), // ClassFormat
-        start       (GlyphID), // StartGlyph
-        value_count (u16    ), // GlyphCount
+        format         (u16    ), // classFormat
+        start_glyph_id (GlyphID), // startGlyphID
+        count          (u16    ), // glyphCount
 
-        values (Vec<u16>) |this, tape| { // ClassValueArray
-            tape.take_given(this.value_count as usize)
+        records (Vec<u16>) |this, tape| { // classValueArray
+            tape.take_given(this.count as usize)
         },
     }
 }
 
 table! {
-    #[doc = "A class definition in format 2."]
+    #[doc = "A class in format 2."]
     pub Class2 { // ClassDefFormat2
-        format      (u16), // ClassFormat
-        range_count (u16), // ClassRangeCount
+        format (u16), // classFormat
+        count  (u16), // classRangeCount
 
-        ranges (Vec<ClassRange>) |this, tape| { // ClassRangeRecord
-            tape.take_given(this.range_count as usize)
+        records (Vec<Record>) |this, tape| { // classRangeRecords
+            tape.take_given(this.count as usize)
         },
     }
 }
@@ -39,10 +41,10 @@ table! {
 table! {
     #[doc = "A class range."]
     #[derive(Copy)]
-    pub ClassRange { // ClassRangeRecord
-        start (GlyphID), // Start
-        end   (GlyphID), // End
-        index (u16    ), // Class
+    pub Record { // ClassRangeRecord
+        start_glyph_id (GlyphID), // startGlyphID
+        end_glyph_id   (GlyphID), // endGlyphID
+        index          (u16    ), // class
     }
 }
 
@@ -58,7 +60,7 @@ impl Value for Class {
         Ok(match tape.peek::<u16>()? {
             1 => Class::Format1(tape.take()?),
             2 => Class::Format2(tape.take()?),
-            value => raise!("found an unknown format of the class definition ({value})"),
+            value => raise!("found an unknown format of the class table ({value})"),
         })
     }
 }

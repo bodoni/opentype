@@ -88,8 +88,8 @@ table! {
     @define
     #[doc = "A ligature attachment."]
     pub Ligature { // LigatureAttach
-        count   (u16           ), // componentCount
-        records (Vec<Component>), // componentRecords
+        count      (u16           ), // componentCount
+        components (Vec<Component>), // componentRecords
     }
 }
 
@@ -122,7 +122,7 @@ table! {
         count (u16), // markCount
 
         records (Vec<Mark1>) |this, tape, position| { // markRecords
-            (0..this.count).map(|_| tape.take_given(position)).collect::<Result<Vec<_>>>()
+            (0..this.count).map(|_| tape.take_given(position)).collect()
         },
     }
 }
@@ -294,10 +294,10 @@ impl Walue<'static> for Ligature {
     fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
-        let records = (0..count)
+        let components = (0..count)
             .map(|_| tape.take_given((position, mark_class_count)))
             .collect::<Result<Vec<_>>>()?;
-        Ok(Self { count, records })
+        Ok(Self { count, components })
     }
 }
 

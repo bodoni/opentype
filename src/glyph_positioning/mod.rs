@@ -63,11 +63,9 @@ table! {
         value_count     (u16       ), // valueCount
 
         values (Vec<Value>) |this, tape, position| { // valueRecords
-            let mut values = Vec::with_capacity(this.value_count as usize);
-            for _ in 0..(this.value_count as usize) {
-                values.push(tape.take_given((position, this.value_flags))?);
-            }
-            Ok(values)
+            (0..this.value_count)
+                .map(|_| tape.take_given((position, this.value_flags)))
+                .collect()
         },
 
         coverage (Coverage) |this, tape, position| {
@@ -129,16 +127,9 @@ table! {
         class2_count    (u16       ), // class2Count
 
         rules (Vec<Pair2s>) |this, tape, position| { // class1Records
-            let mut values = Vec::with_capacity(this.class1_count as usize);
-            for _ in 0..(this.class1_count as usize) {
-                values.push(tape.take_given((
-                    position,
-                    this.class2_count,
-                    this.value1_flags,
-                    this.value2_flags,
-                ))?);
-            }
-            Ok(values)
+            (0..this.class1_count)
+                .map(|_| tape.take_given((position, this.class2_count, this.value1_flags, this.value2_flags)))
+                .collect()
         },
 
         coverage (Coverage) |this, tape, position| {
@@ -164,11 +155,9 @@ table! {
         passage_count   (u16), // entryExitCount
 
         passages (Vec<Passage>) |this, tape, position| { // entryExitRecords
-            let mut values = Vec::with_capacity(this.passage_count as usize);
-            for _ in 0..(this.passage_count as usize) {
-                values.push(tape.take_given(position)?);
-            }
-            Ok(values)
+            (0..this.passage_count)
+                .map(|_| tape.take_given(position))
+                .collect()
         },
 
         coverage (Coverage) |this, tape, position| {

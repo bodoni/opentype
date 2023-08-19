@@ -39,7 +39,7 @@ table! {
         },
 
         parameters (Option<Vec<u8>>) |this, tape, position| {
-            if this.parameter_offset != 0 {
+            if this.parameter_offset > 0 {
                 tape.jump(position + this.parameter_offset as u64)?;
                 Ok(Some(tape.take_bytes(0)?))
             } else {

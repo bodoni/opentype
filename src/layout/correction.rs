@@ -1,3 +1,5 @@
+//! The adjustment correction.
+
 use crate::{Result, Tape, Value};
 
 /// A correction.
@@ -34,7 +36,7 @@ impl Value for Correction {
         Ok(match tape.peek::<(u32, u16)>()?.1 {
             1 | 2 | 3 => Correction::Device(tape.take()?),
             0x8000 => Correction::Variation(tape.take()?),
-            value => raise!("found an unknown format of the correction table ({value})"),
+            value => raise!("found an unknown format of the adjustment correction ({value})"),
         })
     }
 }
@@ -51,11 +53,11 @@ impl Value for Device {
         let start_size = tape.take()?;
         let end_size = tape.take()?;
         if start_size > end_size {
-            raise!("found a malformed device table");
+            raise!("found a malformed device correction");
         }
         let format = tape.take()?;
         if format == 0 || format > 3 {
-            raise!("found an unknown format of the device table ({format})");
+            raise!("found an unknown format of the device correction ({format})");
         }
         let count = (end_size - start_size) as usize + 1;
         let bit_count = (1 << format as usize) * count;

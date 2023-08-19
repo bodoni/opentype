@@ -7,7 +7,7 @@ mod element;
 pub use element::*;
 
 use crate::layout::{ChainedContext, Class, Context, Coverage, Directory};
-use crate::{Result, Tape, Walue};
+use crate::{Result, Tape, Value, Walue};
 
 /// A glyph-positioning table.
 pub type GlyphPositioning = Directory<Table>;
@@ -39,11 +39,11 @@ table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 1."]
     pub SingleAdjustment1 { // SinglePosFormat1
-        format          (u16       ), // posFormat
-        coverage_offset (u16       ), // coverageOffset
-        value_flags     (ValueFlags), // valueFormat
+        format          (u16  ), // posFormat
+        coverage_offset (u16  ), // coverageOffset
+        value_flags     (Flags), // valueFormat
 
-        value (Value) |this, tape, position| { // valueRecord
+        value (Single) |this, tape, position| { // valueRecord
             tape.take_given((position, this.value_flags))
         },
 
@@ -57,12 +57,12 @@ table! {
     @position
     #[doc = "A table for adjusting single glyphs in format 2."]
     pub SingleAdjustment2 { // SinglePosFormat2
-        format          (u16       ), // posFormat
-        coverage_offset (u16       ), // coverageOffset
-        value_flags     (ValueFlags), // valueFormat
-        value_count     (u16       ), // valueCount
+        format          (u16  ), // posFormat
+        coverage_offset (u16  ), // coverageOffset
+        value_flags     (Flags), // valueFormat
+        value_count     (u16  ), // valueCount
 
-        values (Vec<Value>) |this, tape, position| { // valueRecords
+        values (Vec<Single>) |this, tape, position| { // valueRecords
             (0..this.value_count)
                 .map(|_| tape.take_given((position, this.value_flags)))
                 .collect()
@@ -87,11 +87,11 @@ table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 1."]
     pub PairAdjustment1 { // PairPosFormat1
-        format          (u16       ), // posFormat
-        coverage_offset (u16       ), // coverageOffset
-        value1_flags    (ValueFlags), // valueFormat1
-        value2_flags    (ValueFlags), // valueFormat2
-        rule_count      (u16       ), // pairSetCount
+        format          (u16  ), // posFormat
+        coverage_offset (u16  ), // coverageOffset
+        value1_flags    (Flags), // valueFormat1
+        value2_flags    (Flags), // valueFormat2
+        rule_count      (u16  ), // pairSetCount
 
         rule_offsets (Vec<u16>) |this, tape, _| { // pairSetOffsets
             tape.take_given(this.rule_count as usize)
@@ -117,14 +117,14 @@ table! {
     @position
     #[doc = "A table for adjusting pairs of glyphs in format 2."]
     pub PairAdjustment2 { // PairPosFormat2
-        format          (u16       ), // posFormat
-        coverage_offset (u16       ), // coverageOffset
-        value1_flags    (ValueFlags), // valueFormat1
-        value2_flags    (ValueFlags), // valueFormat2
-        class1_offset   (u16       ), // classDef1Offset
-        class2_offset   (u16       ), // classDef2Offset
-        class1_count    (u16       ), // class1Count
-        class2_count    (u16       ), // class2Count
+        format          (u16  ), // posFormat
+        coverage_offset (u16  ), // coverageOffset
+        value1_flags    (Flags), // valueFormat1
+        value2_flags    (Flags), // valueFormat2
+        class1_offset   (u16  ), // classDef1Offset
+        class2_offset   (u16  ), // classDef2Offset
+        class1_count    (u16  ), // class1Count
+        class2_count    (u16  ), // class2Count
 
         rules (Vec<Pair2s>) |this, tape, position| { // class1Records
             (0..this.class1_count)
@@ -150,12 +150,12 @@ table! {
     @position
     #[doc = "A table for attaching cursive glyphs."]
     pub CursiveAttachment { // CursivePosFormat1
-        format          (u16) = { 1 }, // posFormat
-        coverage_offset (u16), // coverageOffset
-        passage_count   (u16), // entryExitCount
+        format           (u16) = { 1 }, // posFormat
+        coverage_offset  (u16), // coverageOffset
+        connection_count (u16), // entryExitCount
 
-        passages (Vec<Passage>) |this, tape, position| { // entryExitRecords
-            (0..this.passage_count)
+        connections (Vec<Connection>) |this, tape, position| { // entryExitRecords
+            (0..this.connection_count)
                 .map(|_| tape.take_given(position))
                 .collect()
         },
@@ -281,7 +281,7 @@ impl Walue<'static> for Table {
     }
 }
 
-impl crate::Value for SingleAdjustment {
+impl Value for SingleAdjustment {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
@@ -291,7 +291,7 @@ impl crate::Value for SingleAdjustment {
     }
 }
 
-impl crate::Value for PairAdjustment {
+impl Value for PairAdjustment {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),

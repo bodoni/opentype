@@ -1,7 +1,7 @@
 use truetype::GlyphID;
 
 use crate::layout::Correction;
-use crate::{Result, Tape, Walue};
+use crate::{Result, Tape, Value, Walue};
 
 /// An anchor.
 #[derive(Clone, Debug)]
@@ -86,6 +86,18 @@ table! {
 
 table! {
     @define
+    #[doc = "A connection."]
+    pub Connection { // EntryExitRecord
+        start_anchor_offset (u16), // entryAnchorOffset
+        end_anchor_offset   (u16), // exitAnchorOffset
+
+        start_anchor (Option<Anchor>),
+        end_anchor   (Option<Anchor>),
+    }
+}
+
+table! {
+    @define
     #[doc = "A ligature attachment."]
     pub Ligature { // LigatureAttach
         count      (u16           ), // componentCount
@@ -150,9 +162,9 @@ table! {
     @define
     #[doc = "A pair adjustment in format 1."]
     pub Pair1 { // PairValueRecord
-        glyph2_id (GlyphID), // secondGlyph
-        value1    (Option<Value>), // valueRecord1
-        value2    (Option<Value>), // valueRecord2
+        glyph2_id (GlyphID       ), // secondGlyph
+        value1    (Option<Single>), // valueRecord1
+        value2    (Option<Single>), // valueRecord2
     }
 }
 
@@ -169,8 +181,8 @@ table! {
     @define
     #[doc = "A pair adjustment in format 2."]
     pub Pair2 { // Class2Record
-        value1 (Option<Value>), // valueRecord1
-        value2 (Option<Value>), // valueRecord2
+        value1 (Option<Single>), // valueRecord1
+        value2 (Option<Single>), // valueRecord2
     }
 }
 
@@ -184,20 +196,8 @@ table! {
 
 table! {
     @define
-    #[doc = "An entry–exit record."]
-    pub Passage { // EntryExitRecord
-        entry_offset (u16), // entryAnchorOffset
-        exit_offset  (u16), // exitAnchorOffset
-
-        entry (Option<Anchor>),
-        exit  (Option<Anchor>),
-    }
-}
-
-table! {
-    @define
     #[doc = "A single adjustment."]
-    pub Value { // ValueRecord
+    pub Single { // ValueRecord
         x_placement                   (Option<i16>), // xPlacement
         y_placement                   (Option<i16>), // yPlacement
         x_advance                     (Option<i16>), // xAdvance
@@ -215,8 +215,8 @@ table! {
 }
 
 flags! {
-    #[doc = "Value flags."]
-    pub ValueFlags(u16) { // ValueFormat
+    #[doc = "Adjustment flags."]
+    pub Flags(u16) { // ValueFormat
         0b0000_0000_0000_0001 => has_x_placement,
         0b0000_0000_0000_0010 => has_y_placement,
         0b0000_0000_0000_0100 => has_x_advance,
@@ -236,7 +236,7 @@ impl Default for Anchor {
     }
 }
 
-impl crate::Value for Anchor {
+impl Value for Anchor {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Anchor::Format1(tape.take()?),
@@ -361,7 +361,7 @@ impl Walue<'static> for Mark2s {
 }
 
 impl Walue<'static> for Pair1 {
-    type Parameter = (u64, ValueFlags, ValueFlags);
+    type Parameter = (u64, Flags, Flags);
 
     fn read<T: Tape>(
         tape: &mut T,
@@ -384,7 +384,7 @@ impl Walue<'static> for Pair1 {
 }
 
 impl Walue<'static> for Pair1s {
-    type Parameter = (ValueFlags, ValueFlags);
+    type Parameter = (Flags, Flags);
 
     fn read<T: Tape>(tape: &mut T, (value1_flags, value2_flags): Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
@@ -397,7 +397,7 @@ impl Walue<'static> for Pair1s {
 }
 
 impl Walue<'static> for Pair2 {
-    type Parameter = (u64, ValueFlags, ValueFlags);
+    type Parameter = (u64, Flags, Flags);
 
     fn read<T: Tape>(
         tape: &mut T,
@@ -419,7 +419,7 @@ impl Walue<'static> for Pair2 {
 }
 
 impl Walue<'static> for Pair2s {
-    type Parameter = (u64, u16, ValueFlags, ValueFlags);
+    type Parameter = (u64, u16, Flags, Flags);
 
     fn read<T: Tape>(
         tape: &mut T,
@@ -432,25 +432,25 @@ impl Walue<'static> for Pair2s {
     }
 }
 
-impl Walue<'static> for Passage {
+impl Walue<'static> for Connection {
     type Parameter = u64;
 
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
-        let entry_offset = tape.take()?;
-        let exit_offset = tape.take()?;
-        let entry = jump_take_maybe!(@unwrap tape, position, entry_offset);
-        let exit = jump_take_maybe!(@unwrap tape, position, exit_offset);
+        let start_anchor_offset = tape.take()?;
+        let end_anchor_offset = tape.take()?;
+        let start_anchor = jump_take_maybe!(@unwrap tape, position, start_anchor_offset);
+        let end_anchor = jump_take_maybe!(@unwrap tape, position, end_anchor_offset);
         Ok(Self {
-            entry_offset,
-            exit_offset,
-            entry,
-            exit,
+            start_anchor_offset,
+            end_anchor_offset,
+            start_anchor,
+            end_anchor,
         })
     }
 }
 
-impl Walue<'static> for Value {
-    type Parameter = (u64, ValueFlags);
+impl Walue<'static> for Single {
+    type Parameter = (u64, Flags);
 
     fn read<T: Tape>(tape: &mut T, (position, flags): Self::Parameter) -> Result<Self> {
         macro_rules! take(

@@ -3,17 +3,17 @@
 table! {
     @position
     #[doc = "An item variation store."]
-    pub Variations { // ItemVariationStore
+    pub Store { // ItemVariationStore
         format        (u16) = { 1 }, // format
         region_offset (u32), // offsetToVariationRegionList
         count         (u16), // itemVariationDataCount
 
-        record_offsets (Vec<u32>) |this, tape, _| { // itemVariationDataOffsets
+        offsets (Vec<u32>) |this, tape, _| { // itemVariationDataOffsets
             tape.take_given(this.count as usize)
         },
 
         records (Vec<Record>) |this, tape, position| {
-            jump_take!(tape, position, this.count, this.record_offsets)
+            jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }

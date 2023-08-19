@@ -7,7 +7,7 @@ mod element;
 pub use element::*;
 
 use crate::layout::Class;
-use crate::variations::item::Variations;
+use crate::variations::item::Store;
 use crate::{Result, Tape, Value};
 
 macro_rules! field(
@@ -70,7 +70,7 @@ table! {
             )
         },
 
-        variations (Option<Variations>) |this, tape, position| {
+        variations (Option<Store>) |this, tape, position| {
             jump_take_maybe!(
                 tape,
                 position,

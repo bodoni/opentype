@@ -1,6 +1,23 @@
 #[macro_use]
 mod support;
 
+mod adobe_vf_prototype {
+    use opentype::glyph_positioning::GlyphPositioning;
+    use opentype::Value;
+
+    #[test]
+    fn features() {
+        let GlyphPositioning { features, .. } =
+            ok!(Value::read(&mut setup!(AdobeVFPrototypeTTF, "GPOS")));
+        let tags = features
+            .headers
+            .iter()
+            .map(|header| header.tag)
+            .collect::<Vec<_>>();
+        assert_eq!(tags, tags![b"kern", b"size"]);
+    }
+}
+
 mod crimson_text {
     use opentype::glyph_positioning::GlyphPositioning;
     use opentype::Value;

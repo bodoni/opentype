@@ -48,6 +48,7 @@ impl Fixture {
                 _ => unreachable!(),
             },
             Fixture::AdobeVFPrototypeTTF => match table {
+                "GPOS" => 137912,
                 "fvar" => 41556,
                 _ => unreachable!(),
             },

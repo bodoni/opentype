@@ -57,7 +57,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A base attachment."]
+    #[doc = "A base."]
     pub Base { // BaseRecord
         anchor_offsets (Vec<u16>), // baseAnchorOffsets
 
@@ -67,7 +67,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A set of base attachments."]
+    #[doc = "Bases."]
     pub Bases { // BaseArray
         count   (u16      ), // baseCount
         records (Vec<Base>), // baseRecords
@@ -76,7 +76,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A component attachment."]
+    #[doc = "A component."]
     pub Component { // ComponentRecord
         anchor_offsets (Vec<u16>), // ligatureAnchorOffsets
 
@@ -98,7 +98,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A ligature attachment."]
+    #[doc = "A ligature."]
     pub Ligature { // LigatureAttach
         count      (u16           ), // componentCount
         components (Vec<Component>), // componentRecords
@@ -107,7 +107,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A set of ligature attachments."]
+    #[doc = "Ligatures."]
     pub Ligatures { // LigatureArray
         count   (u16     ), // ligatureCount
         offsets (Vec<u16>), // ligatureAttachOffsets
@@ -118,7 +118,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A mark attachment in format 1."]
+    #[doc = "A mark in format 1."]
     pub Mark1 { // MarkRecord
         class_id      (u16), // markClass
         anchor_offset (u16), // markAnchorOffset
@@ -129,7 +129,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of mark attachments in format 1."]
+    #[doc = "Marks in format 1."]
     pub Mark1s { // MarkArray
         count (u16), // markCount
 
@@ -141,7 +141,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A mark attachment in format 2."]
+    #[doc = "A mark in format 2."]
     pub Mark2 { // Mark2Record
         anchor_offsets (Vec<u16>), // mark2AnchorOffsets
 
@@ -151,7 +151,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A set of mark attachments in format 2."]
+    #[doc = "Marks in format 2."]
     pub Mark2s { // Mark2Array
         count   (u16       ), // mark2Count
         records (Vec<Mark2>), // mark2Records
@@ -160,7 +160,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A pair adjustment in format 1."]
+    #[doc = "A value pair in format 1."]
     pub Pair1 { // PairValueRecord
         glyph2_id (GlyphID       ), // secondGlyph
         value1    (Option<Single>), // valueRecord1
@@ -170,7 +170,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A set of pair adjustments in format 1."]
+    #[doc = "Pairs of values in format 1."]
     pub Pair1s { // PairSet
         count   (u16       ), // pairValueCount
         records (Vec<Pair1>), // pairValueRecords
@@ -179,7 +179,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A pair adjustment in format 2."]
+    #[doc = "A value pair in format 2."]
     pub Pair2 { // Class2Record
         value1 (Option<Single>), // valueRecord1
         value2 (Option<Single>), // valueRecord2
@@ -188,7 +188,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A set of pair adjustments in format 2."]
+    #[doc = "Value pairs in format 2."]
     pub Pair2s { // Class1Record
         records (Vec<Pair2>), // class2Records
     }
@@ -196,7 +196,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A single adjustment."]
+    #[doc = "A single value."]
     pub Single { // ValueRecord
         x_placement                   (Option<i16>), // xPlacement
         y_placement                   (Option<i16>), // yPlacement

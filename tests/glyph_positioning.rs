@@ -35,7 +35,7 @@ mod crimson_text {
 }
 
 mod source_serif {
-    use opentype::glyph_positioning::{GlyphPositioning, PairAdjustment, Table};
+    use opentype::glyph_positioning::{GlyphPositioning, PairAdjustment, Type};
     use opentype::layout::Language;
     use opentype::layout::Script;
     use opentype::Value;
@@ -73,13 +73,13 @@ mod source_serif {
         assert!(record.mark_filtering_set.is_none());
         assert_eq!(record.tables.len(), 2);
         match &record.tables[0] {
-            &Table::PairAdjustment(PairAdjustment::Format1(ref table)) => {
+            &Type::PairAdjustment(PairAdjustment::Format1(ref table)) => {
                 assert_eq!(table.rule_count, 65);
             }
             _ => unreachable!(),
         }
         match &record.tables[1] {
-            &Table::PairAdjustment(PairAdjustment::Format2(ref table)) => {
+            &Type::PairAdjustment(PairAdjustment::Format2(ref table)) => {
                 assert_eq!(table.class1_count, 99);
                 assert_eq!(table.class2_count, 95);
             }

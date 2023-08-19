@@ -43,7 +43,6 @@ pub extern crate truetype;
 )]
 extern crate typeface;
 
-pub mod compact2;
 pub mod font_variations;
 pub mod glyph_definition;
 pub mod glyph_positioning;

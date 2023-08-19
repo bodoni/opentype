@@ -14,7 +14,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of glyph attachments."]
+    #[doc = "Glyph attachments."]
     pub Attachments { // AttachList
         coverage_offset (u16), // coverageOffset
         count           (u16), // glyphCount
@@ -94,7 +94,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of ligatures."]
+    #[doc = "Ligatures."]
     pub Ligatures { // LigCaretList
         coverage_offset (u16), // coverageOffset
         count           (u16), // ligGlyphCount
@@ -115,7 +115,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of marks."]
+    #[doc = "Marks."]
     pub Marks { // MarkGlyphSets
         format (u16) = { 1 }, // format
         count  (u16), // markGlyphSetCount

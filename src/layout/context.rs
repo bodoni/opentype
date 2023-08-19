@@ -5,7 +5,7 @@ use truetype::GlyphID;
 use crate::layout::{Class, Coverage};
 use crate::{Result, Tape, Value};
 
-/// A table for contextual lookup.
+/// A contextual lookup.
 #[derive(Clone, Debug)]
 pub enum Context {
     /// Format 1.
@@ -18,7 +18,7 @@ pub enum Context {
 
 table! {
     @position
-    #[doc = "A table for contextual lookup in format 1."]
+    #[doc = "A contextual lookup in format 1."]
     pub Context1 { // SequenceContextFormat1
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
@@ -40,7 +40,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for contextual lookup in format 2."]
+    #[doc = "A contextual lookup in format 2."]
     pub Context2 { // SequenceContextFormat2
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
@@ -63,7 +63,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for contextual lookup in format 3."]
+    #[doc = "A contextual lookup in format 3."]
     pub Context3 { // SequenceContextFormat3
         format       (u16), // format
         glyph_count  (u16), // glyphCount
@@ -83,7 +83,7 @@ table! {
     }
 }
 
-/// A table for chained contextual lookup.
+/// A chained contextual lookup.
 #[derive(Clone, Debug)]
 pub enum ChainedContext {
     /// Format 1.
@@ -96,7 +96,7 @@ pub enum ChainedContext {
 
 table! {
     @position
-    #[doc = "A table for chained contextual lookup in format 1."]
+    #[doc = "A chained contextual lookup in format 1."]
     pub ChainedContext1 { // ChainedSequenceContextFormat1
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
@@ -118,7 +118,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for chained contextual lookup in format 2."]
+    #[doc = "A chained contextual lookup in format 2."]
     pub ChainedContext2 { // ChainedSequenceContextFormat2
         format                (u16), // format
         coverage_offset       (u16), // coverageOffset
@@ -155,7 +155,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for chained contextual lookup in format 3."]
+    #[doc = "A chained contextual lookup in format 3."]
     pub ChainedContext3 { // ChainedSequenceContextFormat3
         format               (u16), // format
         backward_glyph_count (u16), // backtrackGlyphCount
@@ -217,7 +217,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of rules."]
+    #[doc = "Rules."]
     pub Rules { // SequenceRuleSet
         count (u16), // seqRuleCount
 
@@ -252,7 +252,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of class rules."]
+    #[doc = "Class rules."]
     pub ClassRules { // ClassSequenceRuleSet
         count (u16), // classSeqRuleCount
 
@@ -300,7 +300,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of chained rules."]
+    #[doc = "Chained rules."]
     pub ChainedRules { // ChainedSequenceRuleSet
         count (u16), // chainedSeqRuleCount
 
@@ -348,7 +348,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of chained class rules."]
+    #[doc = "Chained class rules."]
     pub ChainedClassRules { // ChainedClassSequenceRuleSet
         count (u16), // chainedClassSeqRuleCount
 

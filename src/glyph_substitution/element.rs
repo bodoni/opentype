@@ -1,7 +1,7 @@
 use truetype::GlyphID;
 
 table! {
-    #[doc = "A set of alternate substitutions."]
+    #[doc = "Alternates."]
     pub Alternates { // AlternateSet
         count (u16), // glyphCount
 
@@ -12,7 +12,7 @@ table! {
 }
 
 table! {
-    #[doc = "A ligature substitution."]
+    #[doc = "A ligature."]
     pub Ligature { // Ligature
         glyph_id        (GlyphID), // ligatureGlyph
         component_count (u16    ), // componentCount
@@ -28,7 +28,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A set of ligature substitutions."]
+    #[doc = "Ligatures."]
     pub Ligatures { // LigatureSet
         count (u16), // ligatureCount
 
@@ -43,7 +43,7 @@ table! {
 }
 
 table! {
-    #[doc = "A substitution sequence of glyphs."]
+    #[doc = "A sequence."]
     pub Sequence { // Sequence
         count (u16), // glyphCount
 

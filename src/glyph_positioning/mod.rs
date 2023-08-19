@@ -9,24 +9,24 @@ pub use element::*;
 use crate::layout::{ChainedContext, Class, Context, Coverage, Directory};
 use crate::{Result, Tape, Value, Walue};
 
-/// A glyph-positioning table.
-pub type GlyphPositioning = Directory<Table>;
+/// A glyph positioning.
+pub type GlyphPositioning = Directory<Type>;
 
-/// An inner table of a glyph-positioning table.
+/// A glyph-positioning type.
 #[derive(Clone, Debug)]
-pub enum Table {
+pub enum Type {
     SingleAdjustment(SingleAdjustment),
     PairAdjustment(PairAdjustment),
     CursiveAttachment(CursiveAttachment),
     MarkToBaseAttachment(MarkToBaseAttachment),
     MarkToLigatureAttachment(MarkToLigatureAttachment),
     MarkToMarkAttachment(MarkToMarkAttachment),
-    Context(Context),
-    ChainedContext(ChainedContext),
-    Extension(Extension),
+    ContextualPositioning(Context),
+    ChainedContextualPositioning(ChainedContext),
+    ExtensionPositioning(ExtensionPositioning),
 }
 
-/// A table for adjusting single glyphs.
+/// A single adjustment.
 #[derive(Clone, Debug)]
 pub enum SingleAdjustment {
     /// Format 1.
@@ -37,7 +37,7 @@ pub enum SingleAdjustment {
 
 table! {
     @position
-    #[doc = "A table for adjusting single glyphs in format 1."]
+    #[doc = "A single adjustment in format 1."]
     pub SingleAdjustment1 { // SinglePosFormat1
         format          (u16  ), // posFormat
         coverage_offset (u16  ), // coverageOffset
@@ -55,7 +55,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for adjusting single glyphs in format 2."]
+    #[doc = "A single adjustment in format 2."]
     pub SingleAdjustment2 { // SinglePosFormat2
         format          (u16  ), // posFormat
         coverage_offset (u16  ), // coverageOffset
@@ -74,7 +74,7 @@ table! {
     }
 }
 
-/// A table for adjusting pairs of glyphs.
+/// A pair adjustment.
 #[derive(Clone, Debug)]
 pub enum PairAdjustment {
     /// Format 1.
@@ -85,7 +85,7 @@ pub enum PairAdjustment {
 
 table! {
     @position
-    #[doc = "A table for adjusting pairs of glyphs in format 1."]
+    #[doc = "A pair adjustment in format 1."]
     pub PairAdjustment1 { // PairPosFormat1
         format          (u16  ), // posFormat
         coverage_offset (u16  ), // coverageOffset
@@ -115,7 +115,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for adjusting pairs of glyphs in format 2."]
+    #[doc = "A pair adjustment in format 2."]
     pub PairAdjustment2 { // PairPosFormat2
         format          (u16  ), // posFormat
         coverage_offset (u16  ), // coverageOffset
@@ -148,7 +148,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for attaching cursive glyphs."]
+    #[doc = "A cursive attachment."]
     pub CursiveAttachment { // CursivePosFormat1
         format           (u16) = { 1 }, // posFormat
         coverage_offset  (u16), // coverageOffset
@@ -168,7 +168,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for attaching combining marks to base glyphs."]
+    #[doc = "A mark-to-base attachment."]
     pub MarkToBaseAttachment { // MarkBasePosFormat1
         format               (u16) = { 1 }, // posFormat
         mark_coverage_offset (u16), // markCoverageOffset
@@ -197,7 +197,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for attaching combining marks to ligatures."]
+    #[doc = "A mark-to-ligature attachment."]
     pub MarkToLigatureAttachment { // MarkLigPosFormat1
         format                   (u16) = { 1 }, // posFormat
         mark_coverage_offset     (u16), // markCoverageOffset
@@ -226,7 +226,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for attaching combining marks to other marks."]
+    #[doc = "A mark-to-mark attachment."]
     pub MarkToMarkAttachment { // MarkMarkPosFormat1
         format                (u16) = { 1 }, // posFormat
         mark1_coverage_offset (u16), // mark1CoverageOffset
@@ -254,29 +254,29 @@ table! {
 }
 
 table! {
-    #[doc = "A table for other types of positioning."]
-    pub Extension { // ExtensionPosFormat1
+    #[doc = "An extension positioning."]
+    pub ExtensionPositioning { // ExtensionPosFormat1
         format (u16) = { 1 }, // posFormat
-        kind   (u16), // extensionLookupType
+        r#type (u16), // extensionLookupType
         offset (u32), // extensionOffset
     }
 }
 
-impl Walue<'static> for Table {
+impl Walue<'static> for Type {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, kind: u16) -> Result<Self> {
-        Ok(match kind {
+    fn read<T: Tape>(tape: &mut T, r#type: u16) -> Result<Self> {
+        Ok(match r#type {
             1 => Self::SingleAdjustment(tape.take()?),
             2 => Self::PairAdjustment(tape.take()?),
             3 => Self::CursiveAttachment(tape.take()?),
             4 => Self::MarkToBaseAttachment(tape.take()?),
             5 => Self::MarkToLigatureAttachment(tape.take()?),
             6 => Self::MarkToMarkAttachment(tape.take()?),
-            7 => Self::Context(tape.take()?),
-            8 => Self::ChainedContext(tape.take()?),
-            9 => Self::Extension(tape.take()?),
-            value => raise!("found an unknown glyph-positioning type ({value})"),
+            7 => Self::ContextualPositioning(tape.take()?),
+            8 => Self::ChainedContextualPositioning(tape.take()?),
+            9 => Self::ExtensionPositioning(tape.take()?),
+            value => raise!("found an unknown type of glyph positioning ({value})"),
         })
     }
 }
@@ -286,7 +286,7 @@ impl Value for SingleAdjustment {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),
-            value => raise!("found an unknown format of the single-adjustment table ({value})"),
+            value => raise!("found an unknown format of the single adjustment ({value})"),
         })
     }
 }
@@ -296,7 +296,7 @@ impl Value for PairAdjustment {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),
-            value => raise!("found an unknown format of the pair-adjustment table ({value})"),
+            value => raise!("found an unknown format of the pair adjustment ({value})"),
         })
     }
 }

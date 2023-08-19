@@ -16,7 +16,7 @@ pub struct Lookups<T> { // LookupList
 #[derive(Clone, Debug)]
 #[rustfmt::skip]
 pub struct Record<T> { // Lookup
-    pub kind: u16, // lookupType
+    pub r#type: u16, // lookupType
     pub flags: Flags, // lookupFlag
     pub table_count: u16, // subTableCount
     pub table_offsets: Vec<u16>, // subTableOffsets
@@ -60,7 +60,7 @@ where
 {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
-        let kind = tape.take()?;
+        let r#type = tape.take()?;
         let flags = tape.take::<Flags>()?;
         let table_count = tape.take::<u16>()?;
         let table_offsets: Vec<u16> = tape.take_given(table_count as usize)?;
@@ -69,9 +69,9 @@ where
         } else {
             None
         };
-        let tables = jump_take_given!(@unwrap tape, position, table_count, table_offsets, kind);
+        let tables = jump_take_given!(@unwrap tape, position, table_count, table_offsets, r#type);
         Ok(Record {
-            kind,
+            r#type,
             flags,
             table_count,
             table_offsets,

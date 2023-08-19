@@ -26,7 +26,7 @@ macro_rules! field(
 
 table! {
     @position
-    #[doc = "A glyph-definition table."]
+    #[doc = "A glyph definition."]
     pub GlyphDefinition {
         header (Header),
 
@@ -80,7 +80,7 @@ table! {
     }
 }
 
-/// The header of a glyph-definition table.
+/// The header of a glyph definition.
 #[derive(Clone, Debug)]
 pub enum Header {
     /// Version 1.0.
@@ -92,7 +92,7 @@ pub enum Header {
 }
 
 table! {
-    #[doc = "The header of a glyph-definition table of version 1.0."]
+    #[doc = "The header of a glyph definition of version 1.0."]
     #[derive(Copy)]
     pub Header1 {
         major_version      (u16) = { 1 }, // majorVersion
@@ -105,7 +105,7 @@ table! {
 }
 
 table! {
-    #[doc = "The header of a glyph-definition table of version 1.2."]
+    #[doc = "The header of a glyph definition of version 1.2."]
     #[derive(Copy)]
     pub Header12 {
         major_version      (u16) = { 1 }, // majorVersion
@@ -119,7 +119,7 @@ table! {
 }
 
 table! {
-    #[doc = "The header of a glyph-definition table of version 1.3."]
+    #[doc = "The header of a glyph definition of version 1.3."]
     #[derive(Copy)]
     pub Header13 {
         major_version      (u16) = { 1 }, // majorVersion
@@ -146,7 +146,7 @@ impl Value for Header {
             0x00010000 => Self::Version1(tape.take()?),
             0x00010002 => Self::Version12(tape.take()?),
             0x00010003 => Self::Version13(tape.take()?),
-            _ => raise!("found an unknown format of the glyph-definition table"),
+            _ => raise!("found an unknown format of the glyph definition"),
         })
     }
 }

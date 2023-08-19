@@ -11,35 +11,35 @@ use crate::{Result, Tape, Value, Walue};
 
 pub use element::*;
 
-/// A glyph-substitution table.
-pub type GlyphSubstitution = Directory<Table>;
+/// A glyph substitution.
+pub type GlyphSubstitution = Directory<Type>;
 
-/// An inner table of a glyph-substitution table.
+/// A glyph-substitution type.
 #[derive(Clone, Debug)]
-pub enum Table {
-    Single(Single),
-    Multiple(Multiple),
-    Alternate(Alternate),
-    Ligature(Ligature),
-    Context(Context),
-    ChainedContext(ChainedContext),
-    Extension(Extension),
-    ReverseChainedContext(ReverseChainedContext),
+pub enum Type {
+    SingleSubstitution(SingleSubstitution),
+    MultipleSubstitution(MultipleSubstitution),
+    AlternateSubstitution(AlternateSubstitution),
+    LigatureSubstitution(LigatureSubstitution),
+    ContextualSubstitution(Context),
+    ChainedContextualSubstitution(ChainedContext),
+    ExtensionSubstitution(ExtensionSubstitution),
+    ReverseChainedContextualSubstibution(ReverseChainedContextualSubstibution),
 }
 
-/// A table for substituting one glyph with one glyph.
+/// A single substitution.
 #[derive(Clone, Debug)]
-pub enum Single {
+pub enum SingleSubstitution {
     /// Format 1.
-    Format1(Single1),
+    Format1(SingleSubstitution1),
     /// Format 2.
-    Format2(Single2),
+    Format2(SingleSubstitution2),
 }
 
 table! {
     @position
-    #[doc = "A table for substituting one glyph with one glyph in format 1."]
-    pub Single1 { // SingleSubstFormat1
+    #[doc = "A single substitution in format 1."]
+    pub SingleSubstitution1 { // SingleSubstFormat1
         format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         delta_glyph_id  (i16), // DeltaGlyphID
@@ -52,8 +52,8 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for substituting one glyph with one glyph in format 2."]
-    pub Single2 { // SingleSubstFormat2
+    #[doc = "A single substitution in format 2."]
+    pub SingleSubstitution2 { // SingleSubstFormat2
         format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
         glyph_count     (u16), // GlyphCount
@@ -70,8 +70,8 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for substituting one glyph with more than one glyph."]
-    pub Multiple { // MultipleSubstFormat1
+    #[doc = "A multiple substitution."]
+    pub MultipleSubstitution { // MultipleSubstFormat1
         format           (u16) = { 1 }, // SubstFormat
         coverage_offset  (u16), // Coverage
         sequence_count   (u16), // SequenceCount
@@ -92,8 +92,8 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for substituting one glyph with one of several glyphs."]
-    pub Alternate { // AlternateSubstFormat1
+    #[doc = "An alternate substitution."]
+    pub AlternateSubstitution { // AlternateSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
         rule_count      (u16), // AlternateSetCount
@@ -114,8 +114,8 @@ table! {
 
 table! {
     @position
-    #[doc = "A table for substituting multiple glyphs with one glyph."]
-    pub Ligature { // LigatureSubstFormat1
+    #[doc = "A ligature substitution."]
+    pub LigatureSubstitution { // LigatureSubstFormat1
         format          (u16) = { 1 }, // substFormat
         coverage_offset (u16), // coverageOffset
         rule_count      (u16), // ligatureSetCount
@@ -135,18 +135,18 @@ table! {
 }
 
 table! {
-    #[doc = "A table for other types of substitution."]
-    pub Extension { // ExtensionSubstFormat1
+    #[doc = "An extension substitution."]
+    pub ExtensionSubstitution { // ExtensionSubstFormat1
         format (u16) = { 1 }, // SubstFormat
-        kind   (u16), // ExtensionLookupType
+        r#type (u16), // ExtensionLookupType
         offset (u32), // ExtensionOffset
     }
 }
 
 table! {
     @position
-    #[doc = "A table for reversed chained contextual substitution."]
-    pub ReverseChainedContext { // ReverseChainSingleSubstFormat1
+    #[doc = "A reversed chained contextual substitution."]
+    pub ReverseChainedContextualSubstibution { // ReverseChainSingleSubstFormat1
         format               (u16), // substFormat
         coverage_offset      (u16), // coverageOffset
         backward_glyph_count (u16), // backtrackGlyphCount
@@ -181,30 +181,30 @@ table! {
     }
 }
 
-impl Walue<'static> for Table {
+impl Walue<'static> for Type {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, kind: u16) -> Result<Self> {
-        Ok(match kind {
-            1 => Self::Single(tape.take()?),
-            2 => Self::Multiple(tape.take()?),
-            3 => Self::Alternate(tape.take()?),
-            4 => Self::Ligature(tape.take()?),
-            5 => Self::Context(tape.take()?),
-            6 => Self::ChainedContext(tape.take()?),
-            7 => Self::Extension(tape.take()?),
-            8 => Self::ReverseChainedContext(tape.take()?),
-            value => raise!("found an unknown glyph-substitution type ({value})"),
+    fn read<T: Tape>(tape: &mut T, r#type: u16) -> Result<Self> {
+        Ok(match r#type {
+            1 => Self::SingleSubstitution(tape.take()?),
+            2 => Self::MultipleSubstitution(tape.take()?),
+            3 => Self::AlternateSubstitution(tape.take()?),
+            4 => Self::LigatureSubstitution(tape.take()?),
+            5 => Self::ContextualSubstitution(tape.take()?),
+            6 => Self::ChainedContextualSubstitution(tape.take()?),
+            7 => Self::ExtensionSubstitution(tape.take()?),
+            8 => Self::ReverseChainedContextualSubstibution(tape.take()?),
+            value => raise!("found an unknown type of glyph substitution ({value})"),
         })
     }
 }
 
-impl Value for Single {
+impl Value for SingleSubstitution {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),
-            value => raise!("found an unknown format of the single-substitution table ({value})"),
+            value => raise!("found an unknown format of the single substitution ({value})"),
         })
     }
 }

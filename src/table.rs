@@ -23,11 +23,11 @@ pub trait Table<'l>: Sized {
 }
 
 macro_rules! table {
-    (@one $tag:expr => opentype::$kind:ident()) => (
-        table! { @one $tag => truetype::$kind() }
+    (@one $tag:expr => opentype::$type:ident()) => (
+        table! { @one $tag => truetype::$type() }
     );
-    (@one $tag:expr => $scope:ident::$kind:ident()) => (
-        impl Table<'static> for $kind {
+    (@one $tag:expr => $scope:ident::$type:ident()) => (
+        impl Table<'static> for $type {
             type Parameter = ();
 
             #[inline]
@@ -44,9 +44,9 @@ macro_rules! table {
             }
         }
     );
-    (@one $tag:expr => $scope:ident::$kind:ident(..)) => (
-        impl<'l> Table<'l> for $kind {
-            type Parameter = <$kind as $scope::Walue<'l>>::Parameter;
+    (@one $tag:expr => $scope:ident::$type:ident(..)) => (
+        impl<'l> Table<'l> for $type {
+            type Parameter = <$type as $scope::Walue<'l>>::Parameter;
 
             #[inline]
             fn tag() -> Tag {
@@ -62,8 +62,8 @@ macro_rules! table {
             }
         }
     );
-    ($($tag:expr => $scope:ident::$kind:ident($($parameter:tt)*),)+) => (
-        $(table! { @one $tag => $scope::$kind($($parameter)*) })+
+    ($($tag:expr => $scope:ident::$type:ident($($parameter:tt)*),)+) => (
+        $(table! { @one $tag => $scope::$type($($parameter)*) })+
     );
 }
 

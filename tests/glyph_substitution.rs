@@ -1,7 +1,7 @@
 #[macro_use]
 mod support;
 
-use opentype::glyph_substitution::{GlyphSubstitution, Single, Table};
+use opentype::glyph_substitution::{GlyphSubstitution, SingleSubstitution, Type};
 use opentype::layout::Language;
 use opentype::layout::Script;
 use opentype::Value;
@@ -68,19 +68,19 @@ fn features() {
 #[test]
 fn lookups() {
     let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
-    let kinds = lookups
+    let types = lookups
         .records
         .iter()
-        .map(|record| record.kind)
+        .map(|record| record.r#type)
         .collect::<Vec<_>>();
     assert_eq!(
-        kinds,
+        types,
         &[1, 3, 1, 1, 1, 1, 1, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1]
     );
     let record = &lookups.records[0];
     assert_eq!(record.tables.len(), 1);
     match &record.tables[0] {
-        &Table::Single(Single::Format2(ref table)) => {
+        &Type::SingleSubstitution(SingleSubstitution::Format2(ref table)) => {
             assert_eq!(table.glyph_count, 61);
         }
         _ => unreachable!(),
@@ -88,7 +88,7 @@ fn lookups() {
     let record = &lookups.records[17];
     assert_eq!(record.tables.len(), 1);
     match &record.tables[0] {
-        &Table::Ligature(ref table) => {
+        &Type::LigatureSubstitution(ref table) => {
             assert_eq!(table.rule_count, 1);
             let table = &table.rules[0];
             assert_eq!(table.count, 3);

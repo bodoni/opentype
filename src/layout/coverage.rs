@@ -1,10 +1,10 @@
-//! The coverage.
+//! The glyph coverage.
 
 use truetype::GlyphID;
 
 use crate::{Result, Tape, Value};
 
-/// A coverage table.
+/// A coverage.
 #[derive(Clone, Debug)]
 pub enum Coverage {
     /// Format 1.
@@ -14,7 +14,7 @@ pub enum Coverage {
 }
 
 table! {
-    #[doc = "A coverage table in format 1."]
+    #[doc = "A coverage in format 1."]
     pub Coverage1 { // CoverageFormat1
         format (u16), // coverageFormat
         count  (u16), // glyphCount
@@ -26,7 +26,7 @@ table! {
 }
 
 table! {
-    #[doc = "A coverage table in format 2."]
+    #[doc = "A coverage in format 2."]
     pub Coverage2 { // CoverageFormat2
         format (u16), // coverageFormat
         count  (u16), // rangeCount
@@ -59,7 +59,7 @@ impl Value for Coverage {
         Ok(match tape.peek::<u16>()? {
             1 => Coverage::Format1(tape.take()?),
             2 => Coverage::Format2(tape.take()?),
-            value => raise!("found an unknown format of the coverage table ({value})"),
+            value => raise!("found an unknown format of the glyph coverage ({value})"),
         })
     }
 }

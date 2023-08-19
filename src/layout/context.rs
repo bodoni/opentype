@@ -1,4 +1,4 @@
-//! The context.
+//! The lookup context.
 
 use truetype::GlyphID;
 

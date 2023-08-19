@@ -1,4 +1,4 @@
-//! The class.
+//! The glyph class.
 
 use truetype::GlyphID;
 
@@ -39,7 +39,7 @@ table! {
 }
 
 table! {
-    #[doc = "A class range."]
+    #[doc = "A class record."]
     #[derive(Copy)]
     pub Record { // ClassRangeRecord
         start_glyph_id (GlyphID), // startGlyphID
@@ -60,7 +60,7 @@ impl Value for Class {
         Ok(match tape.peek::<u16>()? {
             1 => Class::Format1(tape.take()?),
             2 => Class::Format2(tape.take()?),
-            value => raise!("found an unknown format of the class table ({value})"),
+            value => raise!("found an unknown format of the glyph class ({value})"),
         })
     }
 }

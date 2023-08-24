@@ -71,16 +71,22 @@ flags! {
 
 impl Value for FontVariations {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
-        let position = tape.position()?;
+        let mut position = tape.position()?;
         let header: Header = tape.take()?;
-        tape.jump(position + header.axis_offset as u64)?;
-        let axis_count = header.axis_count as usize;
-        let axis_records = tape.take_given(axis_count)?;
-        let instance_count = header.instance_count as usize;
-        let mut instance_records = Vec::with_capacity(instance_count);
-        for _ in 0..instance_count {
-            instance_records.push(tape.take_given(axis_count)?);
-        }
+        position += header.axis_offset as u64;
+        let axis_records = (0..header.axis_count as u64)
+            .map(|i| {
+                tape.jump(position + i * header.axis_size as u64)?;
+                tape.take()
+            })
+            .collect::<Result<Vec<_>>>()?;
+        position += header.axis_count as u64 * header.axis_size as u64;
+        let instance_records = (0..header.instance_count as u64)
+            .map(|i| {
+                tape.jump(position + i * header.instance_size as u64)?;
+                tape.take_given(header.axis_count)
+            })
+            .collect::<Result<Vec<_>>>()?;
         Ok(Self {
             header,
             axis_records,
@@ -90,13 +96,13 @@ impl Value for FontVariations {
 }
 
 impl Walue<'static> for InstanceRecord {
-    type Parameter = usize;
+    type Parameter = u16;
 
     fn read<T: Tape>(tape: &mut T, axis_count: Self::Parameter) -> Result<Self> {
         Ok(Self {
             subfamily_name_id: tape.take()?,
             flags: tape.take()?,
-            coordinates: tape.take_given(axis_count)?,
+            coordinates: tape.take_given(axis_count as usize)?,
             postscript_name_id: tape.take()?,
         })
     }

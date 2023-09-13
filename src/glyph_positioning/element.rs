@@ -438,8 +438,12 @@ impl Walue<'static> for Connection {
     fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
         let start_anchor_offset = tape.take()?;
         let end_anchor_offset = tape.take()?;
-        let start_anchor = jump_take_maybe!(@unwrap tape, position, start_anchor_offset);
-        let end_anchor = jump_take_maybe!(@unwrap tape, position, end_anchor_offset);
+        let (start_anchor, end_anchor) = tape.stay(|tape| {
+            Ok((
+                jump_take_maybe!(@unwrap tape, position, start_anchor_offset),
+                jump_take_maybe!(@unwrap tape, position, end_anchor_offset),
+            ))
+        })?;
         Ok(Self {
             start_anchor_offset,
             end_anchor_offset,

@@ -34,7 +34,7 @@ table! {
 impl Value for Correction {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<(u32, u16)>()?.1 {
-            1 | 2 | 3 => Correction::Device(tape.take()?),
+            1..=3 => Correction::Device(tape.take()?),
             0x8000 => Correction::Variation(tape.take()?),
             value => raise!("found an unknown format of the adjustment correction ({value})"),
         })

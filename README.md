@@ -40,7 +40,7 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
 [font]: https://github.com/bodoni/font
 
-[build-img]: https://github.com/bodoni/opentype/workflows/build/badge.svg
+[build-img]: https://github.com/bodoni/opentype/actions/workflows/build.yml/badge.svg
 [build-url]: https://github.com/bodoni/opentype/actions/workflows/build.yml
 [documentation-img]: https://docs.rs/opentype/badge.svg
 [documentation-url]: https://docs.rs/opentype

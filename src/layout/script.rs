@@ -41,11 +41,7 @@ table! {
         },
 
         default_language (Option<language::Record>) |this, tape, position| {
-            if this.default_language_offset != 0 {
-                Ok(Some(jump_take!(@unwrap tape, position, this.default_language_offset)))
-            } else {
-                Ok(None)
-            }
+            Ok(jump_take_maybe!(@unwrap tape, position, this.default_language_offset))
         },
 
         language_records (Vec<language::Record>) |this, tape, position| {

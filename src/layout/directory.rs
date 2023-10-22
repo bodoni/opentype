@@ -13,20 +13,9 @@ pub struct Directory<T> {
     pub lookup_offset: u16, // lookupListOffset
     pub variation_offset: u32, // featureVariationsOffset
 
-    #[cfg(not(feature = "ignore-incomplete-directories"))]
     pub scripts: Scripts,
-    #[cfg(not(feature = "ignore-incomplete-directories"))]
     pub features: Features,
-    #[cfg(not(feature = "ignore-incomplete-directories"))]
     pub lookups: Lookups<T>,
-
-    #[cfg(feature = "ignore-incomplete-directories")]
-    pub scripts: Option<Scripts>,
-    #[cfg(feature = "ignore-incomplete-directories")]
-    pub features: Option<Features>,
-    #[cfg(feature = "ignore-incomplete-directories")]
-    pub lookups: Option<Lookups<T>>,
-
     pub variations: Option<Variations>,
 }
 
@@ -57,9 +46,9 @@ where
         );
         #[cfg(feature = "ignore-incomplete-directories")]
         let (scripts, features, lookups) = (
-            jump_take_maybe!(@unwrap tape, position, script_offset),
-            jump_take_maybe!(@unwrap tape, position, feature_offset),
-            jump_take_maybe!(@unwrap tape, position, lookup_offset),
+            jump_take_maybe!(@unwrap tape, position, script_offset).unwrap_or_default(),
+            jump_take_maybe!(@unwrap tape, position, feature_offset).unwrap_or_default(),
+            jump_take_maybe!(@unwrap tape, position, lookup_offset).unwrap_or_default(),
         );
         let variations = jump_take_maybe!(@unwrap tape, position, variation_offset);
         Ok(Directory {

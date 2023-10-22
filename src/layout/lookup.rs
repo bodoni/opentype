@@ -37,6 +37,17 @@ flags! {
     }
 }
 
+impl<T> Default for Lookups<T> {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            count: 0,
+            offsets: vec![],
+            records: vec![],
+        }
+    }
+}
+
 impl<U> Value for Lookups<U>
 where
     U: Walue<'static, Parameter = u16>,

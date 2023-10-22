@@ -8,7 +8,11 @@ use opentype::Value;
 
 #[test]
 fn features() {
-    let GlyphSubstitution { features, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    let table: GlyphSubstitution = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    #[cfg(not(feature = "ignore-incomplete-directories"))]
+    let features = table.features;
+    #[cfg(feature = "ignore-incomplete-directories")]
+    let features = ok!(table.features);
     let tags = features
         .headers
         .iter()
@@ -67,7 +71,11 @@ fn features() {
 
 #[test]
 fn lookups() {
-    let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    let table: GlyphSubstitution = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    #[cfg(not(feature = "ignore-incomplete-directories"))]
+    let lookups = table.lookups;
+    #[cfg(feature = "ignore-incomplete-directories")]
+    let lookups = ok!(table.lookups);
     let types = lookups
         .records
         .iter()
@@ -101,7 +109,11 @@ fn lookups() {
 
 #[test]
 fn scripts() {
-    let GlyphSubstitution { scripts, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    let table: GlyphSubstitution = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    #[cfg(not(feature = "ignore-incomplete-directories"))]
+    let scripts = table.scripts;
+    #[cfg(feature = "ignore-incomplete-directories")]
+    let scripts = ok!(table.scripts);
     let tags = scripts
         .headers
         .iter()

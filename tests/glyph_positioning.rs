@@ -7,8 +7,11 @@ mod adobe_vf_prototype {
 
     #[test]
     fn features() {
-        let GlyphPositioning { features, .. } =
-            ok!(Value::read(&mut setup!(AdobeVFPrototypeTTF, "GPOS")));
+        let table: GlyphPositioning = ok!(Value::read(&mut setup!(AdobeVFPrototypeTTF, "GPOS")));
+        #[cfg(not(feature = "ignore-incomplete-directories"))]
+        let features = table.features;
+        #[cfg(feature = "ignore-incomplete-directories")]
+        let features = ok!(table.features);
         let tags = features
             .headers
             .iter()
@@ -24,7 +27,11 @@ mod crimson_text {
 
     #[test]
     fn features() {
-        let GlyphPositioning { features, .. } = ok!(Value::read(&mut setup!(CrimsonText, "GPOS")));
+        let table: GlyphPositioning = ok!(Value::read(&mut setup!(CrimsonText, "GPOS")));
+        #[cfg(not(feature = "ignore-incomplete-directories"))]
+        let features = table.features;
+        #[cfg(feature = "ignore-incomplete-directories")]
+        let features = ok!(table.features);
         let tags = features
             .headers
             .iter()
@@ -42,8 +49,11 @@ mod source_serif {
 
     #[test]
     fn features() {
-        let GlyphPositioning { features, .. } =
-            ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+        let table: GlyphPositioning = ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+        #[cfg(not(feature = "ignore-incomplete-directories"))]
+        let features = table.features;
+        #[cfg(feature = "ignore-incomplete-directories")]
+        let features = ok!(table.features);
         let tags = features
             .headers
             .iter()
@@ -66,8 +76,11 @@ mod source_serif {
 
     #[test]
     fn lookups() {
-        let GlyphPositioning { lookups, .. } =
-            ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+        let table: GlyphPositioning = ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+        #[cfg(not(feature = "ignore-incomplete-directories"))]
+        let lookups = table.lookups;
+        #[cfg(feature = "ignore-incomplete-directories")]
+        let lookups = ok!(table.lookups);
         assert_eq!(lookups.records.len(), 1);
         let record = &lookups.records[0];
         assert!(record.mark_filtering_set.is_none());
@@ -89,8 +102,11 @@ mod source_serif {
 
     #[test]
     fn scripts() {
-        let GlyphPositioning { scripts, .. } =
-            ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+        let table: GlyphPositioning = ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+        #[cfg(not(feature = "ignore-incomplete-directories"))]
+        let scripts = table.scripts;
+        #[cfg(feature = "ignore-incomplete-directories")]
+        let scripts = ok!(table.scripts);
         let tags = scripts
             .headers
             .iter()

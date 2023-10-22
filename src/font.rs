@@ -37,11 +37,13 @@ impl Font {
         let tag = U::tag();
         for record in &self.offset_table.records {
             if record.tag == tag {
-                #[allow(clippy::collapsible_if)]
-                if cfg!(not(feature = "ignore-invalid-checksums")) {
-                    if record.checksum != record.checksum(tape)? {
-                        raise!("found a malformed font table with {:?}", record.tag);
-                    }
+                #[cfg(feature = "ignore-empty-tables")]
+                if record.size == 0 {
+                    continue;
+                }
+                #[cfg(not(feature = "ignore-invalid-checksums"))]
+                if record.checksum != record.checksum(tape)? {
+                    raise!("found a malformed font table with {:?}", record.tag);
                 }
                 Tape::jump(tape, record.offset as u64)?;
                 return Ok(Some(Table::take(tape, parameter)?));

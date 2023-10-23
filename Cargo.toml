@@ -1,6 +1,6 @@
 [package]
 name = "opentype"
-version = "0.29.5"
+version = "0.29.6"
 edition = "2021"
 license = "Apache-2.0/MIT"
 authors = [
@@ -21,6 +21,8 @@ exclude = ["tests/fixtures/*"]
 ignore-empty-tables = []
 # https://github.com/google/fonts/issues/6888
 ignore-incomplete-directories = []
+# https://github.com/google/fonts/issues/6894
+ignore-incomplete-marks = []
 # https://github.com/google/fonts/issues/6890
 # https://github.com/google/fonts/issues/6891
 # https://github.com/google/fonts/issues/6892

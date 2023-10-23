@@ -324,7 +324,12 @@ impl Walue<'static> for Mark1 {
     fn read<T: Tape>(tape: &mut T, position: Self::Parameter) -> Result<Self> {
         let class_id = tape.take()?;
         let anchor_offset = tape.take()?;
+        #[cfg(not(feature = "ignore-incomplete-marks"))]
         let anchor = tape.stay(|tape| jump_take!(tape, position, anchor_offset))?;
+        #[cfg(feature = "ignore-incomplete-marks")]
+        let anchor = tape
+            .stay(|tape| jump_take_maybe!(tape, position, anchor_offset))?
+            .unwrap_or_default();
         Ok(Self {
             class_id,
             anchor_offset,

@@ -37,7 +37,7 @@ impl Font {
         let tag = U::tag();
         for record in &self.offset_table.records {
             if record.tag == tag {
-                #[cfg(feature = "ignore-empty-tables")]
+                #[cfg(feature = "ignore-incomplete-tables")]
                 if record.size == 0 {
                     continue;
                 }

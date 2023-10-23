@@ -21,7 +21,10 @@ exclude = ["tests/fixtures/*"]
 ignore-empty-tables = []
 # https://github.com/google/fonts/issues/6888
 ignore-incomplete-directories = []
-# https://github.com/google/fonts/issues/5553
+# https://github.com/google/fonts/issues/6890
+# https://github.com/google/fonts/issues/6891
+# https://github.com/google/fonts/issues/6892
+# https://github.com/google/fonts/issues/6893
 ignore-invalid-checksums = []
 
 [dependencies]

@@ -37,10 +37,6 @@ impl Font {
         let tag = U::tag();
         for record in &self.offset_table.records {
             if record.tag == tag {
-                #[cfg(feature = "ignore-incomplete-tables")]
-                if record.size == 0 {
-                    continue;
-                }
                 #[cfg(not(feature = "ignore-invalid-checksums"))]
                 if record.checksum != record.checksum(tape)? {
                     raise!("found a malformed font table with {:?}", record.tag);

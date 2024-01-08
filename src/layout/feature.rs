@@ -77,21 +77,23 @@ macro_rules! implement {
         #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
         pub enum Feature {
             $(#[doc = $name] $variant,)*
+            Other(Tag),
         }
 
         impl Feature {
             /// Create an instance from a tag.
-            pub fn from_tag(tag: &Tag) -> Option<Self> {
+            pub fn from_tag(tag: &Tag) -> Self {
                 match &**tag {
-                    $($tag => Some(Self::$variant),)*
-                    _ => None,
+                    $($tag => Self::$variant,)*
+                    _ => Self::Other(tag.clone()),
                 }
             }
 
             /// Return the name.
-            pub fn name(&self) -> &'static str {
+            pub fn name(&self) -> Option<&'static str> {
                 match self {
-                    $(Self::$variant => $name,)*
+                    $(Self::$variant => Some($name),)*
+                    _ => None,
                 }
             }
         }
@@ -100,6 +102,7 @@ macro_rules! implement {
             fn from(feature: Feature) -> Self {
                 match feature {
                     $(Feature::$variant => Tag(*$tag),)*
+                    Feature::Other(tag) => tag,
                 }
             }
         }

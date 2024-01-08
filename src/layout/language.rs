@@ -29,29 +29,33 @@ macro_rules! implement {
         #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
         pub enum Language {
             $(#[doc = $name] $variant,)*
+            Other(Tag),
         }
 
         impl Language {
             /// Create an instance from a tag.
-            pub fn from_tag(tag: &Tag) -> Option<Self> {
+            pub fn from_tag(tag: &Tag) -> Self {
                 match &**tag {
-                    $($tag => Some(Self::$variant),)*
-                    _ => None,
+                    $($tag => Self::$variant,)*
+                    _ => Self::Other(tag.clone()),
                 }
             }
 
             /// Return ISO 639 codes.
             pub fn codes(&self) -> impl Iterator<Item = &'static str> {
                 let filter = |code: &&str| !code.is_empty();
-                match self {
-                    $(Language::$variant => $codes.split(", ").filter(filter),)*
-                }
+                let value = match self {
+                    $(Language::$variant => $codes,)*
+                    _ => "",
+                };
+                value.split(", ").filter(filter)
             }
 
             /// Return the name.
-            pub fn name(&self) -> &'static str {
+            pub fn name(&self) -> Option<&'static str> {
                 match self {
-                    $(Self::$variant => $name,)*
+                    $(Self::$variant => Some($name),)*
+                    _ => None,
                 }
             }
         }
@@ -60,6 +64,7 @@ macro_rules! implement {
             fn from(language: Language) -> Self {
                 match language {
                     $(Language::$variant => Tag(*$tag),)*
+                    Language::Other(tag) => tag,
                 }
             }
         }
@@ -673,11 +678,9 @@ mod tests {
 
     use super::Language;
 
-    macro_rules! ok(($result:expr) => ($result.unwrap()));
-
     #[test]
     fn codes() {
-        assert_eq!(ok!(Language::from_tag(&Tag(*b"IPPH"))).codes().count(), 0);
-        assert_eq!(ok!(Language::from_tag(&Tag(*b"ATH "))).codes().count(), 43);
+        assert_eq!(Language::from_tag(&Tag(*b"IPPH")).codes().count(), 0);
+        assert_eq!(Language::from_tag(&Tag(*b"ATH ")).codes().count(), 43);
     }
 }

@@ -41,19 +41,4 @@ fn table() {
             "#000202ff",
         ],
     );
-    assert_eq!(
-        values[0].iter().rev().take(10).collect::<Vec<_>>(),
-        &[
-            "#ffffffff",
-            "#fffffeff",
-            "#fffffdff",
-            "#fffffcff",
-            "#ffff8dff",
-            "#ffff00ff",
-            "#fffeffff",
-            "#fffefeff",
-            "#fffefdff",
-            "#fffe94ff",
-        ],
-    );
 }

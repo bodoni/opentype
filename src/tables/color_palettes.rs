@@ -4,7 +4,7 @@
 
 use crate::{Result, Tape, Value};
 
-// A color-palette table.
+/// A color-palette table.
 pub struct ColorPalettes {
     pub header: Header,
     pub colors: Vec<Color>,

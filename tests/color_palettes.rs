@@ -39,7 +39,7 @@ fn table() {
             "#000101ff",
             "#000200ff",
             "#000202ff",
-        ]
+        ],
     );
     assert_eq!(
         values[0].iter().rev().take(10).collect::<Vec<_>>(),
@@ -54,6 +54,6 @@ fn table() {
             "#fffefeff",
             "#fffefdff",
             "#fffe94ff",
-        ]
+        ],
     );
 }

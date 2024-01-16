@@ -6,7 +6,9 @@ use truetype::tables::{
 use truetype::{self, Tag};
 use typeface::Tape;
 
-use crate::tables::{FontVariations, GlyphDefinition, GlyphPositioning, GlyphSubstitution};
+use crate::tables::{
+    ColorPalettes, FontVariations, GlyphDefinition, GlyphPositioning, GlyphSubstitution,
+};
 use crate::Result;
 
 /// A type representing a font table.
@@ -70,6 +72,7 @@ macro_rules! table {
 
 table! {
     b"CFF " => postscript::FontSet(),
+    b"CPAL" => opentype::ColorPalettes(),
     b"GDEF" => opentype::GlyphDefinition(),
     b"GPOS" => opentype::GlyphPositioning(),
     b"GSUB" => opentype::GlyphSubstitution(),

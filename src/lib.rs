@@ -3,9 +3,9 @@
 //! ## Example
 //!
 //! ```
+//! use opentype::truetype::tables::names::{Names, NameID};
+//! use opentype::truetype::tables::{FontHeader, HorizontalHeader};
 //! use opentype::File;
-//! use opentype::truetype::{FontHeader, HorizontalHeader};
-//! use opentype::truetype::naming_table::{NameID, NamingTable};
 //!
 //! macro_rules! ok(($result:expr) => ($result.unwrap()));
 //!
@@ -20,8 +20,8 @@
 //! let horizontal_header: HorizontalHeader = ok!(ok!(fonts[0].take(&mut tape)));
 //! assert_eq!(horizontal_header.ascender, 918);
 //!
-//! let naming_table: NamingTable = ok!(ok!(fonts[0].take(&mut tape)));
-//! let names = naming_table
+//! let names: Names = ok!(ok!(fonts[0].take(&mut tape)));
+//! let names = names
 //!     .iter()
 //!     .map(|((name_id, _), value)| (name_id, value))
 //!     .collect::<std::collections::HashMap<_, _>>();

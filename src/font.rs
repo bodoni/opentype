@@ -1,11 +1,11 @@
-use truetype::offset_table::OffsetTable;
+use truetype::tables::offsets::Offsets;
 
 use crate::{Result, Table, Tape, Value};
 
 /// A font.
 pub struct Font {
     /// The offset table.
-    pub offset_table: OffsetTable,
+    pub offsets: Offsets,
 }
 
 impl Font {
@@ -35,7 +35,7 @@ impl Font {
         U: Table<'l>,
     {
         let tag = U::tag();
-        for record in &self.offset_table.records {
+        for record in &self.offsets.records {
             if record.tag == tag {
                 #[cfg(not(feature = "ignore-invalid-checksums"))]
                 if record.checksum != record.checksum(tape)? {
@@ -53,7 +53,7 @@ impl Value for Font {
     #[inline]
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         Ok(Self {
-            offset_table: tape.take()?,
+            offsets: tape.take()?,
         })
     }
 }

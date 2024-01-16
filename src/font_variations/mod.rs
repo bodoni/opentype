@@ -2,7 +2,7 @@
 //!
 //! [1]: https://learn.microsoft.com/en-us/typography/opentype/spec/fvar
 
-use truetype::naming_table::NameID;
+use truetype::tables::names::NameID;
 use truetype::{q32, Result, Tag, Tape, Value, Walue};
 
 table! {

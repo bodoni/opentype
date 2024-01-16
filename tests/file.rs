@@ -24,7 +24,7 @@ fn cff_variable() {
 #[test]
 #[cfg_attr(not(feature = "ignore-invalid-checksums"), should_panic)]
 fn ttf_corrupted() {
-    use opentype::truetype::FontHeader;
+    use opentype::truetype::tables::FontHeader;
 
     let mut tape = setup!(KaushanScript);
     let file = ok!(File::read(&mut tape));
@@ -33,7 +33,7 @@ fn ttf_corrupted() {
 
 #[test]
 fn ttf_regular() {
-    use opentype::truetype::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
+    use opentype::truetype::tables::{FontHeader, GlyphData, GlyphMapping, MaximumProfile};
 
     let mut tape = setup!(OpenSans);
     let file = ok!(File::read(&mut tape));

@@ -1,9 +1,9 @@
 use postscript::{self, compact1::FontSet};
-use truetype::{self, Tag};
-use truetype::{
+use truetype::tables::{
     CharacterMapping, FontHeader, GlyphData, GlyphMapping, HorizontalHeader, HorizontalMetrics,
-    MaximumProfile, NamingTable, PostScript, WindowsMetrics,
+    MaximumProfile, Names, PostScript, WindowsMetrics,
 };
+use truetype::{self, Tag};
 use typeface::Tape;
 
 use crate::{FontVariations, GlyphDefinition, GlyphPositioning, GlyphSubstitution, Result};
@@ -81,6 +81,6 @@ table! {
     b"hmtx" => truetype::HorizontalMetrics(..),
     b"loca" => truetype::GlyphMapping(..),
     b"maxp" => truetype::MaximumProfile(),
-    b"name" => truetype::NamingTable(),
+    b"name" => truetype::Names(),
     b"post" => truetype::PostScript(),
 }

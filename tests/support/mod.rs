@@ -25,6 +25,7 @@ pub enum Fixture {
     AdobeVFPrototypeTTF,
     CrimsonText,
     KaushanScript,
+    NotoColorEmoji,
     OpenSans,
     SourceSerifPro,
 }
@@ -36,6 +37,7 @@ impl Fixture {
             Fixture::AdobeVFPrototypeTTF => "AdobeVFPrototype.ttf",
             Fixture::CrimsonText => "CrimsonText-Regular.ttf",
             Fixture::KaushanScript => "KaushanScript-Regular.ttf",
+            Fixture::NotoColorEmoji => "NotoColorEmoji-Regular.ttf",
             Fixture::OpenSans => "OpenSans-Italic.ttf",
             Fixture::SourceSerifPro => "SourceSerifPro-Regular.otf",
         };
@@ -45,6 +47,7 @@ impl Fixture {
     pub fn offset(&self, table: &str) -> u64 {
         match *self {
             Fixture::AdobeVFPrototypeCFF => match table {
+                "CPAL" => 10976,
                 _ => unreachable!(),
             },
             Fixture::AdobeVFPrototypeTTF => match table {
@@ -54,6 +57,9 @@ impl Fixture {
             },
             Fixture::CrimsonText => match table {
                 "GPOS" => 94952,
+                _ => unreachable!(),
+            },
+            Fixture::NotoColorEmoji => match table {
                 _ => unreachable!(),
             },
             Fixture::OpenSans => match table {

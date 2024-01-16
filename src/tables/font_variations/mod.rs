@@ -1,4 +1,4 @@
-//! The [font variations][1].
+//! The [font-variations table][1].
 //!
 //! [1]: https://learn.microsoft.com/en-us/typography/opentype/spec/fvar
 
@@ -7,7 +7,7 @@ use truetype::{q32, Result, Tag, Tape, Value, Walue};
 
 table! {
     @define
-    #[doc = "Font variations."]
+    #[doc = "A font-variations table."]
     pub FontVariations {
         header           (Header             ),
         axis_records     (Vec<AxisRecord>    ),
@@ -16,7 +16,7 @@ table! {
 }
 
 table! {
-    #[doc = "The header of font variations."]
+    #[doc = "The header of a font-variations table."]
     #[derive(Copy)]
     pub Header {
         major_version  (u16), // majorVersion
@@ -31,7 +31,7 @@ table! {
 }
 
 table! {
-    #[doc = "An axis record of font variations."]
+    #[doc = "An axis record of a font-variations table."]
     #[derive(Copy)]
     pub AxisRecord { // VariationAxisRecord
         tag           (Tag      ), // tag
@@ -45,7 +45,7 @@ table! {
 
 table! {
     @define
-    #[doc = "An instance record of font variations."]
+    #[doc = "An instance record of a font-variations table."]
     pub InstanceRecord { // InstanceRecord
         subfamily_name_id  (NameID       ), // subfamilyNameID
         flags              (InstanceFlags), // flags

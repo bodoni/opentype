@@ -47,7 +47,6 @@ impl Fixture {
     pub fn offset(&self, table: &str) -> u64 {
         match *self {
             Fixture::AdobeVFPrototypeCFF => match table {
-                "CPAL" => 10976,
                 _ => unreachable!(),
             },
             Fixture::AdobeVFPrototypeTTF => match table {
@@ -60,6 +59,7 @@ impl Fixture {
                 _ => unreachable!(),
             },
             Fixture::NotoColorEmoji => match table {
+                "CPAL" => 10976,
                 _ => unreachable!(),
             },
             Fixture::OpenSans => match table {

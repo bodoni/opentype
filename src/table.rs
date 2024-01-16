@@ -6,7 +6,8 @@ use truetype::tables::{
 use truetype::{self, Tag};
 use typeface::Tape;
 
-use crate::{FontVariations, GlyphDefinition, GlyphPositioning, GlyphSubstitution, Result};
+use crate::tables::{FontVariations, GlyphDefinition, GlyphPositioning, GlyphSubstitution};
+use crate::Result;
 
 /// A type representing a font table.
 pub trait Table<'l>: Sized {

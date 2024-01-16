@@ -43,11 +43,8 @@ pub extern crate truetype;
 )]
 extern crate typeface;
 
-pub mod font_variations;
-pub mod glyph_definition;
-pub mod glyph_positioning;
-pub mod glyph_substitution;
 pub mod layout;
+pub mod tables;
 pub mod variations;
 
 mod file;
@@ -58,10 +55,6 @@ pub use typeface::{Error, Result, Tape, Value, Walue};
 
 pub use file::File;
 pub use font::Font;
-pub use font_variations::FontVariations;
-pub use glyph_definition::GlyphDefinition;
-pub use glyph_positioning::GlyphPositioning;
-pub use glyph_substitution::GlyphSubstitution;
 pub use table::Table;
 
 /// Check if a tag is recognized.

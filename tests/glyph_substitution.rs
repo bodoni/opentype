@@ -1,9 +1,9 @@
 #[macro_use]
 mod support;
 
-use opentype::glyph_substitution::{GlyphSubstitution, SingleSubstitution, Type};
 use opentype::layout::Language;
 use opentype::layout::Script;
+use opentype::tables::glyph_substitution::{GlyphSubstitution, SingleSubstitution, Type};
 use opentype::Value;
 
 #[test]

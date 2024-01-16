@@ -14,7 +14,7 @@ fn cff_regular() {
 
 #[test]
 fn cff_variable() {
-    use opentype::GlyphSubstitution;
+    use opentype::tables::GlyphSubstitution;
 
     let mut tape = setup!(AdobeVFPrototypeCFF);
     let file = ok!(File::read(&mut tape));
@@ -49,7 +49,7 @@ fn ttf_regular() {
 
 #[test]
 fn ttf_variable() {
-    use opentype::GlyphSubstitution;
+    use opentype::tables::GlyphSubstitution;
 
     let mut tape = setup!(AdobeVFPrototypeTTF);
     let file = ok!(File::read(&mut tape));

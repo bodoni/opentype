@@ -2,7 +2,7 @@
 mod support;
 
 mod adobe_vf_prototype {
-    use opentype::glyph_positioning::GlyphPositioning;
+    use opentype::tables::glyph_positioning::GlyphPositioning;
     use opentype::Value;
 
     #[test]
@@ -19,7 +19,7 @@ mod adobe_vf_prototype {
 }
 
 mod crimson_text {
-    use opentype::glyph_positioning::GlyphPositioning;
+    use opentype::tables::glyph_positioning::GlyphPositioning;
     use opentype::Value;
 
     #[test]
@@ -35,9 +35,9 @@ mod crimson_text {
 }
 
 mod source_serif {
-    use opentype::glyph_positioning::{GlyphPositioning, PairAdjustment, Type};
     use opentype::layout::Language;
     use opentype::layout::Script;
+    use opentype::tables::glyph_positioning::{GlyphPositioning, PairAdjustment, Type};
     use opentype::Value;
 
     #[test]

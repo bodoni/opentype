@@ -1,7 +1,7 @@
 #[macro_use]
 mod support;
 
-use opentype::font_variations::FontVariations;
+use opentype::tables::font_variations::FontVariations;
 use opentype::Value;
 use truetype::Tag;
 

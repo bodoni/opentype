@@ -1,8 +1,8 @@
 #[macro_use]
 mod support;
 
-use opentype::glyph_definition::{GlyphDefinition, Header};
 use opentype::layout::Class;
+use opentype::tables::glyph_definition::{GlyphDefinition, Header};
 use opentype::Value;
 
 #[test]

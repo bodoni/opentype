@@ -43,6 +43,20 @@ table! {
     }
 }
 
+impl ColorPalettes {
+    /// Iterate over the entries.
+    ///
+    /// Each item represents a palette given as an iterator over the corresponding colors.
+    pub fn iter(&self) -> impl Iterator<Item = impl Iterator<Item = &Color>> {
+        match self.header {
+            Header::Version0(ref header) => header.color_indices.iter().map(|palette_index| {
+                (0..header.entry_count as usize)
+                    .map(|entry_index| &self.colors[*palette_index as usize + entry_index])
+            }),
+        }
+    }
+}
+
 impl Value for ColorPalettes {
     fn read<T: Tape>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;

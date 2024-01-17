@@ -50,8 +50,11 @@ impl ColorPalettes {
     pub fn iter(&self) -> impl Iterator<Item = impl Iterator<Item = &Color>> {
         match self.header {
             Header::Version0(ref header) => header.color_indices.iter().map(|palette_index| {
-                (0..header.entry_count as usize)
-                    .map(|entry_index| &self.colors[*palette_index as usize + entry_index])
+                (0..header.entry_count as usize).map(|entry_index| {
+                    let color_index = *palette_index as usize + entry_index;
+                    debug_assert!(color_index < header.color_count as usize);
+                    &self.colors[color_index]
+                })
             }),
         }
     }

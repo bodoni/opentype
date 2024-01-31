@@ -3,7 +3,7 @@
 use truetype::GlyphID;
 
 use crate::layout::{Class, Coverage};
-use crate::{Result, Tape, Value};
+use crate::Result;
 
 /// A contextual lookup.
 #[derive(Clone, Debug)]
@@ -371,8 +371,8 @@ table! {
     }
 }
 
-impl Value for Context {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Context {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),
@@ -382,8 +382,8 @@ impl Value for Context {
     }
 }
 
-impl Value for ChainedContext {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for ChainedContext {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),

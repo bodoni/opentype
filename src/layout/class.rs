@@ -2,7 +2,7 @@
 
 use truetype::GlyphID;
 
-use crate::{Result, Tape, Value};
+use crate::Result;
 
 /// A class.
 #[derive(Clone, Debug)]
@@ -55,8 +55,8 @@ impl Default for Class {
     }
 }
 
-impl Value for Class {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Class {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Class::Format1(tape.take()?),
             2 => Class::Format2(tape.take()?),

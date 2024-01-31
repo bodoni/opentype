@@ -1,4 +1,4 @@
-//! Parser for OpenType fonts.
+//! Parser of OpenType fonts.
 //!
 //! ## Example
 //!
@@ -51,7 +51,7 @@ mod file;
 mod font;
 mod table;
 
-pub use typeface::{Error, Result, Tape, Value, Walue};
+pub use typeface::{tape, value, walue, Error, Result};
 
 pub use file::File;
 pub use font::Font;

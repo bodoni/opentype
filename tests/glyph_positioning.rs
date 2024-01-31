@@ -3,12 +3,12 @@ mod support;
 
 mod adobe_vf_prototype {
     use opentype::tables::glyph_positioning::GlyphPositioning;
-    use opentype::Value;
+    use opentype::value::Read;
 
     #[test]
     fn features() {
         let GlyphPositioning { features, .. } =
-            ok!(Value::read(&mut setup!(AdobeVFPrototypeTTF, "GPOS")));
+            ok!(Read::read(&mut setup!(AdobeVFPrototypeTTF, "GPOS")));
         let tags = features
             .headers
             .iter()
@@ -20,11 +20,11 @@ mod adobe_vf_prototype {
 
 mod crimson_text {
     use opentype::tables::glyph_positioning::GlyphPositioning;
-    use opentype::Value;
+    use opentype::value::Read;
 
     #[test]
     fn features() {
-        let GlyphPositioning { features, .. } = ok!(Value::read(&mut setup!(CrimsonText, "GPOS")));
+        let GlyphPositioning { features, .. } = ok!(Read::read(&mut setup!(CrimsonText, "GPOS")));
         let tags = features
             .headers
             .iter()
@@ -38,12 +38,12 @@ mod source_serif {
     use opentype::layout::Language;
     use opentype::layout::Script;
     use opentype::tables::glyph_positioning::{GlyphPositioning, PairAdjustment, Type};
-    use opentype::Value;
+    use opentype::value::Read;
 
     #[test]
     fn features() {
         let GlyphPositioning { features, .. } =
-            ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+            ok!(Read::read(&mut setup!(SourceSerifPro, "GPOS")));
         let tags = features
             .headers
             .iter()
@@ -66,8 +66,7 @@ mod source_serif {
 
     #[test]
     fn lookups() {
-        let GlyphPositioning { lookups, .. } =
-            ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+        let GlyphPositioning { lookups, .. } = ok!(Read::read(&mut setup!(SourceSerifPro, "GPOS")));
         assert_eq!(lookups.records.len(), 1);
         let record = &lookups.records[0];
         assert!(record.mark_filtering_set.is_none());
@@ -89,8 +88,7 @@ mod source_serif {
 
     #[test]
     fn scripts() {
-        let GlyphPositioning { scripts, .. } =
-            ok!(Value::read(&mut setup!(SourceSerifPro, "GPOS")));
+        let GlyphPositioning { scripts, .. } = ok!(Read::read(&mut setup!(SourceSerifPro, "GPOS")));
         let tags = scripts
             .headers
             .iter()

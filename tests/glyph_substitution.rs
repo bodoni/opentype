@@ -4,11 +4,11 @@ mod support;
 use opentype::layout::Language;
 use opentype::layout::Script;
 use opentype::tables::glyph_substitution::{GlyphSubstitution, SingleSubstitution, Type};
-use opentype::Value;
+use opentype::value::Read;
 
 #[test]
 fn features() {
-    let GlyphSubstitution { features, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    let GlyphSubstitution { features, .. } = ok!(Read::read(&mut setup!(SourceSerifPro, "GSUB")));
     let tags = features
         .headers
         .iter()
@@ -67,7 +67,7 @@ fn features() {
 
 #[test]
 fn lookups() {
-    let GlyphSubstitution { lookups, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    let GlyphSubstitution { lookups, .. } = ok!(Read::read(&mut setup!(SourceSerifPro, "GSUB")));
     let types = lookups
         .records
         .iter()
@@ -101,7 +101,7 @@ fn lookups() {
 
 #[test]
 fn scripts() {
-    let GlyphSubstitution { scripts, .. } = ok!(Value::read(&mut setup!(SourceSerifPro, "GSUB")));
+    let GlyphSubstitution { scripts, .. } = ok!(Read::read(&mut setup!(SourceSerifPro, "GSUB")));
     let tags = scripts
         .headers
         .iter()

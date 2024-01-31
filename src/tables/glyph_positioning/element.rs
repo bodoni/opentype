@@ -1,7 +1,7 @@
 use truetype::GlyphID;
 
 use crate::layout::Correction;
-use crate::{Result, Tape, Value, Walue};
+use crate::Result;
 
 /// An anchor.
 #[derive(Clone, Debug)]
@@ -236,8 +236,8 @@ impl Default for Anchor {
     }
 }
 
-impl Value for Anchor {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Anchor {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Anchor::Format1(tape.take()?),
             2 => Anchor::Format2(tape.take()?),
@@ -247,10 +247,13 @@ impl Value for Anchor {
     }
 }
 
-impl Walue<'static> for Base {
+impl crate::walue::Read<'static> for Base {
     type Parameter = (u64, u16);
 
-    fn read<T: Tape>(tape: &mut T, (position, mark_class_count): Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(
+        tape: &mut T,
+        (position, mark_class_count): Self::Parameter,
+    ) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(mark_class_count as usize)?;
         let anchors =
             tape.stay(|tape| jump_take_maybe!(tape, position, mark_class_count, anchor_offsets))?;
@@ -261,10 +264,10 @@ impl Walue<'static> for Base {
     }
 }
 
-impl Walue<'static> for Bases {
+impl crate::walue::Read<'static> for Bases {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
         let records = (0..count)
@@ -274,10 +277,13 @@ impl Walue<'static> for Bases {
     }
 }
 
-impl Walue<'static> for Component {
+impl crate::walue::Read<'static> for Component {
     type Parameter = (u64, u16);
 
-    fn read<T: Tape>(tape: &mut T, (position, mark_class_count): Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(
+        tape: &mut T,
+        (position, mark_class_count): Self::Parameter,
+    ) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(mark_class_count as usize)?;
         let anchors =
             tape.stay(|tape| jump_take_maybe!(tape, position, mark_class_count, anchor_offsets))?;
@@ -288,10 +294,10 @@ impl Walue<'static> for Component {
     }
 }
 
-impl Walue<'static> for Ligature {
+impl crate::walue::Read<'static> for Ligature {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
         let components = (0..count)
@@ -301,10 +307,10 @@ impl Walue<'static> for Ligature {
     }
 }
 
-impl Walue<'static> for Ligatures {
+impl crate::walue::Read<'static> for Ligatures {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
@@ -318,10 +324,10 @@ impl Walue<'static> for Ligatures {
     }
 }
 
-impl Walue<'static> for Mark1 {
+impl crate::walue::Read<'static> for Mark1 {
     type Parameter = u64;
 
-    fn read<T: Tape>(tape: &mut T, position: Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T, position: Self::Parameter) -> Result<Self> {
         let class_id = tape.take()?;
         let anchor_offset = tape.take()?;
         #[cfg(not(feature = "ignore-incomplete-marks"))]
@@ -338,10 +344,13 @@ impl Walue<'static> for Mark1 {
     }
 }
 
-impl Walue<'static> for Mark2 {
+impl crate::walue::Read<'static> for Mark2 {
     type Parameter = (u64, u16);
 
-    fn read<T: Tape>(tape: &mut T, (position, mark_class_count): Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(
+        tape: &mut T,
+        (position, mark_class_count): Self::Parameter,
+    ) -> Result<Self> {
         let anchor_offsets: Vec<u16> = tape.take_given(mark_class_count as usize)?;
         let anchors =
             tape.stay(|tape| jump_take_maybe!(tape, position, mark_class_count, anchor_offsets))?;
@@ -352,10 +361,10 @@ impl Walue<'static> for Mark2 {
     }
 }
 
-impl Walue<'static> for Mark2s {
+impl crate::walue::Read<'static> for Mark2s {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T, mark_class_count: Self::Parameter) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
         let records = (0..count)
@@ -365,10 +374,10 @@ impl Walue<'static> for Mark2s {
     }
 }
 
-impl Walue<'static> for Pair1 {
+impl crate::walue::Read<'static> for Pair1 {
     type Parameter = (u64, Flags, Flags);
 
-    fn read<T: Tape>(
+    fn read<T: crate::tape::Read>(
         tape: &mut T,
         (position, value1_flags, value2_flags): Self::Parameter,
     ) -> Result<Self> {
@@ -388,10 +397,13 @@ impl Walue<'static> for Pair1 {
     }
 }
 
-impl Walue<'static> for Pair1s {
+impl crate::walue::Read<'static> for Pair1s {
     type Parameter = (Flags, Flags);
 
-    fn read<T: Tape>(tape: &mut T, (value1_flags, value2_flags): Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(
+        tape: &mut T,
+        (value1_flags, value2_flags): Self::Parameter,
+    ) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take()?;
         let records = (0..count)
@@ -401,10 +413,10 @@ impl Walue<'static> for Pair1s {
     }
 }
 
-impl Walue<'static> for Pair2 {
+impl crate::walue::Read<'static> for Pair2 {
     type Parameter = (u64, Flags, Flags);
 
-    fn read<T: Tape>(
+    fn read<T: crate::tape::Read>(
         tape: &mut T,
         (position, value1_flags, value2_flags): Self::Parameter,
     ) -> Result<Self> {
@@ -423,10 +435,10 @@ impl Walue<'static> for Pair2 {
     }
 }
 
-impl Walue<'static> for Pair2s {
+impl crate::walue::Read<'static> for Pair2s {
     type Parameter = (u64, u16, Flags, Flags);
 
-    fn read<T: Tape>(
+    fn read<T: crate::tape::Read>(
         tape: &mut T,
         (position, class2_count, value1_flags, value2_flags): Self::Parameter,
     ) -> Result<Self> {
@@ -437,10 +449,10 @@ impl Walue<'static> for Pair2s {
     }
 }
 
-impl Walue<'static> for Connection {
+impl crate::walue::Read<'static> for Connection {
     type Parameter = u64;
 
-    fn read<T: Tape>(tape: &mut T, position: u64) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T, position: u64) -> Result<Self> {
         let start_anchor_offset = tape.take()?;
         let end_anchor_offset = tape.take()?;
         let (start_anchor, end_anchor) = tape.stay(|tape| {
@@ -458,10 +470,13 @@ impl Walue<'static> for Connection {
     }
 }
 
-impl Walue<'static> for Single {
+impl crate::walue::Read<'static> for Single {
     type Parameter = (u64, Flags);
 
-    fn read<T: Tape>(tape: &mut T, (position, flags): Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(
+        tape: &mut T,
+        (position, flags): Self::Parameter,
+    ) -> Result<Self> {
         macro_rules! take(
             ($flag:ident) => (if flags.$flag() { Some(tape.take()?) } else { None });
         );

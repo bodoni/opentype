@@ -2,11 +2,11 @@
 mod support;
 
 use opentype::tables::color_palettes::{ColorPalettes, Header};
-use opentype::Value;
+use opentype::value::Read;
 
 #[test]
 fn table() {
-    let table: ColorPalettes = ok!(Value::read(&mut setup!(NotoColorEmoji, "CPAL")));
+    let table: ColorPalettes = ok!(Read::read(&mut setup!(NotoColorEmoji, "CPAL")));
     let header = match table.header {
         Header::Version0(ref value) => value,
     };

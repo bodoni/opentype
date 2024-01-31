@@ -1,13 +1,13 @@
 [package]
 name = "opentype"
-version = "0.31.2"
+version = "0.32.0"
 edition = "2021"
 license = "Apache-2.0/MIT"
 authors = [
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
     "Simon Sapin <simon.sapin@exyr.org>",
 ]
-description = "The package provides a parser for OpenType fonts."
+description = "The package provides a builder and parser of OpenType fonts."
 documentation = "https://docs.rs/opentype"
 homepage = "https://github.com/bodoni/opentype"
 repository = "https://github.com/bodoni/opentype"
@@ -26,6 +26,6 @@ ignore-incomplete-marks = []
 ignore-invalid-checksums = []
 
 [dependencies]
-postscript = "0.17.4"
-truetype = "0.44.0"
+postscript = "0.18.0"
+truetype = "0.45.0"
 typeface = "0"

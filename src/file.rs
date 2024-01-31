@@ -1,6 +1,7 @@
 use truetype::Tag;
 
-use crate::{Font, Result, Tape};
+use crate::tape::Read;
+use crate::{Font, Result};
 
 /// A file.
 pub struct File {
@@ -10,8 +11,8 @@ pub struct File {
 
 impl File {
     /// Read a file.
-    pub fn read<T: Tape>(tape: &mut T) -> Result<File> {
-        if &Tape::peek::<Tag>(tape)?.0 == b"ttcf" {
+    pub fn read<T: crate::tape::Read>(tape: &mut T) -> Result<File> {
+        if &Read::peek::<Tag>(tape)?.0 == b"ttcf" {
             raise!("found a TrueType collection, which is not supported yet");
         }
         Ok(File {

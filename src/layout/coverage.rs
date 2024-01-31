@@ -2,7 +2,7 @@
 
 use truetype::GlyphID;
 
-use crate::{Result, Tape, Value};
+use crate::Result;
 
 /// A coverage.
 #[derive(Clone, Debug)]
@@ -54,8 +54,8 @@ impl Default for Coverage {
     }
 }
 
-impl Value for Coverage {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Coverage {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Coverage::Format1(tape.take()?),
             2 => Coverage::Format2(tape.take()?),

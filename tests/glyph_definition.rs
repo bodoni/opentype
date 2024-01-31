@@ -3,11 +3,11 @@ mod support;
 
 use opentype::layout::Class;
 use opentype::tables::glyph_definition::{GlyphDefinition, Header};
-use opentype::Value;
+use opentype::value::Read;
 
 #[test]
 fn table() {
-    let table: GlyphDefinition = ok!(Value::read(&mut setup!(OpenSans, "GDEF")));
+    let table: GlyphDefinition = ok!(Read::read(&mut setup!(OpenSans, "GDEF")));
     match &table.header {
         &Header::Version1(..) => {}
         _ => unreachable!(),

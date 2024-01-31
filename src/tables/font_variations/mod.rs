@@ -3,7 +3,7 @@
 //! [1]: https://learn.microsoft.com/en-us/typography/opentype/spec/fvar
 
 use truetype::tables::names::NameID;
-use truetype::{q32, Result, Tag, Tape, Value, Walue};
+use truetype::{q32, Result, Tag};
 
 table! {
     @define
@@ -69,8 +69,8 @@ flags! {
     }
 }
 
-impl Value for FontVariations {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for FontVariations {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         let mut position = tape.position()?;
         let header: Header = tape.take()?;
         position += header.axis_offset as u64;
@@ -95,10 +95,10 @@ impl Value for FontVariations {
     }
 }
 
-impl Walue<'static> for InstanceRecord {
+impl crate::walue::Read<'static> for InstanceRecord {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, axis_count: Self::Parameter) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T, axis_count: Self::Parameter) -> Result<Self> {
         Ok(Self {
             subfamily_name_id: tape.take()?,
             flags: tape.take()?,

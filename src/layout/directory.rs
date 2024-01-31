@@ -1,6 +1,6 @@
 use crate::layout::feature::Variations;
 use crate::layout::{Features, Lookups, Scripts};
-use crate::{Result, Tape, Value, Walue};
+use crate::Result;
 
 /// A layout directory.
 #[derive(Clone, Debug)]
@@ -19,11 +19,11 @@ pub struct Directory<T> {
     pub variations: Option<Variations>,
 }
 
-impl<U> Value for Directory<U>
+impl<U> crate::value::Read for Directory<U>
 where
-    U: Walue<'static, Parameter = u16>,
+    U: crate::walue::Read<'static, Parameter = u16>,
 {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
         let major_version = tape.take()?;
         let minor_version = tape.take()?;

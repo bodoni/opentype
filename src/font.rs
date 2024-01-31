@@ -1,6 +1,7 @@
 use truetype::tables::offsets::Offsets;
 
-use crate::{Result, Table, Tape, Value};
+use crate::tape::Read;
+use crate::{Result, Table};
 
 /// A font.
 pub struct Font {
@@ -13,16 +14,16 @@ impl Font {
     #[inline]
     pub fn read<T>(tape: &mut T) -> Result<Self>
     where
-        T: Tape,
+        T: crate::tape::Read,
     {
-        Tape::take(tape)
+        Read::take(tape)
     }
 
     /// Read a table.
     #[inline]
     pub fn take<'l, T, U>(&self, tape: &mut T) -> Result<Option<U>>
     where
-        T: Tape,
+        T: crate::tape::Read,
         U: Table<'l, Parameter = ()>,
     {
         self.take_given(tape, ())
@@ -31,7 +32,7 @@ impl Font {
     /// Read a table given a parameter.
     pub fn take_given<'l, T, U>(&self, tape: &mut T, parameter: U::Parameter) -> Result<Option<U>>
     where
-        T: Tape,
+        T: crate::tape::Read,
         U: Table<'l>,
     {
         let tag = U::tag();
@@ -41,7 +42,7 @@ impl Font {
                 if record.checksum != record.checksum(tape)? {
                     raise!("found a malformed font table with {:?}", record.tag);
                 }
-                Tape::jump(tape, record.offset as u64)?;
+                Read::jump(tape, record.offset as u64)?;
                 return Ok(Some(Table::take(tape, parameter)?));
             }
         }
@@ -49,9 +50,9 @@ impl Font {
     }
 }
 
-impl Value for Font {
+impl crate::value::Read for Font {
     #[inline]
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(Self {
             offsets: tape.take()?,
         })

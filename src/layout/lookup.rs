@@ -1,6 +1,6 @@
 //! The lookup list.
 
-use crate::{Result, Tape, Value, Walue};
+use crate::Result;
 
 /// A lookup list.
 #[derive(Clone, Debug)]
@@ -48,11 +48,11 @@ impl<T> Default for Lookups<T> {
     }
 }
 
-impl<U> Value for Lookups<U>
+impl<U> crate::value::Read for Lookups<U>
 where
-    U: Walue<'static, Parameter = u16>,
+    U: crate::walue::Read<'static, Parameter = u16>,
 {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
         let count = tape.take::<u16>()?;
         let offsets: Vec<u16> = tape.take_given(count as usize)?;
@@ -65,11 +65,11 @@ where
     }
 }
 
-impl<U> Value for Record<U>
+impl<U> crate::value::Read for Record<U>
 where
-    U: Walue<'static, Parameter = u16>,
+    U: crate::walue::Read<'static, Parameter = u16>,
 {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
         let r#type = tape.take()?;
         let flags = tape.take::<Flags>()?;

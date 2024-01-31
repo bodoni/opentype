@@ -4,7 +4,6 @@ use truetype::tables::{
     MaximumProfile, Names, PostScript, WindowsMetrics,
 };
 use truetype::{self, Tag};
-use typeface::Tape;
 
 use crate::tables::{
     ColorPalettes, FontVariations, GlyphDefinition, GlyphPositioning, GlyphSubstitution,
@@ -22,14 +21,14 @@ pub trait Table<'l>: Sized {
     #[doc(hidden)]
     fn take<T>(tape: &mut T, parameter: Self::Parameter) -> Result<Self>
     where
-        T: Tape;
+        T: crate::tape::Read;
 }
 
 macro_rules! table {
     (@one $tag:expr => opentype::$type:ident()) => (
         table! { @one $tag => truetype::$type() }
     );
-    (@one $tag:expr => $scope:ident::$type:ident()) => (
+    (@one $tag:expr => $type:ident()) => (
         impl Table<'static> for $type {
             type Parameter = ();
 
@@ -41,15 +40,15 @@ macro_rules! table {
             #[inline]
             fn take<T>(tape: &mut T, _: Self::Parameter) -> Result<Self>
             where
-                T: Tape,
+                T: $crate::tape::Read,
             {
-                $scope::Tape::take(tape)
+                $crate::tape::Read::take(tape)
             }
         }
     );
-    (@one $tag:expr => $scope:ident::$type:ident(..)) => (
+    (@one $tag:expr => $type:ident(..)) => (
         impl<'l> Table<'l> for $type {
-            type Parameter = <$type as $scope::Walue<'l>>::Parameter;
+            type Parameter = <$type as $crate::walue::Read<'l>>::Parameter;
 
             #[inline]
             fn tag() -> Tag {
@@ -59,32 +58,32 @@ macro_rules! table {
             #[inline]
             fn take<T>(tape: &mut T, parameter: Self::Parameter) -> Result<Self>
             where
-                T: Tape,
+                T: $crate::tape::Read,
             {
-                $scope::Tape::take_given(tape, parameter)
+                $crate::tape::Read::take_given(tape, parameter)
             }
         }
     );
-    ($($tag:expr => $scope:ident::$type:ident($($parameter:tt)*),)+) => (
-        $(table! { @one $tag => $scope::$type($($parameter)*) })+
+    ($($tag:expr => $type:ident($($parameter:tt)*),)+) => (
+        $(table! { @one $tag => $type($($parameter)*) })+
     );
 }
 
 table! {
-    b"CFF " => postscript::FontSet(),
-    b"CPAL" => opentype::ColorPalettes(),
-    b"GDEF" => opentype::GlyphDefinition(),
-    b"GPOS" => opentype::GlyphPositioning(),
-    b"GSUB" => opentype::GlyphSubstitution(),
-    b"OS/2" => truetype::WindowsMetrics(),
-    b"cmap" => truetype::CharacterMapping(),
-    b"fvar" => opentype::FontVariations(),
-    b"glyf" => truetype::GlyphData(..),
-    b"head" => truetype::FontHeader(),
-    b"hhea" => truetype::HorizontalHeader(),
-    b"hmtx" => truetype::HorizontalMetrics(..),
-    b"loca" => truetype::GlyphMapping(..),
-    b"maxp" => truetype::MaximumProfile(),
-    b"name" => truetype::Names(),
-    b"post" => truetype::PostScript(),
+    b"CFF " => FontSet(),
+    b"CPAL" => ColorPalettes(),
+    b"GDEF" => GlyphDefinition(),
+    b"GPOS" => GlyphPositioning(),
+    b"GSUB" => GlyphSubstitution(),
+    b"OS/2" => WindowsMetrics(),
+    b"cmap" => CharacterMapping(),
+    b"fvar" => FontVariations(),
+    b"glyf" => GlyphData(..),
+    b"head" => FontHeader(),
+    b"hhea" => HorizontalHeader(),
+    b"hmtx" => HorizontalMetrics(..),
+    b"loca" => GlyphMapping(..),
+    b"maxp" => MaximumProfile(),
+    b"name" => Names(),
+    b"post" => PostScript(),
 }

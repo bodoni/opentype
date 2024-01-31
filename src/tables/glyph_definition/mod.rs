@@ -8,7 +8,7 @@ pub use element::*;
 
 use crate::layout::Class;
 use crate::variations::item::Store;
-use crate::{Result, Tape, Value};
+use crate::Result;
 
 macro_rules! field(
     ($table:expr => $field:ident, $enumeration:ident::{$($variant:ident),*}) => (
@@ -140,8 +140,8 @@ impl Default for Header {
     }
 }
 
-impl Value for Header {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Header {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u32>()? {
             0x00010000 => Self::Version1(tape.take()?),
             0x00010002 => Self::Version12(tape.take()?),

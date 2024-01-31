@@ -7,7 +7,7 @@ mod element;
 use truetype::GlyphID;
 
 use crate::layout::{ChainedContext, Context, Coverage, Directory};
-use crate::{Result, Tape, Value, Walue};
+use crate::Result;
 
 pub use element::*;
 
@@ -181,10 +181,10 @@ table! {
     }
 }
 
-impl Walue<'static> for Type {
+impl crate::walue::Read<'static> for Type {
     type Parameter = u16;
 
-    fn read<T: Tape>(tape: &mut T, r#type: u16) -> Result<Self> {
+    fn read<T: crate::tape::Read>(tape: &mut T, r#type: u16) -> Result<Self> {
         Ok(match r#type {
             1 => Self::SingleSubstitution(tape.take()?),
             2 => Self::MultipleSubstitution(tape.take()?),
@@ -199,8 +199,8 @@ impl Walue<'static> for Type {
     }
 }
 
-impl Value for SingleSubstitution {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for SingleSubstitution {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),

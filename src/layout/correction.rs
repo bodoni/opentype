@@ -1,6 +1,6 @@
 //! The adjustment correction.
 
-use crate::{Result, Tape, Value};
+use crate::Result;
 
 /// A correction.
 #[derive(Clone, Debug)]
@@ -31,8 +31,8 @@ table! {
     }
 }
 
-impl Value for Correction {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Correction {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<(u32, u16)>()?.1 {
             1..=3 => Correction::Device(tape.take()?),
             0x8000 => Correction::Variation(tape.take()?),
@@ -48,8 +48,8 @@ impl Default for Correction {
     }
 }
 
-impl Value for Device {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Device {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         let start_size = tape.take()?;
         let end_size = tape.take()?;
         if start_size > end_size {

@@ -2,7 +2,7 @@
 //!
 //! [1]: https://learn.microsoft.com/en-us/typography/opentype/spec/cpal
 
-use crate::{Result, Tape, Value};
+use crate::Result;
 
 /// A color-palette table.
 pub struct ColorPalettes {
@@ -60,8 +60,8 @@ impl ColorPalettes {
     }
 }
 
-impl Value for ColorPalettes {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for ColorPalettes {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         let position = tape.position()?;
         let header = tape.take()?;
         let (offset, count) = match header {
@@ -72,8 +72,8 @@ impl Value for ColorPalettes {
     }
 }
 
-impl Value for Header {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Header {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u16>()? {
             0 => Self::Version0(tape.take()?),
             _ => raise!("found an unknown version of the color-palette table"),

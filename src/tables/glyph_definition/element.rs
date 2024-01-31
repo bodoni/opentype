@@ -1,5 +1,5 @@
 use crate::layout::{Correction, Coverage};
-use crate::{Result, Tape, Value};
+use crate::Result;
 
 table! {
     #[doc = "A glyph attachment."]
@@ -130,8 +130,8 @@ table! {
     }
 }
 
-impl Value for Caret {
-    fn read<T: Tape>(tape: &mut T) -> Result<Self> {
+impl crate::value::Read for Caret {
+    fn read<T: crate::tape::Read>(tape: &mut T) -> Result<Self> {
         Ok(match tape.peek::<u32>()? {
             1 => Self::Format1(tape.take()?),
             2 => Self::Format2(tape.take()?),

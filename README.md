@@ -1,8 +1,8 @@
 # OpenType [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Build][build-img]][build-url]
 
-The package provides a parser of OpenType fonts. It might be helpful to have a
-look at a higher-level abstraction called [`font`][font], which internally
-relies on this package.
+The package provides a builder and parser of OpenType fonts. It might be helpful
+to have a look at a higher-level abstraction called [`font`][font], which
+internally relies on this package.
 
 ## Example
 

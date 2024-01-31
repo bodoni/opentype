@@ -1,4 +1,4 @@
-//! Parser of OpenType fonts.
+//! Builder and parser of OpenType fonts.
 //!
 //! ## Example
 //!

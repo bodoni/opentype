@@ -23,7 +23,7 @@
 //! let names: Names = ok!(ok!(fonts[0].take(&mut tape)));
 //! let names = names
 //!     .iter()
-//!     .map(|((name_id, _), value)| (name_id, value))
+//!     .map(|((_, _, _, name_id), value)| (name_id, value))
 //!     .collect::<std::collections::HashMap<_, _>>();
 //! assert_eq!(ok!(names[&NameID::FullFontName].as_ref()), "Source Serif Pro");
 //! assert_eq!(ok!(names[&NameID::DesignerName].as_ref()), "Frank Grießhammer");

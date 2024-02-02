@@ -26,6 +26,26 @@ impl Font {
         self.offsets.records.iter().any(|record| record.tag == tag)
     }
 
+    /// Jump to the position of the table.
+    pub fn position<T, U>(&self, tape: &mut T) -> Result<Option<()>>
+    where
+        T: crate::tape::Read,
+        U: Table,
+    {
+        let tag = U::tag();
+        for record in &self.offsets.records {
+            if record.tag == tag {
+                #[cfg(not(feature = "ignore-invalid-checksums"))]
+                if record.checksum != record.checksum(tape)? {
+                    raise!("found a malformed font table with {:?}", record.tag);
+                }
+                Read::jump(tape, record.offset as u64)?;
+                return Ok(Some(()));
+            }
+        }
+        Ok(None)
+    }
+
     /// Read a table.
     #[inline]
     pub fn take<T, U>(&self, tape: &mut T) -> Result<Option<U>>
@@ -47,25 +67,6 @@ impl Font {
         self.position::<T, U>(tape)?
             .map(|_| tape.take_given::<U>(parameter))
             .transpose()
-    }
-
-    fn position<T, U>(&self, tape: &mut T) -> Result<Option<()>>
-    where
-        T: crate::tape::Read,
-        U: Table,
-    {
-        let tag = U::tag();
-        for record in &self.offsets.records {
-            if record.tag == tag {
-                #[cfg(not(feature = "ignore-invalid-checksums"))]
-                if record.checksum != record.checksum(tape)? {
-                    raise!("found a malformed font table with {:?}", record.tag);
-                }
-                Read::jump(tape, record.offset as u64)?;
-                return Ok(Some(()));
-            }
-        }
-        Ok(None)
     }
 }
 

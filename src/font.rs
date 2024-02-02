@@ -21,19 +21,31 @@ impl Font {
 
     /// Read a table.
     #[inline]
-    pub fn take<'l, T, U>(&self, tape: &mut T) -> Result<Option<U>>
+    pub fn take<T, U>(&self, tape: &mut T) -> Result<Option<U>>
     where
         T: crate::tape::Read,
-        U: Table<'l, Parameter = ()>,
+        U: Table + crate::value::Read,
     {
-        self.take_given(tape, ())
+        self.position::<T, U>(tape)?
+            .map(|_| tape.take::<U>())
+            .transpose()
     }
 
     /// Read a table given a parameter.
     pub fn take_given<'l, T, U>(&self, tape: &mut T, parameter: U::Parameter) -> Result<Option<U>>
     where
         T: crate::tape::Read,
-        U: Table<'l>,
+        U: Table + crate::walue::Read<'l>,
+    {
+        self.position::<T, U>(tape)?
+            .map(|_| tape.take_given::<U>(parameter))
+            .transpose()
+    }
+
+    fn position<T, U>(&self, tape: &mut T) -> Result<Option<()>>
+    where
+        T: crate::tape::Read,
+        U: Table,
     {
         let tag = U::tag();
         for record in &self.offsets.records {
@@ -43,7 +55,7 @@ impl Font {
                     raise!("found a malformed font table with {:?}", record.tag);
                 }
                 Read::jump(tape, record.offset as u64)?;
-                return Ok(Some(Table::take(tape, parameter)?));
+                return Ok(Some(()));
             }
         }
         Ok(None)

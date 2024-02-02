@@ -19,6 +19,13 @@ impl Font {
         Read::take(tape)
     }
 
+    /// Check if the table exists.
+    #[inline]
+    pub fn exists<T: Table>(&self) -> bool {
+        let tag = T::tag();
+        self.offsets.records.iter().any(|record| record.tag == tag)
+    }
+
     /// Read a table.
     #[inline]
     pub fn take<T, U>(&self, tape: &mut T) -> Result<Option<U>>

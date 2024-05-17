@@ -203,14 +203,14 @@ table! {
 table! {
     #[doc = "A rule."]
     pub Rule { // SequenceRule
-        input_glyph_count (u16), // glyphCount
-        record_count      (u16), // seqLookupCount
+        glyph_count  (u16), // glyphCount
+        record_count (u16), // seqLookupCount
 
-        input_glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
-            if this.input_glyph_count == 0 {
+        glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
+            if this.glyph_count == 0 {
                 raise!("found a malformed rule");
             }
-            tape.take_given(this.input_glyph_count as usize - 1)
+            tape.take_given(this.glyph_count as usize - 1)
         },
 
         records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
@@ -238,14 +238,14 @@ table! {
 table! {
     #[doc = "A class rule."]
     pub ClassRule { // ClassSequenceRule
-        input_glyph_count (u16), // glyphCount
-        record_count      (u16), // seqLookupCount
+        glyph_count  (u16), // glyphCount
+        record_count (u16), // seqLookupCount
 
-        input_class_ids (Vec<u16>) |this, tape| { // inputSequence
-            if this.input_glyph_count == 0 {
+        class_ids (Vec<u16>) |this, tape| { // inputSequence
+            if this.glyph_count == 0 {
                 raise!("found a malformed class rule");
             }
-            tape.take_given(this.input_glyph_count as usize - 1)
+            tape.take_given(this.glyph_count as usize - 1)
         },
 
         records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords

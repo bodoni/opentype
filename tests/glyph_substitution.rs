@@ -93,7 +93,7 @@ fn lookups() {
             let table = &table.rules[0];
             assert_eq!(table.count, 3);
             let table = &table.records[0];
-            assert_eq!(table.component_count, 2);
+            assert_eq!(table.glyph_count, 2);
         }
         _ => unreachable!(),
     }

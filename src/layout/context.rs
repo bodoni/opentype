@@ -55,6 +55,10 @@ table! {
             jump_take!(tape, position, this.coverage_offset)
         },
 
+        class (Class) |this, tape, position| {
+            jump_take!(tape, position, this.class_offset)
+        },
+
         rules (Vec<Option<ClassRules>>) |this, tape, position| {
             jump_take_maybe!(tape, position, this.rule_count, this.rule_offsets)
         },
@@ -200,7 +204,7 @@ table! {
     #[doc = "A rule."]
     pub Rule { // SequenceRule
         input_glyph_count (u16), // glyphCount
-        record_count      (u16), // lookupCount
+        record_count      (u16), // seqLookupCount
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
@@ -235,7 +239,7 @@ table! {
     #[doc = "A class rule."]
     pub ClassRule { // ClassSequenceRule
         input_glyph_count (u16), // glyphCount
-        record_count   (u16), // seqLookupCount
+        record_count      (u16), // seqLookupCount
 
         input_class_ids (Vec<u16>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {

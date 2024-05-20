@@ -24,11 +24,14 @@ table! {
 }
 
 macro_rules! implement {
-    ($($tag:literal => $name:literal => $variant:ident => $codes:literal,)*) => (
+    ($(
+        $(#[$attribute:meta])*
+        $tag:literal => $name:literal => $variant:ident => $codes:literal,
+    )*) => (
         /// A language system.
         #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
         pub enum Language {
-            $(#[doc = $name] $variant,)*
+            $($(#[$attribute])* #[doc = $name] $variant,)*
             Other(Tag),
         }
 
@@ -36,7 +39,7 @@ macro_rules! implement {
             /// Create an instance from a tag.
             pub fn from_tag(tag: &Tag) -> Self {
                 match &**tag {
-                    $($tag => Self::$variant,)*
+                    $($(#[$attribute])* $tag => Self::$variant,)*
                     _ => Self::Other(tag.clone()),
                 }
             }
@@ -45,7 +48,7 @@ macro_rules! implement {
             pub fn codes(&self) -> impl Iterator<Item = &'static str> {
                 let filter = |code: &&str| !code.is_empty();
                 let value = match self {
-                    $(Language::$variant => $codes,)*
+                    $($(#[$attribute])* Language::$variant => $codes,)*
                     _ => "",
                 };
                 value.split(", ").filter(filter)
@@ -54,7 +57,7 @@ macro_rules! implement {
             /// Return the name.
             pub fn name(&self) -> Option<&'static str> {
                 match self {
-                    $(Self::$variant => Some($name),)*
+                    $($(#[$attribute])* Self::$variant => Some($name),)*
                     _ => None,
                 }
             }
@@ -63,7 +66,7 @@ macro_rules! implement {
         impl From<Language> for Tag {
             fn from(language: Language) -> Self {
                 match language {
-                    $(Language::$variant => Tag(*$tag),)*
+                    $($(#[$attribute])* Language::$variant => Tag(*$tag),)*
                     Language::Other(tag) => tag,
                 }
             }
@@ -181,6 +184,8 @@ implement! {
     b"DAR " => "Dargwa" => Dargwa => "dar",
     b"DAX " => "Dayi" => Dayi => "dax",
     b"DCR " => "Woods Cree" => WoodsCree => "cwd",
+    #[cfg(feature = "default-language")]
+    b"DFLT" => "Default" => Default => "",
     b"DEU " => "German" => German => "deu",
     b"DGO " => "Dogri" => Dogri => "dgo",
     b"DGR " => "Dogri" => DogriMacrolanguage => "doi",

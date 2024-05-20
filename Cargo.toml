@@ -1,6 +1,6 @@
 [package]
 name = "opentype"
-version = "0.36.0"
+version = "0.36.1"
 edition = "2021"
 license = "Apache-2.0/MIT"
 authors = [
@@ -17,6 +17,7 @@ keywords = ["font", "opentype", "typeface", "typography"]
 exclude = ["tests/fixtures/*"]
 
 [features]
+default-language = []
 # https://github.com/google/fonts/issues/6888
 ignore-incomplete-directories = []
 # https://github.com/google/fonts/issues/6894

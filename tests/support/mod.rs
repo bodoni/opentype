@@ -25,6 +25,7 @@ pub enum Fixture {
     AdobeVFPrototypeTTF,
     CrimsonText,
     KaushanScript,
+    LondrinaSolid,
     NotoColorEmoji,
     OpenSans,
     SourceSerifPro,
@@ -37,6 +38,7 @@ impl Fixture {
             Fixture::AdobeVFPrototypeTTF => "AdobeVFPrototype.ttf",
             Fixture::CrimsonText => "CrimsonText-Regular.ttf",
             Fixture::KaushanScript => "KaushanScript-Regular.ttf",
+            Fixture::LondrinaSolid => "LondrinaSolid-Regular.ttf",
             Fixture::NotoColorEmoji => "NotoColorEmoji-Regular.ttf",
             Fixture::OpenSans => "OpenSans-Italic.ttf",
             Fixture::SourceSerifPro => "SourceSerifPro-Regular.otf",
@@ -58,15 +60,19 @@ impl Fixture {
                 "GPOS" => 94952,
                 _ => unreachable!(),
             },
+            Fixture::KaushanScript => match table {
+                _ => unreachable!(),
+            },
+            Fixture::LondrinaSolid => match table {
+                "GSUB" => 12236,
+                _ => unreachable!(),
+            },
             Fixture::NotoColorEmoji => match table {
                 "CPAL" => 10976,
                 _ => unreachable!(),
             },
             Fixture::OpenSans => match table {
                 "GDEF" => 206348,
-                _ => unreachable!(),
-            },
-            Fixture::KaushanScript => match table {
                 _ => unreachable!(),
             },
             Fixture::SourceSerifPro => match table {

@@ -26,7 +26,7 @@ macro_rules! field(
 
 table! {
     @position
-    #[doc = "A glyph definition."]
+    /// A glyph definition.
     pub GlyphDefinition {
         header (Header),
 
@@ -92,7 +92,7 @@ pub enum Header {
 }
 
 table! {
-    #[doc = "The header of a glyph definition of version 1.0."]
+    /// The header of a glyph definition of version 1.0.
     #[derive(Copy)]
     pub Header1 {
         major_version      (u16) = { 1 }, // majorVersion
@@ -105,7 +105,7 @@ table! {
 }
 
 table! {
-    #[doc = "The header of a glyph definition of version 1.2."]
+    /// The header of a glyph definition of version 1.2.
     #[derive(Copy)]
     pub Header12 {
         major_version      (u16) = { 1 }, // majorVersion
@@ -119,7 +119,7 @@ table! {
 }
 
 table! {
-    #[doc = "The header of a glyph definition of version 1.3."]
+    /// The header of a glyph definition of version 1.3.
     #[derive(Copy)]
     pub Header13 {
         major_version      (u16) = { 1 }, // majorVersion

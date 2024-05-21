@@ -38,7 +38,7 @@ pub enum SingleSubstitution {
 
 table! {
     @position
-    #[doc = "A single substitution in format 1."]
+    /// A single substitution in format 1.
     pub SingleSubstitution1 { // SingleSubstFormat1
         format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
@@ -52,7 +52,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A single substitution in format 2."]
+    /// A single substitution in format 2.
     pub SingleSubstitution2 { // SingleSubstFormat2
         format          (u16), // SubstFormat
         coverage_offset (u16), // Coverage
@@ -70,7 +70,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A multiple substitution."]
+    /// A multiple substitution.
     pub MultipleSubstitution { // MultipleSubstFormat1
         format           (u16) = { 1 }, // SubstFormat
         coverage_offset  (u16), // Coverage
@@ -92,7 +92,7 @@ table! {
 
 table! {
     @position
-    #[doc = "An alternate substitution."]
+    /// An alternate substitution.
     pub AlternateSubstitution { // AlternateSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
@@ -114,7 +114,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A ligature substitution."]
+    /// A ligature substitution.
     pub LigatureSubstitution { // LigatureSubstFormat1
         format          (u16) = { 1 }, // substFormat
         coverage_offset (u16), // coverageOffset
@@ -135,7 +135,7 @@ table! {
 }
 
 table! {
-    #[doc = "An extension substitution."]
+    /// An extension substitution.
     pub ExtensionSubstitution { // ExtensionSubstFormat1
         format (u16) = { 1 }, // SubstFormat
         r#type (u16), // ExtensionLookupType
@@ -145,7 +145,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A reversed chained contextual substitution."]
+    /// A reversed chained contextual substitution.
     pub ReverseChainedContextualSubstibution { // ReverseChainSingleSubstFormat1
         format               (u16), // substFormat
         coverage_offset      (u16), // coverageOffset

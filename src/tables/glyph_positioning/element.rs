@@ -15,7 +15,7 @@ pub enum Anchor {
 }
 
 table! {
-    #[doc = "An anchor in format 1."]
+    /// An anchor in format 1.
     #[derive(Copy)]
     pub Anchor1 { // AnchorFormat1
         format (u16), // anchorFormat
@@ -25,7 +25,7 @@ table! {
 }
 
 table! {
-    #[doc = "An anchor in format 2."]
+    /// An anchor in format 2.
     #[derive(Copy)]
     pub Anchor2 { // AnchorFormat2
         format (u16), // anchorFormat
@@ -37,7 +37,7 @@ table! {
 
 table! {
     @position
-    #[doc = "An anchor in format 3."]
+    /// An anchor in format 3.
     pub Anchor3 { // AnchorFormat3
         format              (u16), // anchorFormat
         x                   (i16), // xCoordinate
@@ -57,7 +57,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A base."]
+    /// A base.
     pub Base { // BaseRecord
         anchor_offsets (Vec<u16>), // baseAnchorOffsets
 
@@ -67,7 +67,7 @@ table! {
 
 table! {
     @define
-    #[doc = "Bases."]
+    /// Bases.
     pub Bases { // BaseArray
         count   (u16      ), // baseCount
         records (Vec<Base>), // baseRecords
@@ -76,7 +76,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A component."]
+    /// A component.
     pub Component { // ComponentRecord
         anchor_offsets (Vec<u16>), // ligatureAnchorOffsets
 
@@ -86,7 +86,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A connection."]
+    /// A connection.
     pub Connection { // EntryExitRecord
         start_anchor_offset (u16), // entryAnchorOffset
         end_anchor_offset   (u16), // exitAnchorOffset
@@ -98,7 +98,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A ligature."]
+    /// A ligature.
     pub Ligature { // LigatureAttach
         count      (u16           ), // componentCount
         components (Vec<Component>), // componentRecords
@@ -107,7 +107,7 @@ table! {
 
 table! {
     @define
-    #[doc = "Ligatures."]
+    /// Ligatures.
     pub Ligatures { // LigatureArray
         count   (u16     ), // ligatureCount
         offsets (Vec<u16>), // ligatureAttachOffsets
@@ -118,7 +118,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A mark in format 1."]
+    /// A mark in format 1.
     pub Mark1 { // MarkRecord
         class_id      (u16), // markClass
         anchor_offset (u16), // markAnchorOffset
@@ -129,7 +129,7 @@ table! {
 
 table! {
     @position
-    #[doc = "Marks in format 1."]
+    /// Marks in format 1.
     pub Mark1s { // MarkArray
         count (u16), // markCount
 
@@ -141,7 +141,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A mark in format 2."]
+    /// A mark in format 2.
     pub Mark2 { // Mark2Record
         anchor_offsets (Vec<u16>), // mark2AnchorOffsets
 
@@ -151,7 +151,7 @@ table! {
 
 table! {
     @define
-    #[doc = "Marks in format 2."]
+    /// Marks in format 2.
     pub Mark2s { // Mark2Array
         count   (u16       ), // mark2Count
         records (Vec<Mark2>), // mark2Records
@@ -160,7 +160,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A value pair in format 1."]
+    /// A value pair in format 1.
     pub Pair1 { // PairValueRecord
         glyph2_id (GlyphID       ), // secondGlyph
         value1    (Option<Single>), // valueRecord1
@@ -170,7 +170,7 @@ table! {
 
 table! {
     @define
-    #[doc = "Pairs of values in format 1."]
+    /// Pairs of values in format 1.
     pub Pair1s { // PairSet
         count   (u16       ), // pairValueCount
         records (Vec<Pair1>), // pairValueRecords
@@ -179,7 +179,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A value pair in format 2."]
+    /// A value pair in format 2.
     pub Pair2 { // Class2Record
         value1 (Option<Single>), // valueRecord1
         value2 (Option<Single>), // valueRecord2
@@ -188,7 +188,7 @@ table! {
 
 table! {
     @define
-    #[doc = "Value pairs in format 2."]
+    /// Value pairs in format 2.
     pub Pair2s { // Class1Record
         records (Vec<Pair2>), // class2Records
     }
@@ -196,7 +196,7 @@ table! {
 
 table! {
     @define
-    #[doc = "A single value."]
+    /// A single value.
     pub Single { // ValueRecord
         x_placement                   (Option<i16>), // xPlacement
         y_placement                   (Option<i16>), // yPlacement
@@ -215,7 +215,7 @@ table! {
 }
 
 flags! {
-    #[doc = "Adjustment flags."]
+    /// Adjustment flags.
     pub Flags(u16) { // ValueFormat
         0b0000_0000_0000_0001 => has_x_placement,
         0b0000_0000_0000_0010 => has_y_placement,

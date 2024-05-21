@@ -14,7 +14,7 @@ pub enum Coverage {
 }
 
 table! {
-    #[doc = "A coverage in format 1."]
+    /// A coverage in format 1.
     pub Coverage1 { // CoverageFormat1
         format      (u16), // coverageFormat
         glyph_count (u16), // glyphCount
@@ -26,7 +26,7 @@ table! {
 }
 
 table! {
-    #[doc = "A coverage in format 2."]
+    /// A coverage in format 2.
     pub Coverage2 { // CoverageFormat2
         format       (u16), // coverageFormat
         record_count (u16), // rangeCount
@@ -38,7 +38,7 @@ table! {
 }
 
 table! {
-    #[doc = "A coverage record."]
+    /// A coverage record.
     #[derive(Copy)]
     pub Record { // RangeRecord
         start_glyph_id (GlyphID), // startGlyphID

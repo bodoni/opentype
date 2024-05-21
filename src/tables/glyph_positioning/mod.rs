@@ -37,7 +37,7 @@ pub enum SingleAdjustment {
 
 table! {
     @position
-    #[doc = "A single adjustment in format 1."]
+    /// A single adjustment in format 1.
     pub SingleAdjustment1 { // SinglePosFormat1
         format          (u16  ), // posFormat
         coverage_offset (u16  ), // coverageOffset
@@ -55,7 +55,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A single adjustment in format 2."]
+    /// A single adjustment in format 2.
     pub SingleAdjustment2 { // SinglePosFormat2
         format          (u16  ), // posFormat
         coverage_offset (u16  ), // coverageOffset
@@ -85,7 +85,7 @@ pub enum PairAdjustment {
 
 table! {
     @position
-    #[doc = "A pair adjustment in format 1."]
+    /// A pair adjustment in format 1.
     pub PairAdjustment1 { // PairPosFormat1
         format          (u16  ), // posFormat
         coverage_offset (u16  ), // coverageOffset
@@ -115,7 +115,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A pair adjustment in format 2."]
+    /// A pair adjustment in format 2.
     pub PairAdjustment2 { // PairPosFormat2
         format          (u16  ), // posFormat
         coverage_offset (u16  ), // coverageOffset
@@ -148,7 +148,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A cursive attachment."]
+    /// A cursive attachment.
     pub CursiveAttachment { // CursivePosFormat1
         format           (u16) = { 1 }, // posFormat
         coverage_offset  (u16), // coverageOffset
@@ -168,7 +168,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A mark-to-base attachment."]
+    /// A mark-to-base attachment.
     pub MarkToBaseAttachment { // MarkBasePosFormat1
         format               (u16) = { 1 }, // posFormat
         mark_coverage_offset (u16), // markCoverageOffset
@@ -197,7 +197,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A mark-to-ligature attachment."]
+    /// A mark-to-ligature attachment.
     pub MarkToLigatureAttachment { // MarkLigPosFormat1
         format                   (u16) = { 1 }, // posFormat
         mark_coverage_offset     (u16), // markCoverageOffset
@@ -226,7 +226,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A mark-to-mark attachment."]
+    /// A mark-to-mark attachment.
     pub MarkToMarkAttachment { // MarkMarkPosFormat1
         format                (u16) = { 1 }, // posFormat
         mark1_coverage_offset (u16), // mark1CoverageOffset
@@ -254,7 +254,7 @@ table! {
 }
 
 table! {
-    #[doc = "An extension positioning."]
+    /// An extension positioning.
     pub ExtensionPositioning { // ExtensionPosFormat1
         format (u16) = { 1 }, // posFormat
         r#type (u16), // extensionLookupType

@@ -2,7 +2,7 @@ use crate::layout::{Correction, Coverage};
 use crate::Result;
 
 table! {
-    #[doc = "A glyph attachment."]
+    /// A glyph attachment.
     pub Attachment { // AttachPoint
         index_count (u16), // pointCount
 
@@ -14,7 +14,7 @@ table! {
 
 table! {
     @position
-    #[doc = "Glyph attachments."]
+    /// Glyph attachments.
     pub Attachments { // AttachList
         coverage_offset (u16), // coverageOffset
         count           (u16), // glyphCount
@@ -78,7 +78,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A ligature."]
+    /// A ligature.
     pub Ligature { // LigGlyph
         caret_count (u16), // caretCount
 
@@ -94,7 +94,7 @@ table! {
 
 table! {
     @position
-    #[doc = "Ligatures."]
+    /// Ligatures.
     pub Ligatures { // LigCaretList
         coverage_offset (u16), // coverageOffset
         count           (u16), // ligGlyphCount
@@ -115,7 +115,7 @@ table! {
 
 table! {
     @position
-    #[doc = "Marks."]
+    /// Marks.
     pub Marks { // MarkGlyphSets
         format (u16) = { 1 }, // format
         count  (u16), // markGlyphSetCount

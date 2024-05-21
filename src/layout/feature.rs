@@ -4,7 +4,7 @@ use truetype::Tag;
 
 table! {
     @position
-    #[doc = "A feature list."]
+    /// A feature list.
     pub Features { // FeatureList
         count (u16), // featureCount
 
@@ -19,7 +19,7 @@ table! {
 }
 
 table! {
-    #[doc = "A feature header."]
+    /// A feature header.
     #[derive(Copy)]
     pub Header { // FeatureRecord
         tag    (Tag), // featureTag
@@ -29,7 +29,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A feature record."]
+    /// A feature record.
     pub Record { // Feature
         parameter_offset   (u16), // featureParamsOffset
         lookup_index_count (u16), // lookupIndexCount
@@ -50,7 +50,7 @@ table! {
 }
 
 table! {
-    #[doc = "Feature variations."]
+    /// Feature variations.
     #[derive(Copy)]
     pub Variations { // FeatureVariations
         major_version (u16) = { 1 }, // MajorVersion

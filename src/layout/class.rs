@@ -14,7 +14,7 @@ pub enum Class {
 }
 
 table! {
-    #[doc = "A class in format 1."]
+    /// A class in format 1.
     pub Class1 { // ClassDefFormat1
         format         (u16    ), // classFormat
         start_glyph_id (GlyphID), // startGlyphID
@@ -27,7 +27,7 @@ table! {
 }
 
 table! {
-    #[doc = "A class in format 2."]
+    /// A class in format 2.
     pub Class2 { // ClassDefFormat2
         format       (u16), // classFormat
         record_count (u16), // classRangeCount
@@ -39,7 +39,7 @@ table! {
 }
 
 table! {
-    #[doc = "A class record."]
+    /// A class record.
     #[derive(Copy)]
     pub Record { // ClassRangeRecord
         start_glyph_id (GlyphID), // startGlyphID

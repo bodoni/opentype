@@ -3,7 +3,7 @@
 use truetype::Tag;
 
 table! {
-    #[doc = "A language-system header."]
+    /// A language-system header.
     pub Header { // LangSysRecord
         tag    (Tag), // langSysTag
         offset (u16), // langSysOffset
@@ -11,7 +11,7 @@ table! {
 }
 
 table! {
-    #[doc = "A language-system record."]
+    /// A language-system record.
     pub Record { // LangSys
         lookup_order_offset    (u16) = { 0 }, // lookupOrderOffset
         required_feature_index (u16), // requiredFeatureIndex

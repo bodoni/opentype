@@ -18,7 +18,7 @@ pub enum Context {
 
 table! {
     @position
-    #[doc = "A contextual lookup in format 1."]
+    /// A contextual lookup in format 1.
     pub Context1 { // SequenceContextFormat1
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
@@ -40,7 +40,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A contextual lookup in format 2."]
+    /// A contextual lookup in format 2.
     pub Context2 { // SequenceContextFormat2
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
@@ -67,7 +67,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A contextual lookup in format 3."]
+    /// A contextual lookup in format 3.
     pub Context3 { // SequenceContextFormat3
         format       (u16), // format
         glyph_count  (u16), // glyphCount
@@ -100,7 +100,7 @@ pub enum ChainedContext {
 
 table! {
     @position
-    #[doc = "A chained contextual lookup in format 1."]
+    /// A chained contextual lookup in format 1.
     pub ChainedContext1 { // ChainedSequenceContextFormat1
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
@@ -122,7 +122,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A chained contextual lookup in format 2."]
+    /// A chained contextual lookup in format 2.
     pub ChainedContext2 { // ChainedSequenceContextFormat2
         format                (u16), // format
         coverage_offset       (u16), // coverageOffset
@@ -159,7 +159,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A chained contextual lookup in format 3."]
+    /// A chained contextual lookup in format 3.
     pub ChainedContext3 { // ChainedSequenceContextFormat3
         format               (u16), // format
         backward_glyph_count (u16), // backtrackGlyphCount
@@ -201,7 +201,7 @@ table! {
 }
 
 table! {
-    #[doc = "A record."]
+    /// A record.
     pub Record { // SequenceRule
         glyph_count  (u16), // glyphCount
         record_count (u16), // seqLookupCount
@@ -221,7 +221,7 @@ table! {
 
 table! {
     @position
-    #[doc = "Records."]
+    /// Records.
     pub Records { // SequenceRuleSet
         count (u16), // seqRuleCount
 
@@ -236,7 +236,7 @@ table! {
 }
 
 table! {
-    #[doc = "A class record."]
+    /// A class record.
     pub ClassRecord { // ClassSequenceRule
         glyph_count  (u16), // glyphCount
         record_count (u16), // seqLookupCount
@@ -256,7 +256,7 @@ table! {
 
 table! {
     @position
-    #[doc = "Class records."]
+    /// Class records.
     pub ClassRecords { // ClassSequenceRuleSet
         count (u16), // classSeqRuleCount
 
@@ -271,7 +271,7 @@ table! {
 }
 
 table! {
-    #[doc = "A chained record."]
+    /// A chained record.
     pub ChainedRecord { // ChainedSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
@@ -304,7 +304,7 @@ table! {
 
 table! {
     @position
-    #[doc = "Chained records."]
+    /// Chained records.
     pub ChainedRecords { // ChainedSequenceRuleSet
         count (u16), // chainedSeqRuleCount
 
@@ -319,7 +319,7 @@ table! {
 }
 
 table! {
-    #[doc = "A chained class record."]
+    /// A chained class record.
     pub ChainedClassRecord { // ChainedClassSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
@@ -352,7 +352,7 @@ table! {
 
 table! {
     @position
-    #[doc = "Chained class records."]
+    /// Chained class records.
     pub ChainedClassRecords { // ChainedClassSequenceRuleSet
         count (u16), // chainedClassSeqRuleCount
 
@@ -367,7 +367,7 @@ table! {
 }
 
 table! {
-    #[doc = "A lookup record."]
+    /// A lookup record.
     #[derive(Copy)]
     pub LookupRecord { // SequenceLookupRecord
         index        (u16), // sequenceIndex

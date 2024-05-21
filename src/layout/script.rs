@@ -6,7 +6,7 @@ use crate::layout::language;
 
 table! {
     @position
-    #[doc = "A script list."]
+    /// A script list.
     pub Scripts { // ScriptList
         count (u16), // scriptCount
 
@@ -21,7 +21,7 @@ table! {
 }
 
 table! {
-    #[doc = "A script header."]
+    /// A script header.
     #[derive(Copy)]
     pub Header { // ScriptRecord
         tag    (Tag), // scriptTag
@@ -31,7 +31,7 @@ table! {
 
 table! {
     @position
-    #[doc = "A script record."]
+    /// A script record.
     pub Record { // Script
         default_language_offset (u16), // defaultLangSysOffset
         language_count          (u16), // langSysCount

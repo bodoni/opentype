@@ -13,7 +13,7 @@ pub enum Correction {
 
 table! {
     @define
-    #[doc = "A device correction."]
+    /// A device correction.
     pub Device { // Device
         start_size (u16     ), // startSize
         end_size   (u16     ), // endSize
@@ -23,7 +23,7 @@ table! {
 }
 
 table! {
-    #[doc = "A variation correction."]
+    /// A variation correction.
     pub Variation { // VariationIndex
         outer_index (u16), // deltaSetOuterIndex
         inner_index (u16), // deltaSetInnerIndex

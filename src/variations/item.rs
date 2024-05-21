@@ -2,7 +2,7 @@
 
 table! {
     @position
-    #[doc = "An item variation store."]
+    /// An item variation store.
     pub Store { // ItemVariationStore
         format        (u16) = { 1 }, // format
         region_offset (u32), // offsetToVariationRegionList
@@ -19,7 +19,7 @@ table! {
 }
 
 table! {
-    #[doc = "A record of an item variation store."]
+    /// A record of an item variation store.
     pub Record { // ItemVariationData
         item_count        (u16), // itemCount
         short_delta_count (u16), // shortDeltaCount

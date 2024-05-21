@@ -18,7 +18,7 @@ pub enum Header {
 }
 
 table! {
-    #[doc = "The header of a color-palette table of version 0."]
+    /// The header of a color-palette table of version 0.
     pub Header0 {
         version       (u16) = { 0 }, // version
         entry_count   (u16), // numPaletteEntries
@@ -33,7 +33,7 @@ table! {
 }
 
 table! {
-    #[doc = "A color."]
+    /// A color.
     #[derive(Copy)]
     pub Color { // ColorRecord
         blue  (u8), // blue

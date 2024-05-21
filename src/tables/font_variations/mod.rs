@@ -7,7 +7,7 @@ use truetype::{q32, Result, Tag};
 
 table! {
     @define
-    #[doc = "A font-variations table."]
+    /// A font-variations table.
     pub FontVariations {
         header           (Header             ),
         axis_records     (Vec<AxisRecord>    ),
@@ -16,7 +16,7 @@ table! {
 }
 
 table! {
-    #[doc = "The header of a font-variations table."]
+    /// The header of a font-variations table.
     #[derive(Copy)]
     pub Header {
         major_version  (u16), // majorVersion
@@ -31,7 +31,7 @@ table! {
 }
 
 table! {
-    #[doc = "An axis record of a font-variations table."]
+    /// An axis record of a font-variations table.
     #[derive(Copy)]
     pub AxisRecord { // VariationAxisRecord
         tag           (Tag      ), // tag
@@ -45,7 +45,7 @@ table! {
 
 table! {
     @define
-    #[doc = "An instance record of a font-variations table."]
+    /// An instance record of a font-variations table.
     pub InstanceRecord { // InstanceRecord
         subfamily_name_id  (NameID       ), // subfamilyNameID
         flags              (InstanceFlags), // flags
@@ -55,7 +55,7 @@ table! {
 }
 
 flags! {
-    #[doc = "Axis flags."]
+    /// Axis flags.
     pub AxisFlags(u16) {
         0b0000_0000_0000_0001 => is_hidden,
         0b1111_1111_1111_1110 => is_invalid,
@@ -63,7 +63,7 @@ flags! {
 }
 
 flags! {
-    #[doc = "Instance flags."]
+    /// Instance flags.
     pub InstanceFlags(u16) {
         0b1111_1111_1111_1111 => is_invalid,
     }

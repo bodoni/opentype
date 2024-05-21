@@ -26,7 +26,7 @@ pub struct Record<T> { // Lookup
 }
 
 flags! {
-    #[doc = "Lookup flags."]
+    /// Lookup flags.
     pub Flags(u16) {
         0b0000_0000_0000_0001 => is_right_to_left,
         0b0000_0000_0000_0010 => should_ignore_base_glyphs,

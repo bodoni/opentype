@@ -127,7 +127,7 @@ table! {
         format                (u16), // format
         coverage_offset       (u16), // coverageOffset
         backward_class_offset (u16), // backtrackClassDefOffset
-        input_class_offset    (u16), // inputClassDefOffset
+        class_offset          (u16), // inputClassDefOffset
         forward_class_offset  (u16), // lookaheadClassDefOffset
         record_count          (u16), // chainedClassSeqRuleSetCount
 
@@ -143,8 +143,8 @@ table! {
             jump_take!(tape, position, this.backward_class_offset)
         },
 
-        input_class (Class) |this, tape, position| {
-            jump_take!(tape, position, this.input_class_offset)
+        class (Class) |this, tape, position| {
+            jump_take!(tape, position, this.class_offset)
         },
 
         forward_class (Class) |this, tape, position| {
@@ -168,10 +168,10 @@ table! {
             tape.take_given(this.backward_glyph_count as usize)
         },
 
-        input_glyph_count (u16), // inputGlyphCount
+        glyph_count (u16), // inputGlyphCount
 
-        input_coverage_offsets (Vec<u16>) |this, tape, _| { // inputCoverageOffsets
-            tape.take_given(this.input_glyph_count as usize)
+        coverage_offsets (Vec<u16>) |this, tape, _| { // inputCoverageOffsets
+            tape.take_given(this.glyph_count as usize)
         },
 
         forward_glyph_count (u16), // lookaheadGlyphCount
@@ -190,8 +190,8 @@ table! {
             jump_take!(tape, position, this.backward_glyph_count, this.backward_coverage_offsets)
         },
 
-        input_coverages (Vec<Coverage>) |this, tape, position| {
-            jump_take!(tape, position, this.input_glyph_count, this.input_coverage_offsets)
+        coverages (Vec<Coverage>) |this, tape, position| {
+            jump_take!(tape, position, this.glyph_count, this.coverage_offsets)
         },
 
         forward_coverages (Vec<Coverage>) |this, tape, position| {
@@ -279,13 +279,13 @@ table! {
             tape.take_given(this.backward_glyph_count as usize)
         },
 
-        input_glyph_count (u16), // inputGlyphCount
+        glyph_count (u16), // inputGlyphCount
 
-        input_glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
-            if this.input_glyph_count == 0 {
+        glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
+            if this.glyph_count == 0 {
                 raise!("found a malformed chained context record");
             }
-            tape.take_given(this.input_glyph_count as usize - 1)
+            tape.take_given(this.glyph_count as usize - 1)
         },
 
         forward_glyph_count (u16), // lookaheadGlyphCount
@@ -323,22 +323,22 @@ table! {
     pub ChainedClassRecord { // ChainedClassSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
-        backward_class_ids (Vec<u16>) |this, tape| { // backtrackSequence
+        backward_indices (Vec<u16>) |this, tape| { // backtrackSequence
             tape.take_given(this.backward_glyph_count as usize)
         },
 
-        input_glyph_count (u16), // inputGlyphCount
+        glyph_count (u16), // inputGlyphCount
 
-        input_class_ids (Vec<u16>) |this, tape| { // inputSequence
-            if this.input_glyph_count == 0 {
+        indices (Vec<u16>) |this, tape| { // inputSequence
+            if this.glyph_count == 0 {
                 raise!("found a malformed chained class context record");
             }
-            tape.take_given(this.input_glyph_count as usize - 1)
+            tape.take_given(this.glyph_count as usize - 1)
         },
 
         forward_glyph_count (u16), // lookaheadGlyphCount
 
-        forward_class_ids (Vec<u16>) |this, tape| { // lookaheadSequence
+        forward_indices (Vec<u16>) |this, tape| { // lookaheadSequence
             tape.take_given(this.forward_glyph_count as usize)
         },
 

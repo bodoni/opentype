@@ -201,7 +201,7 @@ table! {
 }
 
 table! {
-    /// A record.
+    /// A context record.
     pub Record { // SequenceRule
         glyph_count  (u16), // glyphCount
         record_count (u16), // seqLookupCount
@@ -221,7 +221,7 @@ table! {
 
 table! {
     @position
-    /// Records.
+    /// Context records.
     pub Records { // SequenceRuleSet
         count (u16), // seqRuleCount
 
@@ -236,7 +236,7 @@ table! {
 }
 
 table! {
-    /// A class record.
+    /// A class context record.
     pub ClassRecord { // ClassSequenceRule
         glyph_count  (u16), // glyphCount
         record_count (u16), // seqLookupCount
@@ -256,7 +256,7 @@ table! {
 
 table! {
     @position
-    /// Class records.
+    /// Class context records.
     pub ClassRecords { // ClassSequenceRuleSet
         count (u16), // classSeqRuleCount
 
@@ -271,7 +271,7 @@ table! {
 }
 
 table! {
-    /// A chained record.
+    /// A chained context record.
     pub ChainedRecord { // ChainedSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
@@ -304,7 +304,7 @@ table! {
 
 table! {
     @position
-    /// Chained records.
+    /// Chained context records.
     pub ChainedRecords { // ChainedSequenceRuleSet
         count (u16), // chainedSeqRuleCount
 
@@ -319,7 +319,7 @@ table! {
 }
 
 table! {
-    /// A chained class record.
+    /// A chained class context record.
     pub ChainedClassRecord { // ChainedClassSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
@@ -352,7 +352,7 @@ table! {
 
 table! {
     @position
-    /// Chained class records.
+    /// Chained class context records.
     pub ChainedClassRecords { // ChainedClassSequenceRuleSet
         count (u16), // chainedClassSeqRuleCount
 
@@ -367,7 +367,7 @@ table! {
 }
 
 table! {
-    /// A lookup record.
+    /// A lookup context record.
     #[derive(Copy)]
     pub LookupRecord { // SequenceLookupRecord
         index        (u16), // sequenceIndex

@@ -208,7 +208,7 @@ table! {
 
         glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
             if this.glyph_count == 0 {
-                raise!("found a malformed record");
+                raise!("found a malformed context record");
             }
             tape.take_given(this.glyph_count as usize - 1)
         },
@@ -243,7 +243,7 @@ table! {
 
         indices (Vec<u16>) |this, tape| { // inputSequence
             if this.glyph_count == 0 {
-                raise!("found a malformed class record");
+                raise!("found a malformed class context record");
             }
             tape.take_given(this.glyph_count as usize - 1)
         },
@@ -283,7 +283,7 @@ table! {
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
-                raise!("found a malformed chained record");
+                raise!("found a malformed chained context record");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
@@ -331,7 +331,7 @@ table! {
 
         input_class_ids (Vec<u16>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
-                raise!("found a malformed chained class record");
+                raise!("found a malformed chained class context record");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },

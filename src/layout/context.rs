@@ -241,7 +241,7 @@ table! {
         glyph_count  (u16), // glyphCount
         record_count (u16), // seqLookupCount
 
-        class_ids (Vec<u16>) |this, tape| { // inputSequence
+        indices (Vec<u16>) |this, tape| { // inputSequence
             if this.glyph_count == 0 {
                 raise!("found a malformed class record");
             }

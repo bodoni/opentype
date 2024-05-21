@@ -20,7 +20,7 @@ table! {
         start_glyph_id (GlyphID), // startGlyphID
         glyph_count    (u16    ), // glyphCount
 
-        records (Vec<u16>) |this, tape| { // classValueArray
+        indices (Vec<u16>) |this, tape| { // classValueArray
             tape.take_given(this.glyph_count as usize)
         },
     }

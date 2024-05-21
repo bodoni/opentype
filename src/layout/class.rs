@@ -18,10 +18,10 @@ table! {
     pub Class1 { // ClassDefFormat1
         format         (u16    ), // classFormat
         start_glyph_id (GlyphID), // startGlyphID
-        count          (u16    ), // glyphCount
+        glyph_count    (u16    ), // glyphCount
 
         records (Vec<u16>) |this, tape| { // classValueArray
-            tape.take_given(this.count as usize)
+            tape.take_given(this.glyph_count as usize)
         },
     }
 }
@@ -29,11 +29,11 @@ table! {
 table! {
     #[doc = "A class in format 2."]
     pub Class2 { // ClassDefFormat2
-        format (u16), // classFormat
-        count  (u16), // classRangeCount
+        format       (u16), // classFormat
+        record_count (u16), // classRangeCount
 
         records (Vec<Record>) |this, tape| { // classRangeRecords
-            tape.take_given(this.count as usize)
+            tape.take_given(this.record_count as usize)
         },
     }
 }

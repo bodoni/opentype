@@ -96,18 +96,18 @@ table! {
     pub AlternateSubstitution { // AlternateSubstFormat1
         format          (u16) = { 1 }, // SubstFormat
         coverage_offset (u16), // Coverage
-        rule_count      (u16), // AlternateSetCount
+        record_count    (u16), // AlternateSetCount
 
-        rule_offsets (Vec<u16>) |this, tape, _| { // AlternateSet
-            tape.take_given(this.rule_count as usize)
+        record_offsets (Vec<u16>) |this, tape, _| { // AlternateSet
+            tape.take_given(this.record_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        rules (Vec<Alternates>) |this, tape, position| {
-            jump_take!(tape, position, this.rule_count, this.rule_offsets)
+        records (Vec<Alternates>) |this, tape, position| {
+            jump_take!(tape, position, this.record_count, this.record_offsets)
         },
     }
 }
@@ -118,18 +118,18 @@ table! {
     pub LigatureSubstitution { // LigatureSubstFormat1
         format          (u16) = { 1 }, // substFormat
         coverage_offset (u16), // coverageOffset
-        rule_count      (u16), // ligatureSetCount
+        record_count    (u16), // ligatureSetCount
 
-        rule_offsets (Vec<u16>) |this, tape, _| { // ligatureSetOffsets
-            tape.take_given(this.rule_count as usize)
+        record_offsets (Vec<u16>) |this, tape, _| { // ligatureSetOffsets
+            tape.take_given(this.record_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        rules (Vec<Ligatures>) |this, tape, position| {
-            jump_take!(tape, position, this.rule_count, this.rule_offsets)
+        records (Vec<Ligatures>) |this, tape, position| {
+            jump_take!(tape, position, this.record_count, this.record_offsets)
         },
     }
 }

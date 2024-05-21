@@ -103,8 +103,8 @@ mod source_serif {
         assert_eq!(record.tables.len(), 1);
         match &record.tables[0] {
             &Type::LigatureSubstitution(ref table) => {
-                assert_eq!(table.rule_count, 1);
-                let table = &table.rules[0];
+                assert_eq!(table.record_count, 1);
+                let table = &table.records[0];
                 assert_eq!(table.count, 3);
                 let table = &table.records[0];
                 assert_eq!(table.glyph_count, 2);

@@ -16,11 +16,11 @@ pub enum Coverage {
 table! {
     #[doc = "A coverage in format 1."]
     pub Coverage1 { // CoverageFormat1
-        format (u16), // coverageFormat
-        count  (u16), // glyphCount
+        format      (u16), // coverageFormat
+        glyph_count (u16), // glyphCount
 
         records (Vec<GlyphID>) |this, tape| { // glyphArray
-            tape.take_given(this.count as usize)
+            tape.take_given(this.glyph_count as usize)
         },
     }
 }
@@ -28,11 +28,11 @@ table! {
 table! {
     #[doc = "A coverage in format 2."]
     pub Coverage2 { // CoverageFormat2
-        format (u16), // coverageFormat
-        count  (u16), // rangeCount
+        format      (u16), // coverageFormat
+        range_count (u16), // rangeCount
 
         records (Vec<Record>) |this, tape| { // rangeRecords
-            tape.take_given(this.count as usize)
+            tape.take_given(this.range_count as usize)
         },
     }
 }

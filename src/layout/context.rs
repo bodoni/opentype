@@ -22,18 +22,18 @@ table! {
     pub Context1 { // SequenceContextFormat1
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
-        rule_count      (u16), // seqRuleSetCount
+        record_count    (u16), // seqRuleSetCount
 
-        rule_offsets (Vec<u16>) |this, tape, _| { // seqRuleSetOffsets
-            tape.take_given(this.rule_count as usize)
+        record_offsets (Vec<u16>) |this, tape, _| { // seqRuleSetOffsets
+            tape.take_given(this.record_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        rules (Vec<Rules>) |this, tape, position| {
-            jump_take!(tape, position, this.rule_count, this.rule_offsets)
+        records (Vec<Records>) |this, tape, position| {
+            jump_take!(tape, position, this.record_count, this.record_offsets)
         },
     }
 }
@@ -45,10 +45,10 @@ table! {
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
         class_offset    (u16), // classDefOffset
-        rule_count      (u16), // classSeqRuleSetCount
+        record_count    (u16), // classSeqRuleSetCount
 
-        rule_offsets (Vec<u16>) |this, tape, _| { // classSeqRuleSetOffsets
-            tape.take_given(this.rule_count as usize)
+        record_offsets (Vec<u16>) |this, tape, _| { // classSeqRuleSetOffsets
+            tape.take_given(this.record_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
@@ -59,8 +59,8 @@ table! {
             jump_take!(tape, position, this.class_offset)
         },
 
-        rules (Vec<Option<ClassRules>>) |this, tape, position| {
-            jump_take_maybe!(tape, position, this.rule_count, this.rule_offsets)
+        records (Vec<Option<ClassRecords>>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.record_count, this.record_offsets)
         },
     }
 }
@@ -77,7 +77,7 @@ table! {
             tape.take_given(this.glyph_count as usize)
         },
 
-        records (Vec<SequenceLookup>) |this, tape, _| { // seqLookupRecords
+        records (Vec<LookupRecord>) |this, tape, _| { // seqLookupRecords
             tape.take_given(this.record_count as usize)
         },
 
@@ -104,18 +104,18 @@ table! {
     pub ChainedContext1 { // ChainedSequenceContextFormat1
         format          (u16), // format
         coverage_offset (u16), // coverageOffset
-        rule_count      (u16), // chainedSeqRuleSetCount
+        record_count    (u16), // chainedSeqRuleSetCount
 
-        rule_offsets (Vec<u16>) |this, tape, _| { // chainedSeqRuleSetOffsets
-            tape.take_given(this.rule_count as usize)
+        record_offsets (Vec<u16>) |this, tape, _| { // chainedSeqRuleSetOffsets
+            tape.take_given(this.record_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        rules (Vec<ChainedRules>) |this, tape, position| {
-            jump_take!(tape, position, this.rule_count, this.rule_offsets)
+        records (Vec<ChainedRecords>) |this, tape, position| {
+            jump_take!(tape, position, this.record_count, this.record_offsets)
         },
     }
 }
@@ -129,10 +129,10 @@ table! {
         backward_class_offset (u16), // backtrackClassDefOffset
         input_class_offset    (u16), // inputClassDefOffset
         forward_class_offset  (u16), // lookaheadClassDefOffset
-        rule_count            (u16), // chainedClassSeqRuleSetCount
+        record_count          (u16), // chainedClassSeqRuleSetCount
 
-        rule_offsets (Vec<u16>) |this, tape, _| { // chainedClassSeqRuleSetOffsets
-            tape.take_given(this.rule_count as usize)
+        record_offsets (Vec<u16>) |this, tape, _| { // chainedClassSeqRuleSetOffsets
+            tape.take_given(this.record_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
@@ -151,8 +151,8 @@ table! {
             jump_take!(tape, position, this.forward_class_offset)
         },
 
-        rules (Vec<Option<ChainedClassRules>>) |this, tape, position| {
-            jump_take_maybe!(tape, position, this.rule_count, this.rule_offsets)
+        records (Vec<Option<ChainedClassRecords>>) |this, tape, position| {
+            jump_take_maybe!(tape, position, this.record_count, this.record_offsets)
         },
     }
 }
@@ -182,7 +182,7 @@ table! {
 
         record_count (u16), // seqLookupCount
 
-        records (Vec<SequenceLookup>) |this, tape, _| { // seqLookupRecords
+        records (Vec<LookupRecord>) |this, tape, _| { // seqLookupRecords
             tape.take_given(this.record_count as usize)
         },
 
@@ -201,19 +201,19 @@ table! {
 }
 
 table! {
-    #[doc = "A rule."]
-    pub Rule { // SequenceRule
+    #[doc = "A record."]
+    pub Record { // SequenceRule
         glyph_count  (u16), // glyphCount
         record_count (u16), // seqLookupCount
 
         glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
             if this.glyph_count == 0 {
-                raise!("found a malformed rule");
+                raise!("found a malformed record");
             }
             tape.take_given(this.glyph_count as usize - 1)
         },
 
-        records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
+        records (Vec<LookupRecord>) |this, tape| { // seqLookupRecords
             tape.take_given(this.record_count as usize)
         },
     }
@@ -221,34 +221,34 @@ table! {
 
 table! {
     @position
-    #[doc = "Rules."]
-    pub Rules { // SequenceRuleSet
+    #[doc = "Records."]
+    pub Records { // SequenceRuleSet
         count (u16), // seqRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // seqRuleOffsets
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<Rule>) |this, tape, position| {
+        records (Vec<Record>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }
 
 table! {
-    #[doc = "A class rule."]
-    pub ClassRule { // ClassSequenceRule
+    #[doc = "A class record."]
+    pub ClassRecord { // ClassSequenceRule
         glyph_count  (u16), // glyphCount
         record_count (u16), // seqLookupCount
 
         class_ids (Vec<u16>) |this, tape| { // inputSequence
             if this.glyph_count == 0 {
-                raise!("found a malformed class rule");
+                raise!("found a malformed class record");
             }
             tape.take_given(this.glyph_count as usize - 1)
         },
 
-        records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
+        records (Vec<LookupRecord>) |this, tape| { // seqLookupRecords
             tape.take_given(this.record_count as usize)
         },
     }
@@ -256,23 +256,23 @@ table! {
 
 table! {
     @position
-    #[doc = "Class rules."]
-    pub ClassRules { // ClassSequenceRuleSet
+    #[doc = "Class records."]
+    pub ClassRecords { // ClassSequenceRuleSet
         count (u16), // classSeqRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // classSeqRuleOffsets
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<ClassRule>) |this, tape, position| {
+        records (Vec<ClassRecord>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }
 
 table! {
-    #[doc = "A chained rule."]
-    pub ChainedRule { // ChainedSequenceRule
+    #[doc = "A chained record."]
+    pub ChainedRecord { // ChainedSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
         backward_glyph_ids (Vec<GlyphID>) |this, tape| { // backtrackSequence
@@ -283,7 +283,7 @@ table! {
 
         input_glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
-                raise!("found a malformed chained rule");
+                raise!("found a malformed chained record");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
@@ -296,7 +296,7 @@ table! {
 
         record_count (u16), // seqLookupCount
 
-        records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
+        records (Vec<LookupRecord>) |this, tape| { // seqLookupRecords
             tape.take_given(this.record_count as usize)
         },
     }
@@ -304,23 +304,23 @@ table! {
 
 table! {
     @position
-    #[doc = "Chained rules."]
-    pub ChainedRules { // ChainedSequenceRuleSet
+    #[doc = "Chained records."]
+    pub ChainedRecords { // ChainedSequenceRuleSet
         count (u16), // chainedSeqRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // chainedSeqRuleOffsets
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<ChainedRule>) |this, tape, position| {
+        records (Vec<ChainedRecord>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }
 
 table! {
-    #[doc = "A chained class rule."]
-    pub ChainedClassRule { // ChainedClassSequenceRule
+    #[doc = "A chained class record."]
+    pub ChainedClassRecord { // ChainedClassSequenceRule
         backward_glyph_count (u16), // backtrackGlyphCount
 
         backward_class_ids (Vec<u16>) |this, tape| { // backtrackSequence
@@ -331,7 +331,7 @@ table! {
 
         input_class_ids (Vec<u16>) |this, tape| { // inputSequence
             if this.input_glyph_count == 0 {
-                raise!("found a malformed chained class rule");
+                raise!("found a malformed chained class record");
             }
             tape.take_given(this.input_glyph_count as usize - 1)
         },
@@ -344,7 +344,7 @@ table! {
 
         record_count (u16), // seqLookupCount
 
-        records (Vec<SequenceLookup>) |this, tape| { // seqLookupRecords
+        records (Vec<LookupRecord>) |this, tape| { // seqLookupRecords
             tape.take_given(this.record_count as usize)
         },
     }
@@ -352,26 +352,26 @@ table! {
 
 table! {
     @position
-    #[doc = "Chained class rules."]
-    pub ChainedClassRules { // ChainedClassSequenceRuleSet
+    #[doc = "Chained class records."]
+    pub ChainedClassRecords { // ChainedClassSequenceRuleSet
         count (u16), // chainedClassSeqRuleCount
 
         offsets (Vec<u16>) |this, tape, _| { // chainedClassSeqRuleOffsets
             tape.take_given(this.count as usize)
         },
 
-        records (Vec<ChainedClassRule>) |this, tape, position| {
+        records (Vec<ChainedClassRecord>) |this, tape, position| {
             jump_take!(tape, position, this.count, this.offsets)
         },
     }
 }
 
 table! {
-    #[doc = "A sequence–lookup."]
+    #[doc = "A lookup record."]
     #[derive(Copy)]
-    pub SequenceLookup { // SequenceLookupRecord
-        sequence_index (u16), // sequenceIndex
-        lookup_index   (u16), // lookupListIndex
+    pub LookupRecord { // SequenceLookupRecord
+        index        (u16), // sequenceIndex
+        lookup_index (u16), // lookupListIndex
     }
 }
 

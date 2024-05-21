@@ -73,7 +73,7 @@ mod source_serif {
         assert_eq!(record.tables.len(), 2);
         match &record.tables[0] {
             &Type::PairAdjustment(PairAdjustment::Format1(ref table)) => {
-                assert_eq!(table.rule_count, 65);
+                assert_eq!(table.record_count, 65);
             }
             _ => unreachable!(),
         }

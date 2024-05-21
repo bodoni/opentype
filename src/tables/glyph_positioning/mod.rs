@@ -91,22 +91,22 @@ table! {
         coverage_offset (u16  ), // coverageOffset
         value1_flags    (Flags), // valueFormat1
         value2_flags    (Flags), // valueFormat2
-        rule_count      (u16  ), // pairSetCount
+        record_count    (u16  ), // pairSetCount
 
-        rule_offsets (Vec<u16>) |this, tape, _| { // pairSetOffsets
-            tape.take_given(this.rule_count as usize)
+        record_offsets (Vec<u16>) |this, tape, _| { // pairSetOffsets
+            tape.take_given(this.record_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        rules (Vec<Pair1s>) |this, tape, position| {
+        records (Vec<Pair1s>) |this, tape, position| {
             jump_take_given!(
                 tape,
                 position,
-                this.rule_count,
-                this.rule_offsets,
+                this.record_count,
+                this.record_offsets,
                 (this.value1_flags, this.value2_flags)
             )
         },
@@ -126,7 +126,7 @@ table! {
         class1_count    (u16  ), // class1Count
         class2_count    (u16  ), // class2Count
 
-        rules (Vec<Pair2s>) |this, tape, position| { // class1Records
+        records (Vec<Pair2s>) |this, tape, position| { // class1Records
             (0..this.class1_count)
                 .map(|_| tape.take_given((position, this.class2_count, this.value1_flags, this.value2_flags)))
                 .collect()
@@ -174,8 +174,8 @@ table! {
         mark_coverage_offset (u16), // markCoverageOffset
         base_coverage_offset (u16), // baseCoverageOffset
         mark_class_count     (u16), // markClassCount
-        mark_offset          (u16), // markArrayOffset
-        base_offset          (u16), // baseArrayOffset
+        marks_offset         (u16), // markArrayOffset
+        bases_offset         (u16), // baseArrayOffset
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -186,11 +186,11 @@ table! {
         },
 
         marks (Mark1s) |this, tape, position| {
-            jump_take!(tape, position, this.mark_offset)
+            jump_take!(tape, position, this.marks_offset)
         },
 
         bases (Bases) |this, tape, position| {
-            jump_take_given!(tape, position, this.base_offset, this.mark_class_count)
+            jump_take_given!(tape, position, this.bases_offset, this.mark_class_count)
         },
     }
 }
@@ -203,8 +203,8 @@ table! {
         mark_coverage_offset     (u16), // markCoverageOffset
         ligature_coverage_offset (u16), // ligatureCoverageOffset
         mark_class_count         (u16), // markClassCount
-        mark_offset              (u16), // markArrayOffset
-        ligature_offset          (u16), // ligatureArrayOffset
+        marks_offset             (u16), // markArrayOffset
+        ligatures_offset         (u16), // ligatureArrayOffset
 
         mark_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark_coverage_offset)
@@ -215,11 +215,11 @@ table! {
         },
 
         marks (Mark1s) |this, tape, position| {
-            jump_take!(tape, position, this.mark_offset)
+            jump_take!(tape, position, this.marks_offset)
         },
 
         ligatures (Ligatures) |this, tape, position| {
-            jump_take_given!(tape, position, this.ligature_offset, this.mark_class_count)
+            jump_take_given!(tape, position, this.ligatures_offset, this.mark_class_count)
         },
     }
 }
@@ -232,8 +232,8 @@ table! {
         mark1_coverage_offset (u16), // mark1CoverageOffset
         mark2_coverage_offset (u16), // mark2CoverageOffset
         mark_class_count      (u16), // markClassCount
-        mark1_offset          (u16), // mark1ArrayOffset
-        mark2_offset          (u16), // mark2ArrayOffset
+        mark1s_offset         (u16), // mark1ArrayOffset
+        mark2s_offset         (u16), // mark2ArrayOffset
 
         mark1_coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.mark1_coverage_offset)
@@ -244,11 +244,11 @@ table! {
         },
 
         mark1s (Mark1s) |this, tape, position| {
-            jump_take!(tape, position, this.mark1_offset)
+            jump_take!(tape, position, this.mark1s_offset)
         },
 
         mark2s (Mark2s) |this, tape, position| {
-            jump_take_given!(tape, position, this.mark2_offset, this.mark_class_count)
+            jump_take_given!(tape, position, this.mark2s_offset, this.mark_class_count)
         },
     }
 }

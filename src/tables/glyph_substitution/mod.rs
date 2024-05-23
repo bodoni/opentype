@@ -72,20 +72,20 @@ table! {
     @position
     /// A multiple substitution.
     pub MultipleSubstitution { // MultipleSubstFormat1
-        format           (u16) = { 1 }, // SubstFormat
-        coverage_offset  (u16), // Coverage
-        sequence_count   (u16), // SequenceCount
+        format          (u16) = { 1 }, // SubstFormat
+        coverage_offset (u16), // Coverage
+        record_count    (u16), // SequenceCount
 
-        sequence_offsets (Vec<u16>) |this, tape, _| { // Sequence
-            tape.take_given(this.sequence_count as usize)
+        record_offsets (Vec<u16>) |this, tape, _| { // Sequence
+            tape.take_given(this.record_count as usize)
         },
 
         coverage (Coverage) |this, tape, position| {
             jump_take!(tape, position, this.coverage_offset)
         },
 
-        sequences (Vec<Sequence>) |this, tape, position| {
-            jump_take!(tape, position, this.sequence_count, this.sequence_offsets)
+        records (Vec<Sequence>) |this, tape, position| {
+            jump_take!(tape, position, this.record_count, this.record_offsets)
         },
     }
 }

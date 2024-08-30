@@ -71,14 +71,14 @@ table! {
     pub Context3 { // SequenceContextFormat3
         format       (u16), // format
         glyph_count  (u16), // glyphCount
-        record_count (u16), // seqLookupCount
+        action_count (u16), // seqLookupCount
 
         coverage_offsets (Vec<u16>) |this, tape, _| { // coverageOffsets
             tape.take_given(this.glyph_count as usize)
         },
 
-        records (Vec<LookupRecord>) |this, tape, _| { // seqLookupRecords
-            tape.take_given(this.record_count as usize)
+        actions (Vec<Action>) |this, tape, _| { // seqLookupRecords
+            tape.take_given(this.action_count as usize)
         },
 
         coverages (Vec<Coverage>) |this, tape, position| {
@@ -180,10 +180,10 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        record_count (u16), // seqLookupCount
+        action_count (u16), // seqLookupCount
 
-        records (Vec<LookupRecord>) |this, tape, _| { // seqLookupRecords
-            tape.take_given(this.record_count as usize)
+        actions (Vec<Action>) |this, tape, _| { // seqLookupRecords
+            tape.take_given(this.action_count as usize)
         },
 
         backward_coverages (Vec<Coverage>) |this, tape, position| {
@@ -204,7 +204,7 @@ table! {
     /// A context record.
     pub Record { // SequenceRule
         glyph_count  (u16), // glyphCount
-        record_count (u16), // seqLookupCount
+        action_count (u16), // seqLookupCount
 
         glyph_ids (Vec<GlyphID>) |this, tape| { // inputSequence
             if this.glyph_count == 0 {
@@ -213,8 +213,8 @@ table! {
             tape.take_given(this.glyph_count as usize - 1)
         },
 
-        records (Vec<LookupRecord>) |this, tape| { // seqLookupRecords
-            tape.take_given(this.record_count as usize)
+        actions (Vec<Action>) |this, tape| { // seqLookupRecords
+            tape.take_given(this.action_count as usize)
         },
     }
 }
@@ -239,7 +239,7 @@ table! {
     /// A class context record.
     pub ClassRecord { // ClassSequenceRule
         glyph_count  (u16), // glyphCount
-        record_count (u16), // seqLookupCount
+        action_count (u16), // seqLookupCount
 
         indices (Vec<u16>) |this, tape| { // inputSequence
             if this.glyph_count == 0 {
@@ -248,8 +248,8 @@ table! {
             tape.take_given(this.glyph_count as usize - 1)
         },
 
-        records (Vec<LookupRecord>) |this, tape| { // seqLookupRecords
-            tape.take_given(this.record_count as usize)
+        actions (Vec<Action>) |this, tape| { // seqLookupRecords
+            tape.take_given(this.action_count as usize)
         },
     }
 }
@@ -294,10 +294,10 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        record_count (u16), // seqLookupCount
+        action_count (u16), // seqLookupCount
 
-        records (Vec<LookupRecord>) |this, tape| { // seqLookupRecords
-            tape.take_given(this.record_count as usize)
+        actions (Vec<Action>) |this, tape| { // seqLookupRecords
+            tape.take_given(this.action_count as usize)
         },
     }
 }
@@ -342,10 +342,10 @@ table! {
             tape.take_given(this.forward_glyph_count as usize)
         },
 
-        record_count (u16), // seqLookupCount
+        action_count (u16), // seqLookupCount
 
-        records (Vec<LookupRecord>) |this, tape| { // seqLookupRecords
-            tape.take_given(this.record_count as usize)
+        actions (Vec<Action>) |this, tape| { // seqLookupRecords
+            tape.take_given(this.action_count as usize)
         },
     }
 }
@@ -367,11 +367,11 @@ table! {
 }
 
 table! {
-    /// A lookup context record.
+    /// A contextual action.
     #[derive(Copy)]
-    pub LookupRecord { // SequenceLookupRecord
-        index        (u16), // sequenceIndex
-        lookup_index (u16), // lookupListIndex
+    pub Action { // SequenceLookupRecord
+        position_index (u16), // sequenceIndex
+        lookup_index   (u16), // lookupListIndex
     }
 }
 

@@ -1,6 +1,6 @@
 [package]
 name = "opentype"
-version = "0.38.3"
+version = "0.38.4"
 edition = "2021"
 license = "Apache-2.0/MIT"
 authors = [
@@ -27,6 +27,6 @@ ignore-incomplete-marks = []
 ignore-invalid-checksums = []
 
 [dependencies]
-postscript = "0.18.4"
-truetype = "0.47.10"
+postscript = "0.18"
+truetype = "0.47"
 typeface = "0.4.3"

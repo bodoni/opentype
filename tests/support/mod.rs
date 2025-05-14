@@ -24,6 +24,7 @@ pub enum Fixture {
     AdobeVFPrototypeCFF,
     AdobeVFPrototypeTTF,
     CrimsonText,
+    KalniaGlaze,
     KaushanScript,
     LondrinaSolid,
     NotoColorEmoji,
@@ -37,6 +38,7 @@ impl Fixture {
             Fixture::AdobeVFPrototypeCFF => "AdobeVFPrototype.otf",
             Fixture::AdobeVFPrototypeTTF => "AdobeVFPrototype.ttf",
             Fixture::CrimsonText => "CrimsonText-Regular.ttf",
+            Fixture::KalniaGlaze => "KalniaGlaze[wdth,wght].ttf",
             Fixture::KaushanScript => "KaushanScript-Regular.ttf",
             Fixture::LondrinaSolid => "LondrinaSolid-Regular.ttf",
             Fixture::NotoColorEmoji => "NotoColorEmoji-Regular.ttf",
@@ -58,6 +60,10 @@ impl Fixture {
             },
             Fixture::CrimsonText => match table {
                 "GPOS" => 94952,
+                _ => unreachable!(),
+            },
+            Fixture::KalniaGlaze => match table {
+                "CPAL" => 148600,
                 _ => unreachable!(),
             },
             Fixture::KaushanScript => match table {
